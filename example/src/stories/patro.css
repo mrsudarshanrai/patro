@@ -1,0 +1,31 @@
+.App {
+  text-align: center;
+  height: 100vh;
+}
+
+._patro_container {
+  width: 265px;
+  height: 284px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+._patro_days, ._patro_dates {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+p {
+  margin: 0;
+  height: 32px;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: centere;
+}
+
+._patro_current_date {
+  background-color: red;
+}
