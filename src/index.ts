@@ -1,3 +1,3 @@
-import Datepicker from "Datepicker";
+import Calendar from "Calendar";
 
-export { Datepicker };
+export { Calendar };
