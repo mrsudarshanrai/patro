@@ -1,84 +1,110 @@
 import { useState, useEffect } from "react";
 import {
-  CURR_MONTH,
-  CURR_YEAR,
-  getMonthDays,
+  getDates,
   getMonth,
   getMonthFirstDay,
-} from "../utils";
+  createDateArrayOfLength,
+  getPrevMonthDatesOffset,
+  getNextMonthDatesOffset,
+  buildDate,
+} from "../utils/dateUtils";
+
+import { current_month, current_year, weeks_days_count } from "../config";
 
 type Imonth = [
   dates: Array<any>,
-  month: string,
-  currYear: number,
+  dateObj: {
+    year: number;
+    month: number;
+    monthName: string;
+    dateString: Date;
+  },
   nextMonth: () => void,
   prevMonth: () => void
 ];
-const useCalendarData = (date?: Date): Imonth => {
-  const [currMonth, setCurrMonth] = useState(CURR_MONTH);
-  const [currYear, setCurrYear] = useState(CURR_YEAR);
 
-  const monthDays = getMonthDays(currMonth, currYear);
-  const month = getMonth(currMonth);
-  const monthFirstDays = getMonthFirstDay(currMonth, currYear);
+const useCalendarData = (date?: Date, isAd?: boolean): Imonth => {
+  let cells: any = [];
+  const dates: any = [];
+  const [year, setYear] = useState(current_year);
+  const [month, setMonth] = useState(current_month);
+
+  const [nextMonthDates, setNextMonthDates] = useState<Array<React.ReactNode>>(
+    []
+  );
 
   useEffect(() => {
     if (date && "getMonth" in date) {
-      setCurrMonth(date.getMonth() + 1);
-      setCurrYear(date.getFullYear());
+      setMonth(date.getMonth() + 1);
+      setYear(date.getFullYear());
     }
   }, [date]);
 
-  const arr: any = [];
-  const blanks: any = [];
-  let cells: any = [];
-  const dates: any = [];
+  const previous_month_Dates_count = getDates(month - 1, year);
+  const current_month_dates_count = getDates(month, year);
+  const next_month_dates_count = getDates(month + 1, year);
 
-  for (let i = 0; i < monthFirstDays - 1; i++) {
-    blanks.push(<p className="_patro_dates_date"></p>);
-  }
-  for (let j = 1; j <= monthDays; j++) {
-    arr.push(
-      <p
-        className={`${
-          date?.getDate() === j
-            ? "_patro_current_date _patro_dates_date"
-            : "_patro_dates_date"
-        }`}
-      >
-        {j}
-      </p>
+  const getMonthStartDayIndex = getMonthFirstDay(month, year);
+  const nextMonthStartDay = getMonthFirstDay(month + 1, year);
+
+  const previous_month_dates = getPrevMonthDatesOffset(
+    previous_month_Dates_count,
+    getMonthStartDayIndex
+  );
+
+  useEffect(() => {
+    const next_month_dates = getNextMonthDatesOffset(
+      next_month_dates_count,
+      nextMonthStartDay
     );
-  }
+    setNextMonthDates(() => next_month_dates);
+  }, [month]);
 
-  [...blanks, ...arr].forEach((row, i) => {
-    if (i % 7 !== 0) {
-      cells.push(row);
-    } else {
-      dates.push(cells);
-      cells = [];
-      cells.push(row);
+  const current_month_dates = createDateArrayOfLength(
+    current_month_dates_count
+  );
+
+  [...previous_month_dates, ...current_month_dates, ...nextMonthDates].forEach(
+    (row, i) => {
+      if (i % weeks_days_count !== 0) {
+        cells.push(row);
+      } else {
+        dates.push(cells);
+        cells = [];
+        cells.push(row);
+      }
+      if (
+        i ===
+        [...previous_month_dates, ...current_month_dates, ...nextMonthDates]
+          .length -
+          1
+      ) {
+        dates.push(cells);
+      }
     }
-    if (i === [...blanks, ...arr].length - 1) {
-      dates.push(cells);
-    }
-  });
+  );
 
   const nextMonth = () => {
-    if (currMonth === 12) {
-      setCurrYear((prevYear) => prevYear + 1);
-      setCurrMonth(() => 1);
-    } else setCurrMonth((prev) => prev + 1);
+    if (month === 12) {
+      setYear((prevYear) => prevYear + 1);
+      setMonth(() => 1);
+    } else setMonth((prev) => prev + 1);
   };
 
   const prevMonth = () => {
-    if (currMonth <= 1) {
-      setCurrYear((prevYear) => prevYear - 1);
-      setCurrMonth(() => 12);
-    } else setCurrMonth((prev) => prev - 1);
+    if (month <= 1) {
+      setYear((prevYear) => prevYear - 1);
+      setMonth(() => 12);
+    } else setMonth((prev) => prev - 1);
   };
 
-  return [dates, month, currYear, nextMonth, prevMonth];
+  const dateObj = {
+    year,
+    month,
+    monthName: getMonth(month),
+    dateString: buildDate(year, month),
+  };
+  return [dates, dateObj, nextMonth, prevMonth];
 };
 
 export { useCalendarData };

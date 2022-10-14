@@ -80,9 +80,7 @@
       "pre-commit": "npm run format"
     }
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
+ 
   "files": [
     "dist",
     "package.json",

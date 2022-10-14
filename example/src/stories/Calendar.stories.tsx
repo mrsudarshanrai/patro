@@ -10,7 +10,7 @@ export default {
       options: ['AD', 'BS'],
       control: { type: 'radio' }
     },
-    onSelect: { action: 'onChange' }
+    onChange: { action: 'onChange' }
   },
 } as ComponentMeta<typeof CalendarStory>;
 

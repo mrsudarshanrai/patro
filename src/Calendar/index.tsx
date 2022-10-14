@@ -1,6 +1,6 @@
 import React from "react";
 import { useCalendarData } from "../hooks/useCalendarData";
-import { WEEK_DAYS } from "../utils";
+import { week_days } from "../config";
 import "../scss/style.scss";
 import { IReturn } from "types/IHooks/IUseCalendarData";
 
@@ -34,8 +34,14 @@ const IconPrev = () => (
   </svg>
 );
 
-const Calendar = () => {
-  const [dates, month, currYear, nextMonth, prevMonth] = useCalendarData();
+const Calendar = (props: any) => {
+  const { onChange } = props;
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData();
+  const { monthName, year } = dateObj || {};
+
+  const selectedDate = (date: any) => {
+    onChange && onChange(date);
+  };
 
   return (
     <div className="App">
@@ -48,7 +54,7 @@ const Calendar = () => {
             <IconPrev />
           </button>
           <h3 className="_patro_header_month">
-            {month} {currYear}
+            {monthName} {year}
           </h3>
           <button
             className="_patro_header_actionBtn"
@@ -58,16 +64,24 @@ const Calendar = () => {
           </button>
         </header>
         <div className="_patro_days">
-          {Object.values(WEEK_DAYS).map((day: string, i: number) => (
+          {Object.values(week_days).map((day: string, i: number) => (
             <div className="_patro_days_day" key={i + day}>
               {day}
             </div>
           ))}
         </div>
-        {dates.map((x: React.ReactNode, i: number) => {
+        {dates.map((date: any, i: number) => {
           return (
-            <div key={i + Math.random()} className="_patro_dates">
-              {x}
+            <div
+              key={i + Math.random()}
+              className="_patro_dates"
+              onClick={() => selectedDate(date[i])}
+            >
+              {date.map((item: any, i: number) => (
+                <p key={i * Math.random()} className={item.type}>
+                  {item.date}
+                </p>
+              ))}
             </div>
           );
         })}
