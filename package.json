@@ -29,9 +29,10 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "prepare": "run-s build",
-    "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "prepare": "run-s build && husky install",
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx,json}",
+    "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
+    "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
@@ -49,15 +50,16 @@
     "@types/node": "^16.0.0",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.39.0",
-    "@typescript-eslint/parser": "^5.39.0",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-react": "^7.19.0",
-    "husky": "^7.0.1",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
+    "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.31.10",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "husky": "^8.0.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.2",
+    "prettier": "^2.7.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-scripts": "^5.0.1",
@@ -80,7 +82,6 @@
       "pre-commit": "npm run format"
     }
   },
- 
   "files": [
     "dist",
     "package.json",

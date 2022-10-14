@@ -4,8 +4,7 @@
   padding: 15px;
   background-color: #fff;
   border-radius: 5px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 ._patro {
@@ -66,7 +65,7 @@
       border-left: 1px solid #f2f2f2;
     }
   }
-  &_current_month_date {
+  &_currentMonth_date {
     &:hover {
       background-color: $primary;
       color: $hover_date_color;
@@ -76,8 +75,8 @@
   &_date_offset {
     color: $offset_date;
   }
-}
-
-._patro_current_date {
-  background-color: red;
+  &_current_date {
+    background-color: $primary;
+    color: $white;
+  }
 }

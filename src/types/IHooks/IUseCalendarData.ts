@@ -1,13 +1,11 @@
-export namespace IUseCalendarData {
-  export interface IReturn {
-    dates: Array<any>;
-    nextMonth: () => void;
-    prevMonth: any;
-  }
+export interface IReturn {
+  dates: Array<any>
+  nextMonth: () => void
+  prevMonth: any
 }
 
 export interface IReturn {
-  dates: Array<any>;
-  nextMonth: () => void;
-  prevMonth: any;
+  dates: Array<any>
+  nextMonth: () => void
+  prevMonth: any
 }

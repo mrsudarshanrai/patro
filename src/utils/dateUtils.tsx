@@ -1,47 +1,48 @@
-import { current_year, current_month, months, weeks_days_count } from "config";
+import { currentYear, currentMonth, months, weeksDaysCount } from 'config'
 
-const zeroPad = (value: number | undefined) => ("0" + value).slice(-2);
+const zeroPad = (value: number | undefined) => ('0' + value).slice(-2)
 const buildDate = (year: number, month: number, date?: number) =>
-  new Date(`${year}-${zeroPad(month)}-${date || "01"}`);
+  new Date(`${year}-${zeroPad(month)}-${date || '01'}`)
 
-const getDates = (month = current_month, year = current_year) => {
-  const months30 = [4, 6, 9, 11];
-  const leapYear = year % 4 === 0;
-  return month === 2
-    ? leapYear
-      ? 29
-      : 28
-    : months30.includes(month)
-    ? 30
-    : 31;
-};
+const getDates = (month = currentMonth, year = currentYear) => {
+  const months30 = [4, 6, 9, 11]
+  const leapYear = year % 4 === 0
+  return month === 2 ? (leapYear ? 29 : 28) : months30.includes(month) ? 30 : 31
+}
 
-const getMonth = (month: number) => Object.keys(months)[month - 1];
+const getMonth = (month: number) => Object.keys(months)[month - 1]
 
-const getMonthFirstDay = (month = current_month, year = current_year) => {
-  return +new Date(`${year}-${zeroPad(month)}-01`).getDay();
-};
+const getMonthFirstDay = (month = currentMonth, year = currentYear) => {
+  return +new Date(`${year}-${zeroPad(month)}-01`).getDay()
+}
 
-const createDateArrayOfLength = (length: number) =>
-  Array.from({ length }, (_, i) => ({
+const createDateArrayOfLength = (length: number, month: number, currDate: any) => {
+  const { month: currMonth, date, year } = currDate
+  return Array.from({ length }, (_, i) => ({
     date: i + 1,
-    type: "_patro_dates_date _patro_dates_current_month_date",
-  }));
+    year,
+    month,
+    dateStrig: buildDate(year, month, i + 1),
+    type: `_patro_dates_date _patro_dates_currentMonth_date ${
+      month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
+    }`,
+  }))
+}
 
-const getPrevMonthDatesOffset = (month_count: number, length: number) => {
+const getPrevMonthDatesOffset = (monthCount: number, length: number) => {
   if (length != 0)
-    return Array.from({ length: month_count }, (_, i) => ({
+    return Array.from({ length: monthCount }, (_, i) => ({
       date: i + 1,
-      type: "_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset",
-    })).slice(-length);
-  return [];
-};
+      type: '_patro_dates_date _patro_dates_currentMonth_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
+    })).slice(-length)
+  return []
+}
 
-const getNextMonthDatesOffset = (month_count: number, length: number) =>
-  Array.from({ length: month_count }, (_, i) => ({
+const getNextMonthDatesOffset = (monthCount: number, length: number) =>
+  Array.from({ length: monthCount }, (_, i) => ({
     date: i + 1,
-    type: "_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset",
-  })).slice(0, weeks_days_count - length);
+    type: '_patro_dates_date _patro_dates_currentMonth_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
+  })).slice(0, weeksDaysCount - length)
 
 export {
   zeroPad,
@@ -52,4 +53,4 @@ export {
   createDateArrayOfLength,
   getPrevMonthDatesOffset,
   getNextMonthDatesOffset,
-};
+}
