@@ -1,6 +1,6 @@
 const currentYear = +new Date().getFullYear()
-
 const currentMonth = +new Date().getMonth() + 1
+const currentDate = +new Date().getDate() + 1
 
 const config = {
   en: {
@@ -69,4 +69,4 @@ const config = {
 
 const weeksDaysCount = Object.values(config.en.days).length
 
-export { currentYear, currentMonth, weeksDaysCount, config }
+export { currentYear, currentMonth, currentDate, weeksDaysCount, config }

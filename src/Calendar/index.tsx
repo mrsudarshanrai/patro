@@ -28,8 +28,8 @@ const IconPrev = () => (
 
 const Calendar = (props: ICalendar.IProps) => {
   const { onChange } = props
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date())
-  const { monthName, year } = dateObj || {}
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date('2022-11-01'))
+  const { monthName, year, bsMonthName, bsYear } = dateObj || {}
 
   const selectedDate = (date: IUseCalendarData.IDates) => {
     onChange && onChange(date)
@@ -42,8 +42,13 @@ const Calendar = (props: ICalendar.IProps) => {
           <button className='_patro_header_actionBtn' onClick={() => prevMonth()}>
             <IconPrev />
           </button>
-          <h3 className='_patro_header_month'>
-            {monthName} {year}
+          <h3 className='_patro_header_info'>
+            <p className='_patro_header_info_month_year'>
+              {monthName} {year}
+            </p>
+            <p className='_patro_header_info_month_year'>
+              {bsMonthName} {bsYear}
+            </p>
           </h3>
           <button className='_patro_header_actionBtn' onClick={() => nextMonth()}>
             <IconNext />

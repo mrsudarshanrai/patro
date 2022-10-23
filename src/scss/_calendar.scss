@@ -2,7 +2,7 @@
   width: 288px;
   height: 288px;
   padding: 15px;
-  background-color: #fff;
+  background-color: $white;
   border-radius: 5px;
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
@@ -11,14 +11,21 @@
   &_header {
     display: flex;
     justify-content: space-between;
+    height: 60px;
     &_actionBtn {
       outline: none;
       background-color: transparent;
       border: 0;
       cursor: pointer;
     }
-    &_month {
-      font-size: 14px;
+    &_info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      &_month_year {
+        font-size: 14px;
+        margin: 0 0 2px 0;
+      }
     }
   }
 }
@@ -45,10 +52,10 @@
   &:not(:first-child),
   :not(:nth-child(1)),
   :not(:last-child) {
-    border-bottom: 1px solid #f2f2f2;
+    border-bottom: 1px solid $date_border_color;
   }
   &:first-child {
-    border-top: 1px solid #f2f2f2;
+    border-top: 1px solid $date_border_color;
   }
   &_date {
     width: 100%;
@@ -60,7 +67,7 @@
     font-size: 14px;
     cursor: pointer;
     color: $date_color;
-    border-right: 1px solid #f2f2f2;
+    border-right: 1px solid $date_border_color;
     position: relative;
     sub {
       position: absolute;
@@ -69,10 +76,10 @@
       font-size: 7px;
     }
     &:first-child {
-      border-left: 1px solid #f2f2f2;
+      border-left: 1px solid $date_border_color;
     }
   }
-  &_currentMonth_date {
+  &_current_month_date {
     &:hover {
       background-color: $primary;
       color: $hover_date_color;

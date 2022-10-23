@@ -1,4 +1,8 @@
 import { dates } from '../dates/dates'
+import { config } from '../config'
+const {
+  np: { numbers },
+} = config
 
 const createDateString = (year: number, month: number, day: number) =>
   `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`
@@ -117,4 +121,12 @@ const bsToAd = (bsDate: string) => {
   return evaluateEnglishDate(startEnglishDate, daysDiff)
 }
 
-export { bsToAd, adToBs }
+const en2NpNumber = (value: string) =>
+  value
+    .split('')
+    .map((item) => numbers[item])
+    .join('')
+
+const remove1stZero = (value: string) => value.replace(/^0+/, '')
+
+export { bsToAd, adToBs, en2NpNumber, remove1stZero }

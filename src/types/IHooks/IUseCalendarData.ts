@@ -7,6 +7,8 @@ export namespace IUseCalendarData {
       monthName: string
       bsDate: string
       adDate: string
+      bsMonthName: string
+      bsYear: string
     },
     nextMonth: () => void,
     prevMonth: () => void,
@@ -23,6 +25,6 @@ export namespace IUseCalendarData {
     month?: number
     type: string
     adDate?: string
-    bsDate?: number
+    bsDate?: any
   }
 }
