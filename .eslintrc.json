@@ -29,6 +29,7 @@
             "error",
             "single"
         ],
+        "@typescript-eslint/no-namespace": "off",
         "no-duplicate-imports": "error"
     },
     "settings": {

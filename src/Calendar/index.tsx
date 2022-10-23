@@ -1,6 +1,12 @@
 import { useCalendarData } from '../hooks/useCalendarData'
-import { weekDays } from '../config'
+import { config } from '../config'
 import '../scss/style.scss'
+import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
+import { ICalendar } from 'types/ICalendar'
+
+const {
+  en: { days },
+} = config
 
 const IconNext = () => (
   <svg width='26' height='26' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -20,12 +26,12 @@ const IconPrev = () => (
   </svg>
 )
 
-const Calendar = (props: any) => {
-  const { onChange, date } = props
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date('2022-10-14'))
-  const { monthName, year, month } = dateObj || {}
+const Calendar = (props: ICalendar.IProps) => {
+  const { onChange } = props
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date())
+  const { monthName, year } = dateObj || {}
 
-  const selectedDate = (date: any) => {
+  const selectedDate = (date: IUseCalendarData.IDates) => {
     onChange && onChange(date)
   }
 
@@ -44,7 +50,7 @@ const Calendar = (props: any) => {
           </button>
         </header>
         <div className='_patro_days'>
-          {Object.values(weekDays).map((day: string, i: number) => (
+          {Object.values(days).map((day: string, i: number) => (
             <div className='_patro_days_day' key={i + day}>
               {day}
             </div>
@@ -53,16 +59,21 @@ const Calendar = (props: any) => {
         {dates.map((date: any, i: number) => {
           return (
             <div key={i + Math.random()} className='_patro_dates'>
-              {date.map((item: any, i: number) => (
-                <p
-                  title={item.dateStrig}
-                  onClick={() => selectedDate(item)}
-                  key={i * Math.random()}
-                  className={item.type}
-                >
-                  {item.date}
-                </p>
-              ))}
+              {date.map((item: IUseCalendarData.IDates, i: number) => {
+                return (
+                  <>
+                    <p
+                      title={item.adDate}
+                      onClick={() => selectedDate(item)}
+                      key={i * Math.random()}
+                      className={item.type}
+                    >
+                      {item.date}
+                      <sub>{item.bsDate}</sub>
+                    </p>
+                  </>
+                )
+              })}
             </div>
           )
         })}
