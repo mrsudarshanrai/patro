@@ -27,7 +27,7 @@
     "react-datepicker"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rm -rf ./dist && rollup -c",
     "dev": "rollup -c -w",
     "prepare": "run-s build && husky install",
     "lint": "eslint src/**/*.{js,jsx,ts,tsx,json}",
