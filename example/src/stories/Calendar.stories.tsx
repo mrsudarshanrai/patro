@@ -1,20 +1,20 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { DatePicker } from './Datepicker';
+import { CalendarStory } from './Calendar';
 
 export default {
-  title: 'Datepicker',
-  component: DatePicker,
+  title: 'Calendar',
+  component: CalendarStory,
   argTypes: {
     calendarType: {
       options: ['AD', 'BS'],
       control: { type: 'radio' }
     },
-    onSelect: { action: 'onChange' }
+    onChange: { action: 'onChange' }
   },
-} as ComponentMeta<typeof DatePicker>;
+} as ComponentMeta<typeof CalendarStory>;
 
-const Template: ComponentStory<typeof DatePicker> = (args) => <DatePicker {...args} />;
+const Template: ComponentStory<typeof CalendarStory> = (args) => <CalendarStory {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
