@@ -4,8 +4,9 @@ const {
   np: { numbers },
 } = config
 
-const createDateString = (year: number, month: number, day: number) =>
-  `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`
+const zeroPad = (value: number | undefined) => ('0' + value).slice(-2)
+const createDateString = (year: number, month: number, date?: number) =>
+  `${year}-${zeroPad(month)}-${date || '01'}`
 const startEnglishDate = '1921-04-13'
 
 /** data sanitizer */
@@ -13,7 +14,7 @@ const isDayValid = (day: number) => day > 32 || day < 1 || !day
 const isMonthValid = (month: number) => month > 12 || month < 1 || !month
 const isYearValid = (year: number) => !year || year.toString().length < 4
 
-const dateSanitizer = (date: string) => {
+const dateString2Obj = (date: string) => {
   const splittedDate = date.split('-')
   if (splittedDate.length !== 3) throw new Error('Date format is invalid')
 
@@ -33,8 +34,8 @@ const dateSanitizer = (date: string) => {
 const isBsYearValid = (year: number) => year < 1978 || year > 2099
 const isBsDayValid = (day: number, year: number, month: number) => day > dates[year][month]
 
-const sanitizeBsDate = (date: string) => {
-  const { year, month, day } = dateSanitizer(date)
+const validateBsDate = (date: string) => {
+  const { year, month, day } = dateString2Obj(date)
   if (isBsYearValid(year)) throw new Error('BS Date out of range')
 
   if (isBsDayValid(day, year, month)) throw new Error(`No ${day} day exits in this month.`)
@@ -47,8 +48,8 @@ const sanitizeBsDate = (date: string) => {
 const isAdYearValid = (year: number) => year > 2040
 const isAdMonthValid = (month: number) => month > 31
 
-const sanitizeAdDate = (date: string) => {
-  const { year, month, day } = dateSanitizer(date)
+const validateAdDate = (date: string) => {
+  const { year, month, day } = dateString2Obj(date)
 
   if (isAdYearValid(year)) throw new Error('AD Date out of range')
 
@@ -93,7 +94,7 @@ const evaluateEnglishDate = (date: string, days: number) => {
 
 const adToBs = (adDate: string) => {
   const startDate = new Date(startEnglishDate)
-  const today = new Date(sanitizeAdDate(adDate))
+  const today = new Date(validateAdDate(adDate))
   const daysDifference = Math.floor((today.getTime() - startDate.getTime()) / 86400000)
   if (daysDifference < 0) {
     throw new Error('AD Date out of range')
@@ -102,7 +103,7 @@ const adToBs = (adDate: string) => {
 }
 
 const bsToAd = (bsDate: string) => {
-  const [year, month, day] = sanitizeBsDate(bsDate)
+  const [year, month, day] = validateBsDate(bsDate)
     .split('-')
     .map((item) => parseInt(item))
   let daysDiff = 0
@@ -129,4 +130,14 @@ const en2NpNumber = (value: string) =>
 
 const remove1stZero = (value: string) => value.replace(/^0+/, '')
 
-export { bsToAd, adToBs, en2NpNumber, remove1stZero }
+export {
+  bsToAd,
+  adToBs,
+  en2NpNumber,
+  remove1stZero,
+  dateString2Obj,
+  validateBsDate,
+  validateAdDate,
+  zeroPad,
+  createDateString,
+}

@@ -1,19 +1,11 @@
 import { currentYear, currentMonth, weeksDaysCount, config } from 'config'
 import { IDateUtils } from 'types/IUtils/IDateUtils'
-import { adToBs, en2NpNumber } from 'utils'
+import { adToBs, createDateString, en2NpNumber, zeroPad } from 'utils'
 const {
   en: { months },
 } = config
 
-const zeroPad = (value: number | undefined) => ('0' + value).slice(-2)
-const buildDate = (year: number, month: number, date?: number) =>
-  `${year}-${zeroPad(month)}-${date || '01'}`
-
-const getDates = (month = currentMonth, year = currentYear) => {
-  const months30 = [4, 6, 9, 11]
-  const leapYear = year % 4 === 0
-  return month === 2 ? (leapYear ? 29 : 28) : months30.includes(month) ? 30 : 31
-}
+const getDates = (month = currentMonth, year = currentYear) => new Date(year, month, 0).getDate()
 
 const getMonth = (month: number) => Object.keys(months)[month - 1]
 
@@ -28,8 +20,8 @@ const createDateArrayOfLength = (...args: IDateUtils.ICreateDateArray_Params) =>
     date: i + 1,
     year,
     month,
-    adDate: buildDate(year, month, i + 1),
-    bsDate: en2NpNumber(adToBs(buildDate(year, month, i + 1)).split('-')[2]),
+    adDate: createDateString(year, month, i + 1),
+    bsDate: en2NpNumber(adToBs(createDateString(year, month, i + 1)).split('-')[2]),
     type: `_patro_dates_date _patro_dates_current_month_date ${
       month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
     }`,
@@ -44,7 +36,8 @@ const getPrevMonthDatesOffset = (...args: IDateUtils.IGetMonthOffset_Params) => 
       date: i + 1,
       year,
       month: month - 1,
-      bsDate: en2NpNumber(adToBs(buildDate(year, +prevMonth, i + 1)).split('-')[2]),
+      adDate: createDateString(year, month - 1, i + 1),
+      bsDate: en2NpNumber(adToBs(createDateString(year, +prevMonth, i + 1)).split('-')[2]),
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
     })).slice(-length)
   return []
@@ -56,14 +49,15 @@ const getNextMonthDatesOffset = (...args: IDateUtils.IGetMonthOffset_Params) => 
     date: i + 1,
     year,
     month: month + 1,
-    bsDate: en2NpNumber(adToBs(buildDate(year, month, i + 1)).split('-')[2]),
+    adDate: createDateString(year, month + 1, i + 1),
+    bsDate: en2NpNumber(adToBs(createDateString(year, month, i + 1)).split('-')[2]),
     type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
   })).slice(0, weeksDaysCount - length)
 }
 
 export {
   zeroPad,
-  buildDate,
+  createDateString,
   getDates,
   getMonthFirstDay,
   getMonth,

@@ -6,14 +6,12 @@ import {
   createDateArrayOfLength,
   getPrevMonthDatesOffset,
   getNextMonthDatesOffset,
-  buildDate,
-  zeroPad,
 } from '../utils/dateUtils'
 
 import { currentDate, currentMonth, currentYear, weeksDaysCount } from '../config'
 import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
-import { adToBs } from 'utils'
-import { getBsMonthName } from 'utils/bsDateUtils'
+import { adToBs, createDateString } from 'utils'
+import { getBsMonthName, getBsMonthStartingDay } from 'utils/bsDateUtils'
 
 const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
   let cells: IUseCalendarData.IDates[] = []
@@ -56,6 +54,7 @@ const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
     } else setMonth((prev) => prev - 1)
   }
 
+  /** prev, curr & next month AD dates  */
   const previousMonthDatesCount = getDates(month - 1, year)
   const currentMonthDatesCount = getDates(month, year)
   const nextMonthDatesCount = getDates(month + 1, year)
@@ -63,7 +62,7 @@ const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
   const getMonthStartDayIndex = getMonthFirstDay(month, year)
   const nextMonthStartDay = getMonthFirstDay(month + 1, year)
 
-  /** get date offsets */
+  /** get AD date offsets */
   const previousMonthDates = getPrevMonthDatesOffset(
     previousMonthDatesCount,
     getMonthStartDayIndex,
@@ -84,8 +83,10 @@ const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
     currDate,
   )
 
+  /**
+   * merge dates & create 3d array
+   */
   const rawDate = [...previousMonthDates, ...currentMonthDates, ...nextMonthDates]
-
   rawDate.forEach((row: IUseCalendarData.IDates, i) => {
     if (i % weeksDaysCount !== 0) {
       cells.push(row)
@@ -99,16 +100,21 @@ const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
     }
   })
 
-  const bsDate = adToBs(buildDate(year, month, date))
+  const bsDate = adToBs(createDateString(year, month, date))
+
   const dateObj = {
     year,
     month,
     monthName: getMonth(month),
-    adDate: buildDate(year, month, date),
+    adDate: createDateString(year, month, date),
     bsDate,
     bsMonthName: getBsMonthName(bsDate.split('-')[1]),
     bsYear: bsDate.split('-')[0],
   }
+  console.log(dates)
+  /** BS date */
+  const getBsMonthStartDayIndex = getBsMonthStartingDay(dates)
+
   return [dates, dateObj, nextMonth, prevMonth]
 }
 

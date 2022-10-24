@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useCalendarData } from '../hooks/useCalendarData'
 import { config } from '../config'
 import '../scss/style.scss'
@@ -28,10 +29,12 @@ const IconPrev = () => (
 
 const Calendar = (props: ICalendar.IProps) => {
   const { onChange } = props
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date('2022-11-01'))
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(selectedDate)
   const { monthName, year, bsMonthName, bsYear } = dateObj || {}
 
-  const selectedDate = (date: IUseCalendarData.IDates) => {
+  const onSelect = (date: IUseCalendarData.IDates) => {
+    setSelectedDate(() => new Date(date.adDate))
     onChange && onChange(date)
   }
 
@@ -69,7 +72,7 @@ const Calendar = (props: ICalendar.IProps) => {
                   <>
                     <p
                       title={item.adDate}
-                      onClick={() => selectedDate(item)}
+                      onClick={() => onSelect(item)}
                       key={i * Math.random()}
                       className={item.type}
                     >

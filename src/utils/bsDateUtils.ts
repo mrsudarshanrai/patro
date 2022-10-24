@@ -13,4 +13,13 @@ const getBsMonthName = (month: string) => {
   }`
 }
 
-export { getBsMonthName }
+const getBsMonthStartingDay = (arr: any) => {
+  for (let a = 0; a < arr.length; a++) {
+    const index = arr[a].findIndex((item: any) => item.bsDate === '१')
+    if (index > -1) {
+      return index
+    }
+  }
+}
+
+export { getBsMonthName, getBsMonthStartingDay }
