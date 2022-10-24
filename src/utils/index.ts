@@ -5,8 +5,9 @@ const {
 } = config
 
 const zeroPad = (value: number | undefined) => ('0' + value).slice(-2)
+
 const createDateString = (year: number, month: number, date?: number) =>
-  `${year}-${zeroPad(month)}-${date || '01'}`
+  `${year}-${zeroPad(month)}-${zeroPad(date) || '01'}`
 const startEnglishDate = '1921-04-13'
 
 /** data sanitizer */
