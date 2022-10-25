@@ -36,7 +36,7 @@ export default [
         failOnError: true,
         outputStyle: 'compressed',
       }),
-      terser(),
+      // terser(),
     ],
   },
 ]

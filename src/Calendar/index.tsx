@@ -30,7 +30,7 @@ const IconPrev = () => (
 const Calendar = (props: ICalendar.IProps) => {
   const { onChange } = props
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(selectedDate)
+  const [adDates, bsDates, dateObj, nextMonth, prevMonth] = useCalendarData(selectedDate)
   const { monthName, year, bsMonthName, bsYear } = dateObj || {}
 
   const onSelect = (date: IUseCalendarData.IDates) => {
@@ -64,22 +64,20 @@ const Calendar = (props: ICalendar.IProps) => {
             </div>
           ))}
         </div>
-        {dates.map((date: any, i: number) => {
+        {bsDates.map((date: any, i: number) => {
           return (
             <div key={i + Math.random()} className='_patro_dates'>
-              {date.map((item: IUseCalendarData.IDates, i: number) => {
+              {date.map((item: IUseCalendarData.IDates) => {
                 return (
-                  <>
-                    <p
-                      title={item.adDate}
-                      onClick={() => onSelect(item)}
-                      key={i * Math.random()}
-                      className={item.type}
-                    >
-                      {item.date}
-                      <sub>{item.bsDate}</sub>
-                    </p>
-                  </>
+                  <p
+                    title={item.adDate}
+                    onClick={() => onSelect(item)}
+                    key={+item.date * i}
+                    className={item.type}
+                  >
+                    {item.date}
+                    <sub>{item.bsDate}</sub>
+                  </p>
                 )
               })}
             </div>

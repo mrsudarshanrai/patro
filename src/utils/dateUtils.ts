@@ -55,6 +55,11 @@ const getNextMonthDatesOffset = (...args: IDateUtils.IGetMonthOffset_Params) => 
   })).slice(0, weeksDaysCount - length)
 }
 
+const switchYear = (year: number, month: number) => {
+  if (month > 12) return { year: year + 1, month: 1 }
+  else return { year, month }
+}
+
 export {
   zeroPad,
   createDateString,
@@ -64,4 +69,5 @@ export {
   createDateArrayOfLength,
   getPrevMonthDatesOffset,
   getNextMonthDatesOffset,
+  switchYear,
 }

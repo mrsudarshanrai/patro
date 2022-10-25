@@ -18,7 +18,6 @@ const isYearValid = (year: number) => !year || year.toString().length < 4
 const dateString2Obj = (date: string) => {
   const splittedDate = date.split('-')
   if (splittedDate.length !== 3) throw new Error('Date format is invalid')
-
   const [year, month, day] = date.split('-').map((item) => parseInt(item))
 
   if (isDayValid(day)) throw new Error('Day is invalid.')
