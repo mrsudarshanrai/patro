@@ -1,7 +1,6 @@
 export namespace IUseCalendarData {
   export type IReturn = [
     adDates: IDates[],
-    bsDates: IDates[],
     dateObj: {
       year: number
       month: number

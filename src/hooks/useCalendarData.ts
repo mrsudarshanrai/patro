@@ -6,8 +6,12 @@ import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
 import { adToBs, createDateString } from 'utils'
 import { getBsMonthName } from 'utils/bsDateUtils'
 import { getBsRawDates, getRawDate } from 'utils/date'
+import { ICalendar } from 'types/ICalendar'
 
-const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
+const useCalendarData = (
+  calendarType: ICalendar.calendarType,
+  defaultDate?: Date,
+): IUseCalendarData.IReturn => {
   const [year, setYear] = useState(currentYear)
   const [month, setMonth] = useState(currentMonth)
   const [date, setDate] = useState(currentDate)
@@ -59,7 +63,8 @@ const useCalendarData = (defaultDate?: Date): IUseCalendarData.IReturn => {
   /** BS date */
   const bsDates = getBsRawDates(bsDate, dates, year, month, date, currDate)
 
-  return [dates, bsDates, dateObj, nextMonth, prevMonth]
+  if (calendarType === 'BS') return [bsDates, dateObj, nextMonth, prevMonth]
+  return [dates, dateObj, nextMonth, prevMonth]
 }
 
 export { useCalendarData }

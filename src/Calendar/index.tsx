@@ -28,9 +28,9 @@ const IconPrev = () => (
 )
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange } = props
+  const { onChange, calendarType, showExtra } = props
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [adDates, bsDates, dateObj, nextMonth, prevMonth] = useCalendarData(selectedDate)
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate)
   const { monthName, year, bsMonthName, bsYear } = dateObj || {}
 
   const onSelect = (date: IUseCalendarData.IDates) => {
@@ -47,7 +47,7 @@ const Calendar = (props: ICalendar.IProps) => {
           </button>
           <h3 className='_patro_header_info'>
             <p className='_patro_header_info_month_year'>
-              {monthName} {year} testing
+              {monthName} {year}
             </p>
             <p className='_patro_header_info_month_year'>
               {bsMonthName} {bsYear}
@@ -64,7 +64,7 @@ const Calendar = (props: ICalendar.IProps) => {
             </div>
           ))}
         </div>
-        {bsDates.map((date: any, i: number) => {
+        {dates.map((date: any, i: number) => {
           return (
             <div key={i + Math.random()} className='_patro_dates'>
               {date.map((item: IUseCalendarData.IDates) => {
@@ -76,7 +76,7 @@ const Calendar = (props: ICalendar.IProps) => {
                     className={item.type}
                   >
                     {item.date}
-                    <sub>{item.bsDate}</sub>
+                    {showExtra && <sub>{item.bsDate}</sub>}
                   </p>
                 )
               })}
