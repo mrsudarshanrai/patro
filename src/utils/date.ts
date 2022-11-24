@@ -113,5 +113,4 @@ const getBsRawDates = (...args: any) => {
   })
   return dates
 }
-//
 export { getRawDate, getBsRawDates }
