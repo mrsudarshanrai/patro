@@ -21,7 +21,6 @@ const dateString2Obj = (date: string) => {
   const [year, month, day] = date.split('-').map((item) => parseInt(item))
 
   if (isDayValid(day)) throw new Error('Day is invalid.')
-
   if (isMonthValid(month)) throw new Error('Month is invalid.')
 
   if (isYearValid(year)) throw new Error('Year is invalid.')

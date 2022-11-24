@@ -62,7 +62,6 @@ const useCalendarData = (
   }
   /** BS date */
   const bsDates = getBsRawDates(bsDate, dates, year, month, date, currDate)
-
   if (calendarType === 'BS') return [bsDates, dateObj, nextMonth, prevMonth]
   return [dates, dateObj, nextMonth, prevMonth]
 }

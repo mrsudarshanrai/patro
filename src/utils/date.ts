@@ -76,11 +76,10 @@ const getBsRawDates = (...args: any) => {
   const [bsYear, bsMonth, _] = bsDate.split('-')
   const currentBsYear = bsDates[bsYear]
 
-  const bsMonthStartDayIndex = getBsMonthStartingDay(adDates)
+  const bsMonthStartDayIndex = getBsMonthStartingDay(getRawDate(year, month, date, currDate))
   const nextBsMonthStartDayIndex = getBsMonthStartingDay(
     getRawDate(year, month + 1, date, currDate),
   )
-
   const previousBsMonthDatesCount = currentBsYear[+remove1stZero(bsMonth) - 1]
   const currentBsMonthDatesCount = currentBsYear[remove1stZero(bsMonth)]
   const nextBsMonthDatesCount = currentBsYear[+remove1stZero(bsMonth) + 1]
@@ -91,13 +90,14 @@ const getBsRawDates = (...args: any) => {
     bsYear,
     bsMonth,
   )
-  const currentBsMonthDates = createBsMonths(currentBsMonthDatesCount, bsYear, bsMonth, _, currDate)
+  const currentBsMonthDates = createBsMonths(currentBsMonthDatesCount, bsYear, bsMonth)
   const nextMonthBsDates = getBsNextMonthDatesOffset(
     nextBsMonthDatesCount,
     nextBsMonthStartDayIndex,
-    year,
-    month,
+    bsYear,
+    bsMonth,
   )
+
   const rawDate = [...previousMonthBsDates, ...currentBsMonthDates, ...nextMonthBsDates]
   rawDate.forEach((row: IUseCalendarData.IDates, i) => {
     if (i % weeksDaysCount !== 0) {
@@ -113,5 +113,5 @@ const getBsRawDates = (...args: any) => {
   })
   return dates
 }
-
+//
 export { getRawDate, getBsRawDates }

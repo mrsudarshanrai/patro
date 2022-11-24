@@ -67,16 +67,16 @@ const Calendar = (props: ICalendar.IProps) => {
         {dates.map((date: any, i: number) => {
           return (
             <div key={i + Math.random()} className='_patro_dates'>
-              {date.map((item: IUseCalendarData.IDates) => {
+              {date.map((item: IUseCalendarData.IDates, index: number) => {
                 return (
                   <p
                     title={item.adDate}
                     onClick={() => onSelect(item)}
-                    key={+item.date * i}
+                    key={i + index}
                     className={item.type}
                   >
                     {item.date}
-                    {showExtra && <sub>{item.bsDate}</sub>}
+                    {showExtra && <sub>{item.extraDate}</sub>}
                   </p>
                 )
               })}

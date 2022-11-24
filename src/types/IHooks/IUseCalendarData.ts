@@ -25,6 +25,6 @@ export namespace IUseCalendarData {
     month?: number
     type: string
     adDate: string
-    bsDate?: any
+    extraDate?: any
   }
 }
