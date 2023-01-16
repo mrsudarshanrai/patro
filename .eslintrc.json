@@ -27,7 +27,7 @@
         "camelcase": "error",
         "spaced-comment": "error",
         "quotes": [
-            "error",
+            "warn",
             "single"
         ],
         "@typescript-eslint/no-namespace": "off",
