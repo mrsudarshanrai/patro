@@ -1,5 +1,4 @@
-import { dates } from '../dates/dates'
-import { config } from '../config'
+import { config, dates } from '../config'
 const {
   np: { numbers },
 } = config
@@ -31,12 +30,12 @@ const dateString2Obj = (date: string) => {
 
 /** BS date sanitizer */
 const isBsYearValid = (year: number) => year < 1978 || year > 2099
-const isBsDayValid = (day: number, year: number, month: number) =>{
-  return  day > dates[year].slice(1)[month]
+const isBsDayValid = (day: number, year: number, month: number) => {
+  return day > dates[year].slice(1)[month]
 }
 
 const validateBsDate = (date: string) => {
-  const { year, month, day } = dateString2Obj(date);
+  const { year, month, day } = dateString2Obj(date)
   if (isBsYearValid(year)) throw new Error('BS Date out of range')
 
   if (isBsDayValid(day, year, month)) throw new Error(`No ${day} day exits in this month.`)

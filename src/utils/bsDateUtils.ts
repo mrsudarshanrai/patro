@@ -29,7 +29,6 @@ type IGetPrevMonthDatesOffset = [monthCount: number, length: number, year: numbe
 const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
   const [monthCount, length, year, month] = args
   const { year: YEAR, month: MONTH } = switchYear(year, +month - 1)
-  console.log(monthCount)
   if (length != 0)
     return Array.from({ length: monthCount }, (_, i) => ({
       date: en2NpNumber(String(i + 1)),
@@ -49,8 +48,7 @@ const createBsMonths = (...args: ICreateBsMonths) => {
     date: en2NpNumber(String(i + 1)),
     year,
     month,
-    adDate: '1',
-    // adDate: bsToAd(createDateString(year, month, i + 1)),
+    adDate: bsToAd(createDateString(year, month, i + 1)),
     bsDate: createDateString(year, month, i + 1),
     type: '_patro_dates_date _patro_dates_current_month_date',
   }))
@@ -59,16 +57,14 @@ const createBsMonths = (...args: ICreateBsMonths) => {
 type IGetNextMonthDatesOffset = [monthCount: number, length: number, year: number, month: number]
 
 const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
-  // console.log('bsDate', adToBs('2023-01-16'))
   const [monthCount, length, year, month] = args
-  const { year: YEAR, month: MONTH } = switchYear(year, month )
+  const { year: YEAR, month: MONTH } = switchYear(year, month)
   return Array.from({ length: monthCount }, (_, i) => {
     return {
       date: en2NpNumber(String(i + 1)),
       year: YEAR,
       month: MONTH + 1,
-      adDate: '1',
-      // adDate: bsToAd(createDateString(YEAR, MONTH + 1, i + 1)),
+      adDate: bsToAd(createDateString(YEAR, MONTH + 1, i + 1)),
       bsDate: createDateString(YEAR, MONTH, i + 1),
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
     }

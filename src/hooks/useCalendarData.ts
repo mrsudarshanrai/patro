@@ -5,7 +5,7 @@ import { currentDate, currentMonth, currentYear } from '../config'
 import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
 import { adToBs, createDateString } from 'utils'
 import { getBsMonthName } from 'utils/bsDateUtils'
-import { getBsRawDates, getRawDate } from 'utils/date'
+import { getBsRawDates, getRawDate } from '../utils/date'
 import { ICalendar } from 'types/ICalendar'
 
 const useCalendarData = (
