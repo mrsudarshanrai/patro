@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useCalendarData } from '../hooks/useCalendarData'
 import { config } from '../config'
 import '../scss/style.scss'
@@ -27,11 +28,13 @@ const IconPrev = () => (
 )
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange } = props
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(new Date('2022-11-01'))
+  const { onChange, calendarType, showExtra } = props
+  const [selectedDate, setSelectedDate] = useState(new Date())
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate)
   const { monthName, year, bsMonthName, bsYear } = dateObj || {}
 
-  const selectedDate = (date: IUseCalendarData.IDates) => {
+  const onSelect = (date: IUseCalendarData.IDates) => {
+    setSelectedDate(() => new Date(date.adDate))
     onChange && onChange(date)
   }
 
@@ -44,7 +47,7 @@ const Calendar = (props: ICalendar.IProps) => {
           </button>
           <h3 className='_patro_header_info'>
             <p className='_patro_header_info_month_year'>
-              {monthName} {year} testing
+              {monthName} {year}
             </p>
             <p className='_patro_header_info_month_year'>
               {bsMonthName} {bsYear}
@@ -64,19 +67,17 @@ const Calendar = (props: ICalendar.IProps) => {
         {dates.map((date: any, i: number) => {
           return (
             <div key={i + Math.random()} className='_patro_dates'>
-              {date.map((item: IUseCalendarData.IDates, i: number) => {
+              {date.map((item: IUseCalendarData.IDates, index: number) => {
                 return (
-                  <>
-                    <p
-                      title={item.adDate}
-                      onClick={() => selectedDate(item)}
-                      key={i * Math.random()}
-                      className={item.type}
-                    >
-                      {item.date}
-                      <sub>{item.bsDate}</sub>
-                    </p>
-                  </>
+                  <p
+                    title={item.adDate}
+                    onClick={() => onSelect(item)}
+                    key={i + index}
+                    className={item.type}
+                  >
+                    {item.date}
+                    {showExtra && <sub>{item.extraDate}</sub>}
+                  </p>
                 )
               })}
             </div>
