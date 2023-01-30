@@ -64,7 +64,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
     color: $date_color;
     border-right: 1px solid $date_border_color;
@@ -73,7 +73,7 @@
       position: absolute;
       bottom: 1px;
       right: 2px;
-      font-size: 7px;
+      font-size: 9px;
     }
     &:first-child {
       border-left: 1px solid $date_border_color;

@@ -80,16 +80,19 @@ const getBsRawDates = (...args: any) => {
   const nextBsMonthStartDayIndex = getBsMonthStartingDay(
     getRawDate(year, month + 1, date, currDate),
   )
+
+  console.log(bsDate)
+  console.log(bsMonth)
   const { bsMonthCount: previousBsMonthDatesCount } = getBSMonthYear(
-    +remove1stZero(bsMonth) - 1,
+    parseInt(remove1stZero(bsMonth)) - 1,
     parseInt(bsYear),
   )
   const { bsMonthCount: currentBsMonthDatesCount } = getBSMonthYear(
-    +remove1stZero(bsMonth),
+    parseInt(remove1stZero(bsMonth)),
     parseInt(bsYear),
   )
   const { bsMonthCount: nextBsMonthDatesCount } = getBSMonthYear(
-    +remove1stZero(bsMonth) + 1,
+    parseInt(remove1stZero(bsMonth)) + 1,
     parseInt(bsYear),
   )
 

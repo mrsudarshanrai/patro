@@ -5,9 +5,7 @@ import '../scss/style.scss'
 import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
 import { ICalendar } from 'types/ICalendar'
 
-const {
-  en: { days },
-} = config
+const { en, np } = config
 
 const IconNext = () => (
   <svg width='26' height='26' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -58,15 +56,17 @@ const Calendar = (props: ICalendar.IProps) => {
           </button>
         </header>
         <div className='_patro_days'>
-          {Object.values(days).map((day: string, i: number) => (
-            <div className='_patro_days_day' key={i + day}>
-              {day}
-            </div>
-          ))}
+          {Object.values(calendarType === 'AD' ? en.days : np.days).map(
+            (day: string, i: number) => (
+              <div className='_patro_days_day' key={i + day}>
+                {day}
+              </div>
+            ),
+          )}
         </div>
         {dates.map((date: any, i: number) => {
           return (
-            <div key={i + Math.random()} className='_patro_dates'>
+            <div key={i} className='_patro_dates'>
               {date.map((item: IUseCalendarData.IDates, index: number) => {
                 return (
                   <p

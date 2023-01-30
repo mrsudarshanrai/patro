@@ -8,11 +8,10 @@ const {
 const getBsMonthName = (month: string) => {
   const parsedMonth = +remove1stZero(month)
   const npMonthArr = Object.keys(months)
-  return npMonthArr[parsedMonth - 1]
-  // const beforeMonthIndex = parsedMonth - 2
-  // return `${npMonthArr[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
-  //   npMonthArr[parsedMonth - 1]
-  // }`
+  const beforeMonthIndex = parsedMonth - 2
+  return `${npMonthArr[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
+    npMonthArr[parsedMonth - 1]
+  } - `
 }
 
 const getBsMonthStartingDay = (arr: any) => {
@@ -63,6 +62,7 @@ const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
       month: MONTH,
       adDate: bsToAd(createDateString(YEAR, MONTH, i + 1)),
       bsDate: createDateString(YEAR, MONTH, i + 1),
+      extraDate: bsToAd(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
     })).slice(-length)
   return []
@@ -84,6 +84,7 @@ const createBsMonths = (...args: ICreateBsMonths) => {
     month,
     adDate: bsToAd(createDateString(year, month, i + 1)),
     bsDate: createDateString(year, month, i + 1),
+    extraDate: bsToAd(createDateString(year, month, i + 1)).split('-')[2],
     type: '_patro_dates_date _patro_dates_current_month_date',
   }))
 }
@@ -107,6 +108,7 @@ const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
       month: MONTH + 1,
       adDate: bsToAd(createDateString(YEAR, MONTH, i + 1)),
       bsDate: createDateString(YEAR, MONTH, i + 1),
+      extraDate: bsToAd(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
     }
   }).slice(0, weeksDaysCount - length)

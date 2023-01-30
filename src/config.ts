@@ -1,6 +1,6 @@
 const currentYear = +new Date().getFullYear()
 const currentMonth = +new Date().getMonth() + 1
-const currentDate = +new Date().getDate() + 1
+const currentDate = +new Date().getDate()
 
 const config = {
   en: {
