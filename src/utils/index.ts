@@ -18,7 +18,6 @@ const dateString2Obj = (date: string) => {
   const splittedDate = date.split('-')
   if (splittedDate.length !== 3) throw new Error('Date format is invalid')
   const [year, month, day] = date.split('-').map((item) => parseInt(item))
-
   if (isDayValid(day)) throw new Error('Day is invalid.')
   if (isMonthValid(month)) throw new Error('Month is invalid.')
 
@@ -31,7 +30,9 @@ const dateString2Obj = (date: string) => {
 /** BS date sanitizer */
 const isBsYearValid = (year: number) => year < 1978 || year > 2099
 const isBsDayValid = (day: number, year: number, month: number) => {
-  return day > dates[year].slice(1)[month]
+  console.log(dates[year][month])
+
+  return day > dates[year][month]
 }
 
 const validateBsDate = (date: string) => {

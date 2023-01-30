@@ -14,6 +14,7 @@ import {
   createBsMonths,
   getBsPrevMonthDatesOffset,
   getBsNextMonthDatesOffset,
+  getBSMonthYear,
 } from './bsDateUtils'
 import { remove1stZero } from 'utils'
 
@@ -75,20 +76,28 @@ const getBsRawDates = (...args: any) => {
   const dates: any[] = []
   const [bsYear, bsMonth, _] = bsDate.split('-')
   const currentBsYear = bsDates[bsYear]
-
   const bsMonthStartDayIndex = getBsMonthStartingDay(getRawDate(year, month, date, currDate))
   const nextBsMonthStartDayIndex = getBsMonthStartingDay(
     getRawDate(year, month + 1, date, currDate),
   )
-  const previousBsMonthDatesCount = currentBsYear[+remove1stZero(bsMonth)]
-  const currentBsMonthDatesCount = currentBsYear[remove1stZero(bsMonth)]
-  const nextBsMonthDatesCount = currentBsYear[+remove1stZero(bsMonth) + 1]
+  const { bsMonthCount: previousBsMonthDatesCount } = getBSMonthYear(
+    +remove1stZero(bsMonth) - 1,
+    parseInt(bsYear),
+  )
+  const { bsMonthCount: currentBsMonthDatesCount } = getBSMonthYear(
+    +remove1stZero(bsMonth),
+    parseInt(bsYear),
+  )
+  const { bsMonthCount: nextBsMonthDatesCount } = getBSMonthYear(
+    +remove1stZero(bsMonth) + 1,
+    parseInt(bsYear),
+  )
 
   const previousMonthBsDates = getBsPrevMonthDatesOffset(
     previousBsMonthDatesCount,
     bsMonthStartDayIndex,
     bsYear,
-    +remove1stZero(bsMonth),
+    +remove1stZero(bsMonth) - 1,
   )
   const currentBsMonthDates = createBsMonths(
     currentBsMonthDatesCount,
@@ -99,7 +108,7 @@ const getBsRawDates = (...args: any) => {
     nextBsMonthDatesCount,
     nextBsMonthStartDayIndex,
     bsYear,
-    +remove1stZero(bsMonth),
+    +remove1stZero(bsMonth) + 1,
   )
 
   const rawDate = [...previousMonthBsDates, ...currentBsMonthDates, ...nextMonthBsDates]
