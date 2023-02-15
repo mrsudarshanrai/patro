@@ -2,13 +2,14 @@ export namespace IUseCalendarData {
   export type IReturn = [
     adDates: IDates[],
     dateObj: {
-      year: number
-      month: number
-      monthName: string
       bsDate: string
       adDate: string
-      bsMonthName: string
-      bsYear: string
+      headerMonths: {
+        month: string
+        oMonth: string
+        oYear: string
+        year: string
+      }
     },
     nextMonth: () => void,
     prevMonth: () => void,

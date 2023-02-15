@@ -1,7 +1,8 @@
+import { ICalendar } from 'types/ICalendar'
 import { config, dates } from '../config'
-const {
-  np: { numbers },
-} = config
+const { np, en } = config
+
+const isAd = (value: string) => value === 'AD'
 
 const zeroPad = (value: number | undefined) => ('0' + value).slice(-2)
 
@@ -30,8 +31,6 @@ const dateString2Obj = (date: string) => {
 /** BS date sanitizer */
 const isBsYearValid = (year: number) => year < 1978 || year > 2099
 const isBsDayValid = (day: number, year: number, month: number) => {
-  console.log(dates[year][month])
-
   return day > dates[year][month]
 }
 
@@ -126,10 +125,45 @@ const bsToAd = (bsDate: string) => {
 const en2NpNumber = (value: string) =>
   value
     .split('')
-    .map((item) => numbers[item])
+    .map((item) => np.numbers[item])
     .join('')
 
 const remove1stZero = (value: string) => value.replace(/^0+/, '')
+
+const getBsHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
+  const parsedBsMonth = parseInt(remove1stZero(bsMonth))
+  const enMonths = Object.values(en.months)
+  const beforeMonthIndex = adMonth - 1
+  return {
+    oMonth: `${enMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
+      enMonths[adMonth === 12 ? 0 : adMonth]
+    } - `,
+    month: Object.keys(np.months)[parsedBsMonth - 1],
+    oYear: adYear,
+    year: bsYear,
+  }
+}
+
+const getAdHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
+  const parsedBsMonth = parseInt(remove1stZero(bsMonth))
+  const npMonths = Object.keys(np.months)
+  const beforeMonthIndex = parsedBsMonth - 2
+  return {
+    oMonth: `${npMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
+      npMonths[parsedBsMonth - 1]
+    } - `,
+    month: Object.keys(en.months)[adMonth - 1],
+    oYear: bsYear,
+    year: adYear,
+  }
+}
+
+type IHeaderMonths = [bsMonth: string, adMonth: number, bsYear: string, adYear: string]
+
+const getHeaderMonths = (calendarType: ICalendar.calendarType, ...args: IHeaderMonths) => {
+  if (isAd(calendarType)) return getAdHeaderMonth(...args)
+  else return getBsHeaderMonth(...args)
+}
 
 export {
   bsToAd,
@@ -141,4 +175,7 @@ export {
   validateAdDate,
   zeroPad,
   createDateString,
+  getBsHeaderMonth,
+  getAdHeaderMonth,
+  getHeaderMonths,
 }

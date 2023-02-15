@@ -81,8 +81,6 @@ const getBsRawDates = (...args: any) => {
     getRawDate(year, month + 1, date, currDate),
   )
 
-  console.log(bsDate)
-  console.log(bsMonth)
   const { bsMonthCount: previousBsMonthDatesCount } = getBSMonthYear(
     parseInt(remove1stZero(bsMonth)) - 1,
     parseInt(bsYear),

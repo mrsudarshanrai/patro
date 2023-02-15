@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { getMonth } from '../utils/dateUtils'
 
 import { currentDate, currentMonth, currentYear } from '../config'
 import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
-import { adToBs, createDateString } from 'utils'
-import { getBsMonthName } from 'utils/bsDateUtils'
+import { adToBs, createDateString, getHeaderMonths } from 'utils'
 import { getBsRawDates, getRawDate } from '../utils/date'
 import { ICalendar } from 'types/ICalendar'
 
@@ -51,14 +49,14 @@ const useCalendarData = (
 
   const dates = getRawDate(year, month, date, currDate)
   const bsDate = adToBs(createDateString(year, month, date))
+  const [bsYear, bsMonth] = bsDate.split('-')
+
   const dateObj = {
-    year,
-    month,
-    monthName: getMonth(month),
     adDate: createDateString(year, month, date),
     bsDate,
-    bsMonthName: getBsMonthName(bsDate.split('-')[1]),
-    bsYear: bsDate.split('-')[0],
+    headerMonths: {
+      ...getHeaderMonths(calendarType, bsMonth, month, bsYear, String(year)),
+    },
   }
   /** BS date */
   const bsDates = getBsRawDates(bsDate, dates, year, month, date, currDate)

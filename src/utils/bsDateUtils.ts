@@ -5,15 +5,6 @@ const {
   np: { months },
 } = config
 
-const getBsMonthName = (month: string) => {
-  const parsedMonth = +remove1stZero(month)
-  const npMonthArr = Object.keys(months)
-  const beforeMonthIndex = parsedMonth - 2
-  return `${npMonthArr[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
-    npMonthArr[parsedMonth - 1]
-  } - `
-}
-
 const getBsMonthStartingDay = (arr: any) => {
   for (let a = 0; a < arr.length; a++) {
     const index = arr[a].findIndex((item: any) => item.extraDate === '०१')
@@ -48,12 +39,11 @@ type IGetPrevMonthDatesOffset = [monthCount: number, length: number, year: numbe
 const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
   const [monthCount, length, year, month] = args
   const { year: YEAR, month: MONTH } = switchYear(year, month)
-  const prevDates = {
-    length: monthCount,
-    MONTH,
-    YEAR,
-  }
-  console.log('prevDates', prevDates)
+  // const prevDates = {
+  //   length: monthCount,
+  //   MONTH,
+  //   YEAR,
+  // }
 
   if (length != 0)
     return Array.from({ length: monthCount }, (_, i) => ({
@@ -71,12 +61,11 @@ const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
 type ICreateBsMonths = [length: number, year: number, month: number]
 const createBsMonths = (...args: ICreateBsMonths) => {
   const [length, year, month] = args
-  const currentDates = {
-    length,
-    month,
-    year,
-  }
-  console.log('currentDates', currentDates)
+  // const currentDates = {
+  //   length,
+  //   month,
+  //   year,
+  // }
 
   return Array.from({ length }, (_, i) => ({
     date: en2NpNumber(String(i + 1)),
@@ -94,12 +83,11 @@ type IGetNextMonthDatesOffset = [monthCount: number, length: number, year: numbe
 const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
   const [monthCount, length, year, month] = args
   const { year: YEAR, month: MONTH } = switchYear(year, month)
-  const nextDates = {
-    length: monthCount,
-    MONTH,
-    YEAR,
-  }
-  console.log('nextDates', nextDates)
+  // const nextDates = {
+  //   length: monthCount,
+  //   MONTH,
+  //   YEAR,
+  // }
 
   return Array.from({ length: monthCount }, (_, i) => {
     return {
@@ -115,7 +103,6 @@ const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
 }
 
 export {
-  getBsMonthName,
   getBsMonthStartingDay,
   createBsMonths,
   getBsPrevMonthDatesOffset,
