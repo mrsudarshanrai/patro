@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { useCalendarData } from '../hooks/useCalendarData'
-import { config } from '../config'
-import '../scss/style.scss'
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
-import { ICalendar } from 'types/ICalendar'
+import { useState } from 'react';
+import { useCalendarData } from '../hooks/useCalendarData';
+import { config } from '../constants/dateConstants';
+import '../scss/style.scss';
+import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
+import { ICalendar } from 'types/ICalendar';
 
-const { en, np } = config
+const { en, np } = config;
 
 const IconNext = () => (
   <svg width='26' height='26' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -14,7 +14,7 @@ const IconNext = () => (
       fill='#121212'
     />
   </svg>
-)
+);
 
 const IconPrev = () => (
   <svg width='26' height='26' viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
@@ -23,20 +23,20 @@ const IconPrev = () => (
       fill='#121212'
     />
   </svg>
-)
+);
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange, calendarType = 'AD', showExtra } = props
-  const [selectedDate, setSelectedDate] = useState(new Date())
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate)
+  const { onChange, calendarType = 'AD', showExtra } = props;
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate);
   const {
     headerMonths: { month, oMonth, oYear, year },
-  } = dateObj || {}
+  } = dateObj || {};
 
   const onSelect = (date: IUseCalendarData.IDates) => {
-    setSelectedDate(() => new Date(date.adDate))
-    onChange && onChange(date)
-  }
+    setSelectedDate(() => new Date(date.adDate));
+    onChange && onChange(date);
+  };
 
   return (
     <div className='App'>
@@ -77,17 +77,17 @@ const Calendar = (props: ICalendar.IProps) => {
                     key={i + index}
                     className={item.type}
                   >
-                    {item.date}
+                    {item.dayOfMonth}
                     {showExtra && <sub>{item.extraDate}</sub>}
                   </p>
-                )
+                );
               })}
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Calendar
+export default Calendar;

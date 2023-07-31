@@ -2,30 +2,30 @@ export namespace IUseCalendarData {
   export type IReturn = [
     adDates: IDates[],
     dateObj: {
-      bsDate: string
-      adDate: string
+      bsDate: string;
+      adDate: string;
       headerMonths: {
-        month: string
-        oMonth: string
-        oYear: string
-        year: string
-      }
+        month: string;
+        oMonth: string;
+        oYear: string;
+        year: string;
+      };
     },
     nextMonth: () => void,
     prevMonth: () => void,
-  ]
+  ];
 
   export interface ICurrDate {
-    month: number
-    year: number
-    date: number
+    month: number;
+    year: number;
+    date: number;
   }
   export interface IDates {
-    date: number | string
-    year?: number
-    month?: number
-    type: string
-    adDate: string
-    extraDate?: any
+    dayOfMonth: number | string;
+    year?: number;
+    month?: number;
+    type: string;
+    adDate: string;
+    extraDate?: any;
   }
 }

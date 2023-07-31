@@ -1,55 +1,56 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { currentDate, currentMonth, currentYear } from '../config'
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData'
-import { adToBs, createDateString, getHeaderMonths } from 'utils'
-import { getBsRawDates, getRawDate } from '../utils/date'
-import { ICalendar } from 'types/ICalendar'
+import { MONTHS_IN_YEAR, currentDate, currentMonth, currentYear } from '../constants/dateConstants';
+import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
+import { createDateString, getHeaderMonths, ad2Bs } from 'utils';
+import { getRawAdDates } from '../utils/ad_utils';
+import { ICalendar } from 'types/ICalendar';
+import { getRawBsDates } from 'utils/bs_utils';
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   defaultDate?: Date,
 ): IUseCalendarData.IReturn => {
-  const [year, setYear] = useState(currentYear)
-  const [month, setMonth] = useState(currentMonth)
-  const [date, setDate] = useState(currentDate)
+  const [year, setYear] = useState(currentYear);
+  const [month, setMonth] = useState(currentMonth);
+  const [date, setDate] = useState(currentDate);
   /** preserve current date */
   const [currDate, setCurrDate] = useState<IUseCalendarData.ICurrDate>({
     month: currentMonth,
     year: currentYear,
     date: currentDate,
-  })
+  });
 
   useEffect(() => {
     if (defaultDate && 'getMonth' in defaultDate) {
-      setMonth(() => defaultDate.getMonth() + 1)
-      setYear(() => defaultDate.getFullYear())
-      setDate(() => defaultDate.getDate())
+      setMonth(() => defaultDate.getMonth() + 1);
+      setYear(() => defaultDate.getFullYear());
+      setDate(() => defaultDate.getDate());
       setCurrDate({
-        month: defaultDate.getMonth() + 1,
+        month: defaultDate.getMonth(),
         year: defaultDate.getFullYear(),
         date: defaultDate.getDate(),
-      })
+      });
     }
-  }, [])
+  }, []);
 
-  const nextMonth = () => {
-    if (month === 12) {
-      setYear((prevYear) => prevYear + 1)
-      setMonth(() => 1)
-    } else setMonth((prev) => prev + 1)
-  }
+  const nextMonth = useCallback(() => {
+    if (month === MONTHS_IN_YEAR) {
+      setYear((prevYear) => prevYear + 1);
+      setMonth(() => 1);
+    } else setMonth((prev) => prev + 1);
+  }, [month]);
 
-  const prevMonth = () => {
+  const prevMonth = useCallback(() => {
     if (month <= 1) {
-      setYear((prevYear) => prevYear - 1)
-      setMonth(() => 12)
-    } else setMonth((prev) => prev - 1)
-  }
+      setYear((prevYear) => prevYear - 1);
+      setMonth(() => MONTHS_IN_YEAR);
+    } else setMonth((prev) => prev - 1);
+  }, [month]);
 
-  const dates = getRawDate(year, month, date, currDate)
-  const bsDate = adToBs(createDateString(year, month, date))
-  const [bsYear, bsMonth] = bsDate.split('-')
+  const dates = useMemo(() => getRawAdDates(year, month, date, currDate), [year, month, date]);
+  const bsDate = useMemo(() => ad2Bs(createDateString(year, month, date)), [year, month, date]);
+  const [bsYear, bsMonth] = bsDate.split('-');
 
   const dateObj = {
     adDate: createDateString(year, month, date),
@@ -57,11 +58,16 @@ const useCalendarData = (
     headerMonths: {
       ...getHeaderMonths(calendarType, bsMonth, month, bsYear, String(year)),
     },
-  }
-  /** BS date */
-  const bsDates = getBsRawDates(bsDate, dates, year, month, date, currDate)
-  if (calendarType === 'BS') return [bsDates, dateObj, nextMonth, prevMonth]
-  return [dates, dateObj, nextMonth, prevMonth]
-}
+  };
 
-export { useCalendarData }
+  const bsDates = useMemo(
+    () => getRawBsDates(bsDate, dates, year, month, date, currDate),
+    [bsDate, dates, year, month, date, currDate],
+  );
+
+  return calendarType === 'BS'
+    ? [bsDates, dateObj, nextMonth, prevMonth]
+    : [dates, dateObj, nextMonth, prevMonth];
+};
+
+export { useCalendarData };

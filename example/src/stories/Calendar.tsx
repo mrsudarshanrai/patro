@@ -1,5 +1,5 @@
-import '/home/ash/codes/patro/dist/css/style.css';
-import {Calendar} from "/home/ash/codes/patro";
+import '/home/fox/codes/patro/dist/css/style.css';
+import {Calendar} from "/home/fox/codes/patro";
 
 export const CalendarStory = (props: any) => {
   return (
