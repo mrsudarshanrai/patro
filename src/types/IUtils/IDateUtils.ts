@@ -1,4 +1,4 @@
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
+import { IUseCalendarData } from '../IHooks/IUseCalendarData';
 
 export namespace IDateUtils {
   export type ICreateDateArray_Params = [

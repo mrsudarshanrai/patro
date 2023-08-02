@@ -1,6 +1,6 @@
 import { MAX_BS_YEAR, MIN_BS_YEAR, START_ENGLISH_DATE, dates } from '../../constants/dateConstants';
 import { createDateString } from '../dateUtils';
-import { dateString2Obj } from 'utils';
+import { dateString2Obj } from '../../utils';
 
 /** BS date sanitizer */
 const isBsYearValid = (year: number) => year < MIN_BS_YEAR || year > MAX_BS_YEAR;

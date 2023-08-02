@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { MONTHS_IN_YEAR, currentDate, currentMonth, currentYear } from '../constants/dateConstants';
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
-import { createDateString, getHeaderMonths, ad2Bs } from 'utils';
+import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
+import { createDateString, getHeaderMonths, ad2Bs } from '../utils';
 import { getRawAdDates } from '../utils/ad_utils';
-import { ICalendar } from 'types/ICalendar';
-import { getRawBsDates } from 'utils/bs_utils';
+import { ICalendar } from '../types/ICalendar';
+import { getRawBsDates } from '../utils/bs_utils';
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
@@ -48,7 +48,7 @@ const useCalendarData = (
     } else setMonth((prev) => prev - 1);
   }, [month]);
 
-  const dates = useMemo(() => getRawAdDates(year, month, date, currDate), [year, month, date]);
+  const adDates = useMemo(() => getRawAdDates(year, month, date, currDate), [year, month, date]);
   const bsDate = useMemo(() => ad2Bs(createDateString(year, month, date)), [year, month, date]);
   const [bsYear, bsMonth] = bsDate.split('-');
 
@@ -61,13 +61,13 @@ const useCalendarData = (
   };
 
   const bsDates = useMemo(
-    () => getRawBsDates(bsDate, dates, year, month, date, currDate),
-    [bsDate, dates, year, month, date, currDate],
+    () => getRawBsDates(bsDate, adDates, year, month, date, currDate),
+    [bsDate, adDates, year, month, date, currDate],
   );
 
-  return calendarType === 'BS'
-    ? [bsDates, dateObj, nextMonth, prevMonth]
-    : [dates, dateObj, nextMonth, prevMonth];
+  const dates: IUseCalendarData.IDates[] = calendarType === 'BS' ? bsDates : adDates;
+
+  return [dates, dateObj, nextMonth, prevMonth];
 };
 
 export { useCalendarData };

@@ -1,16 +1,16 @@
-import { createDateString, en2NpNumber, remove1stZero } from 'utils';
+import { createDateString, en2NpNumber, remove1stZero } from '../../utils';
 import {
   dates as bsDates,
   weeksDaysCount,
   config,
   dates,
   MIN_BS_YEAR,
-} from 'constants/dateConstants';
+} from '../../constants/dateConstants';
 import { switchYear } from '../dateUtils';
 import { bs2Ad } from './bs2ad';
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
-import { ad2Bs, getRawAdDates } from 'utils/ad_utils';
-import { IDateUtils } from 'types/IUtils/IDateUtils';
+import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
+import { ad2Bs, getRawAdDates } from '../../utils/ad_utils';
+import { IDateUtils } from '../../types/IUtils/IDateUtils';
 const { en, np } = config;
 
 const getBsMonthStartingDay = (arr: any) => {

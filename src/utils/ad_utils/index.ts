@@ -1,7 +1,7 @@
-import { weeksDaysCount } from 'constants/dateConstants';
-import { IUseCalendarData } from 'types/IHooks/IUseCalendarData';
+import { weeksDaysCount } from '../../constants/dateConstants';
+import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 import { getDates, getMonthFirstDay, createDateArray, switchYear } from '../dateUtils';
-import { getNextMonthDatesOffset, getPrevMonthDatesOffset } from 'utils/bs_utils';
+import { getNextMonthDatesOffset, getPrevMonthDatesOffset } from '../../utils/bs_utils';
 
 const getRawAdDates = (...args: any) => {
   let cells: IUseCalendarData.IDates[] = [];
