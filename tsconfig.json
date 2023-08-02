@@ -1,43 +1,40 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "module": "esnext",
+    "target": "ESNext",
     "lib": [
-      "dom",
-      "esnext"
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
     ],
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "sourceMap": true,
-    "declaration": true,
-    "declarationDir": "./dist",
-    "esModuleInterop": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "importHelpers": true,
-    "strictNullChecks": true,
-    "strict": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false,
-    "forceConsistentCasingInFileNames": true,
-    "noUnusedParameters": false,
-    "allowSyntheticDefaultImports": true,
-    "target": "ES6",
-    "allowJs": true,
+    "module": "ESNext",
     "skipLibCheck": true,
+    "outDir": "dist",
+    /* Bundler mode */
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "emitDeclarationOnly": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "baseUrl": "src"
+    "jsx": "react-jsx",
+    "declaration": true,
+    "sourceMap": true,
+    /* Linting */
+    "strict": false,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src",
-    "test"
+    "."
   ],
   "exclude": [
-    "node_modules",
     "dist",
-    "example",
-    "doc"
+    "build",
+    "node_modules",
+    "src/**/*.test.tsx",
+    "src/**/*.stories.tsx"
   ]
 }
