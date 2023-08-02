@@ -1,6 +1,6 @@
 export namespace IUseCalendarData {
   export type IReturn = [
-    adDates: IDates[],
+    dates: IDates[],
     dateObj: {
       bsDate: string;
       adDate: string;
@@ -26,6 +26,6 @@ export namespace IUseCalendarData {
     month?: number;
     type: string;
     adDate: string;
-    extraDate?: any;
+    extraDate?: string;
   }
 }

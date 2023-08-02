@@ -74,7 +74,9 @@ const config = {
 
 const weeksDaysCount = Object.values(config.en.days).length;
 
-const dates: any = [];
+type Dates = { [year: number]: number[] };
+
+const dates: Dates = [];
 dates[1978] = [1978, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[1979] = [1979, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
 dates[1980] = [1980, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
