@@ -65,7 +65,8 @@ const useCalendarData = (
     [bsDate, adDates, year, month, date, currDate],
   );
 
-  const dates: IUseCalendarData.IDates[] = calendarType === 'BS' ? bsDates : adDates;
+  const dates: IUseCalendarData.IDates[] =
+    calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates;
 
   return [dates, dateObj, nextMonth, prevMonth];
 };

@@ -1,9 +1,10 @@
 import { dateString2Obj, evaluateNepaliDate, remove1stZero } from '..';
 import { createDateString } from '../dateUtils';
 import { START_ENGLISH_DATE, config } from '../../constants/dateConstants';
+import { ICalendar } from '../../Calendar/types';
 const { np, en } = config;
 
-const isAd = (value: string) => value === 'AD';
+const isAd = (value: string) => value === ICalendar.CalendarTypeEnum.AD;
 
 /** AD date sanitizer */
 const isAdYearValid = (year: number) => year > 2040;

@@ -8,7 +8,7 @@ import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange, calendarType = 'AD', showExtra } = props;
+  const { onChange, calendarType = ICalendar.CalendarTypeEnum.AD, showExtra } = props;
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   // get calendar data
