@@ -3,8 +3,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import scss from 'rollup-plugin-scss'
-import { babel } from '@rollup/plugin-babel'
+import scss from 'rollup-plugin-scss';
+import { babel } from '@rollup/plugin-babel';
 import copy from 'rollup-plugin-copy';
 export default [
   {
@@ -17,13 +17,13 @@ export default [
       {
         file: 'dist/index.es.js',
         format: 'es',
-        exports: 'named'
-      }
+        exports: 'named',
+      },
     ],
     plugins: [
       babel({
         exclude: 'node_modules/**',
-        presets: ['@babel/preset-react']
+        presets: ['@babel/preset-react'],
       }),
       peerDepsExternal(),
       resolve(),
@@ -38,10 +38,11 @@ export default [
       copy({
         targets: [
           {
-            src: './package.json', dest: 'dist/'
+            src: './package.json',
+            dest: 'dist/',
           },
-        ]
-      })
+        ],
+      }),
     ],
   },
 ];
