@@ -48,9 +48,21 @@ const useCalendarData = (
     } else setMonth((prev) => prev - 1);
   }, [month]);
 
-  const adDates = useMemo(() => getRawAdDates(year, month, date, currDate), [year, month, date]);
   const bsDate = useMemo(() => ad2Bs(createDateString(year, month, date)), [year, month, date]);
   const [bsYear, bsMonth] = bsDate.split('-');
+
+  /**
+   * generate AD dates
+   */
+  const adDates = useMemo(() => getRawAdDates(year, month, date, currDate), [year, month, date]);
+
+  /**
+   * generate BS dates
+   */
+  const bsDates = useMemo(
+    () => getRawBsDates(bsDate, adDates, year, month, date, currDate),
+    [bsDate, adDates, year, month, date, currDate],
+  );
 
   const dateObj = {
     adDate: createDateString(year, month, date),
@@ -59,11 +71,6 @@ const useCalendarData = (
       ...getHeaderMonths(calendarType, bsMonth, month, bsYear, String(year)),
     },
   };
-
-  const bsDates = useMemo(
-    () => getRawBsDates(bsDate, adDates, year, month, date, currDate),
-    [bsDate, adDates, year, month, date, currDate],
-  );
 
   const dates: IUseCalendarData.IDates[] =
     calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates;
