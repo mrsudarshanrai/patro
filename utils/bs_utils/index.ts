@@ -95,12 +95,18 @@ const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
   }).slice(0, weeksDaysCount - length);
 };
 
-const getRawBsDates = (...args: any) => {
-  const [bsDate, adDates, YEAR, MONTH, date, currDate] = args;
+const getRawBsDates = (
+  bsDate: string,
+  YEAR: number,
+  MONTH: number,
+  date: number,
+  currDate: IUseCalendarData.ICurrDate,
+) => {
+  console.log(bsDate, 'bsDate');
   const { year, month } = switchYear(YEAR, MONTH);
   let cells: IUseCalendarData.IDates[] = [];
   const dates: any[] = [];
-  const [bsYear, bsMonth, _] = bsDate.split('-');
+  const [bsYear, bsMonth] = bsDate.split('-');
   const bsMonthStartDayIndex = getBsMonthStartingDay(getRawAdDates(year, month, date, currDate));
   const nextBsMonthStartDayIndex = getBsMonthStartingDay(
     getRawAdDates(year, month + 1, date, currDate),
@@ -122,18 +128,18 @@ const getRawBsDates = (...args: any) => {
   const previousMonthBsDates = getBsPrevMonthDatesOffset(
     previousBsMonthDatesCount,
     bsMonthStartDayIndex,
-    bsYear,
+    parseInt(bsYear),
     +remove1stZero(bsMonth) - 1,
   );
   const currentBsMonthDates = createBsMonths(
     currentBsMonthDatesCount,
-    bsYear,
+    parseInt(bsYear),
     +remove1stZero(bsMonth),
   );
   const nextMonthBsDates = getBsNextMonthDatesOffset(
     nextBsMonthDatesCount,
     nextBsMonthStartDayIndex,
-    bsYear,
+    parseInt(bsYear),
     +remove1stZero(bsMonth) + 1,
   );
 

@@ -1,12 +1,17 @@
 import { weeksDaysCount } from '../../constants/dateConstants';
-import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 import { getDates, getMonthFirstDay, createDateArray, switchYear } from '../dateUtils';
 import { getNextMonthDatesOffset, getPrevMonthDatesOffset } from '../../utils/bs_utils';
+import { AdUtil } from './types';
+import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 
-const getRawAdDates = (...args: any) => {
-  let cells: IUseCalendarData.IDates[] = [];
-  const dates: any[] = [];
-  const [YEAR, MONTH, date, currDate] = args;
+const getRawAdDates = (
+  YEAR: number,
+  MONTH: number,
+  date: number,
+  currDate: IUseCalendarData.ICurrDate,
+) => {
+  let cells: AdUtil.Date[] = [];
+  const dates: Array<AdUtil.Date[]> = [];
   const { year, month } = switchYear(YEAR, MONTH);
 
   /** prev, curr & next month AD dates  */
@@ -33,7 +38,7 @@ const getRawAdDates = (...args: any) => {
   const currentMonthDates = createDateArray(currentMonthDatesCount, month, year, date, currDate);
 
   const rawDate = [...previousMonthDates, ...currentMonthDates, ...nextMonthDates];
-  rawDate.forEach((row: IUseCalendarData.IDates, i) => {
+  rawDate.forEach((row: AdUtil.Date, i) => {
     if (i % weeksDaysCount !== 0) {
       cells.push(row);
     } else {
@@ -49,26 +54,3 @@ const getRawAdDates = (...args: any) => {
 };
 export { getRawAdDates };
 export * from './ad2bs';
-
-// const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
-//   const [length, month, year, date, currDate] = args;
-//   const { month: currMonth } = currDate;
-
-//   return Array.from({ length }, (_, i) => {
-//     const date = i + 1;
-//     const adDate = createDateString(year, month, i + 1);
-//     const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
-//     const type = `_patro_dates_date _patro_dates_current_month_date ${
-//       month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
-//     }`;
-
-//     return {
-//       date,
-//       year,
-//       month,
-//       adDate,
-//       extraDate,
-//       type,
-//     };
-//   });
-// };

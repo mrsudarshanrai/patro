@@ -60,8 +60,8 @@ const useCalendarData = (
    * generate BS dates
    */
   const bsDates = useMemo(
-    () => getRawBsDates(bsDate, adDates, year, month, date, currDate),
-    [bsDate, adDates, year, month, date, currDate],
+    () => getRawBsDates(bsDate, year, month, date, currDate),
+    [bsDate, year, month, date, currDate],
   );
 
   const dateObj = {
