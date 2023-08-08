@@ -10,11 +10,14 @@ import CalendarDays from './components/CalendarDays';
 const Calendar = (props: ICalendar.IProps) => {
   const { onChange, calendarType = 'AD', showExtra } = props;
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // get calendar data
   const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate);
   const {
     headerMonths: { month, oMonth, oYear, year },
   } = dateObj || {};
 
+  // on date select
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(() => new Date(date.adDate));
     onChange && onChange(date);

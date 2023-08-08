@@ -5,20 +5,21 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
   const { dates, showExtra, onSelect } = props;
   return (
     <>
-      {dates.map((date: unknown, i: number) => {
+      {dates.map((days: IUseCalendarData.IDates, i: number) => {
         return (
           <div key={i} className='_patro_dates'>
-            {Array.isArray(date) &&
-              date.map((item: IUseCalendarData.IDates, index: number) => {
+            {Array.isArray(days) &&
+              days.map((date: IUseCalendarData.IDates, index: number) => {
+                const { adDate, type, dayOfMonth, extraDate } = date;
                 return (
                   <p
-                    title={item.adDate}
-                    onClick={() => onSelect(item)}
+                    title={adDate}
+                    onClick={() => onSelect({ adDate })}
                     key={i + index}
-                    className={item.type}
+                    className={type}
                   >
-                    {item.dayOfMonth}
-                    {showExtra && <sub>{item.extraDate}</sub>}
+                    {dayOfMonth}
+                    {showExtra && <sub>{extraDate}</sub>}
                   </p>
                 );
               })}

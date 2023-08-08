@@ -16,7 +16,11 @@ export namespace ICalendar {
   export type CalendarGridProps = {
     showExtra?: boolean;
     dates: IUseCalendarData.IDates[];
-    onSelect: (date: IUseCalendarData.IDates) => void;
+    onSelect: (date: Onselect) => void;
+  };
+
+  export type Onselect = {
+    adDate: string;
   };
 
   export type CalendarHeaderProps = {
