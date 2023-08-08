@@ -4,8 +4,8 @@ import { MONTHS_IN_YEAR, currentDate, currentMonth, currentYear } from '../const
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { createDateString, getHeaderMonths, ad2Bs } from '../utils';
 import { getRawAdDates } from '../utils/ad_utils';
-import { ICalendar } from '../types/ICalendar';
 import { getRawBsDates } from '../utils/bs_utils';
+import { ICalendar } from '../Calendar/types';
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,

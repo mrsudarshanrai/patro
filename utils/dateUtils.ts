@@ -1,9 +1,10 @@
+import { ICalendar } from '../Calendar/types';
 import { currentYear, currentMonth, config } from '../constants/dateConstants';
+import { Constant } from '../constants/types';
 import { IDateUtils } from '../types/IUtils/IDateUtils';
 import { ad2Bs, getAdHeaderMonth, isAd } from './ad_utils';
-import { ICalendar } from '../types/ICalendar';
 import { getBsHeaderMonth } from './bs_utils';
-const { en, np }: any = config;
+const { en, np }: Constant.Config = config;
 
 const getDates = (month = currentMonth, year = currentYear) => new Date(year, month, 0).getDate();
 
@@ -66,7 +67,7 @@ const dateString2Obj = (date: string) => {
 const en2NpNumber = (value: string) =>
   value
     .split('')
-    .map((item: any) => np.numbers[item])
+    .map((item: unknown) => np.numbers[item as keyof Constant.NPNumbers])
     .join('');
 
 const remove1stZero = (value: string) => value.replace(/^0+/, '');

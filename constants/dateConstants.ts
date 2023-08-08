@@ -1,3 +1,5 @@
+import { Constant } from './types';
+
 const START_ENGLISH_DATE = '1921-04-13';
 const MONTHS_IN_YEAR = 12;
 const MIN_BS_YEAR = 1978;
@@ -7,7 +9,7 @@ const currentYear = +new Date().getFullYear();
 const currentMonth = +new Date().getMonth() + 1;
 const currentDate = +new Date().getDate();
 
-const config = {
+const config: Constant.Config = {
   en: {
     months: {
       January: 'Jan',
