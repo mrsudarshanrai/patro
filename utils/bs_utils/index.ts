@@ -11,11 +11,12 @@ import { bs2Ad } from './bs2ad';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 import { ad2Bs, getRawAdDates } from '../../utils/ad_utils';
 import { IDateUtils } from '../../types/IUtils/IDateUtils';
+import { BSutil } from './types';
 const { en, np } = config;
 
-const getBsMonthStartingDay = (arr: any) => {
+const getBsMonthStartingDay = (arr: Array<BSutil.Date[]>) => {
   for (let a = 0; a < arr.length; a++) {
-    const index = arr[a].findIndex((item: any) => item.extraDate === '०१');
+    const index = arr[a].findIndex((item: BSutil.Date) => item.extraDate === '०१');
     if (index > -1) {
       return index;
     }
@@ -54,7 +55,6 @@ const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
       year,
       month: MONTH,
       adDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)),
-      bsDate: createDateString(YEAR, MONTH, i + 1),
       extraDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
     })).slice(-length);
@@ -70,7 +70,6 @@ const createBsMonths = (...args: ICreateBsMonths) => {
     year,
     month,
     adDate: bs2Ad(createDateString(year, month, i + 1)),
-    bsDate: createDateString(year, month, i + 1),
     extraDate: bs2Ad(createDateString(year, month, i + 1)).split('-')[2],
     type: '_patro_dates_date _patro_dates_current_month_date',
   }));
@@ -88,13 +87,21 @@ const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
       year: YEAR,
       month: MONTH + 1,
       adDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)),
-      bsDate: createDateString(YEAR, MONTH, i + 1),
       extraDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
       type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
     };
   }).slice(0, weeksDaysCount - length);
 };
 
+/**
+ *
+ * @param bsDate
+ * @param YEAR
+ * @param MONTH
+ * @param date
+ * @param currDate
+ * @returns
+ */
 const getRawBsDates = (
   bsDate: string,
   YEAR: number,
@@ -102,10 +109,9 @@ const getRawBsDates = (
   date: number,
   currDate: IUseCalendarData.ICurrDate,
 ) => {
-  console.log(bsDate, 'bsDate');
   const { year, month } = switchYear(YEAR, MONTH);
-  let cells: IUseCalendarData.IDates[] = [];
-  const dates: any[] = [];
+  let cells: BSutil.Date[] = [];
+  const dates: Array<BSutil.Date[]> = [];
   const [bsYear, bsMonth] = bsDate.split('-');
   const bsMonthStartDayIndex = getBsMonthStartingDay(getRawAdDates(year, month, date, currDate));
   const nextBsMonthStartDayIndex = getBsMonthStartingDay(
@@ -144,7 +150,7 @@ const getRawBsDates = (
   );
 
   const rawDate = [...previousMonthBsDates, ...currentBsMonthDates, ...nextMonthBsDates];
-  rawDate.forEach((row: IUseCalendarData.IDates, i) => {
+  rawDate.forEach((row: BSutil.Date, i) => {
     if (i % weeksDaysCount !== 0) {
       cells.push(row);
     } else {
