@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "build": "rm -rf ./dist && rollup -c --bundleConfigAsCjs",
-    "dev": "rollup -c -w",
+    "dev": "rollup -c --bundleConfigAsCjs -w",
     "prepare": "husky install",
     "lint": "eslint './**/*.{js,jsx,ts,tsx,json}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx,json}'",
