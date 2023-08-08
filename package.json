@@ -1,10 +1,12 @@
 {
   "name": "patro",
-  "version": "0.0.1-beta",
+  "version": "0.0.4-beta",
   "description": "AD and BS Calendar",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": ""
@@ -28,7 +30,7 @@
     "build": "rm -rf ./dist && rollup -c --bundleConfigAsCjs",
     "dev": "rollup -c -w",
     "prepare": "husky install",
-    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx,json}'",
+    "lint": "eslint './**/*.{js,jsx,ts,tsx,json}'",
     "lint:fix": "eslint --fix 'src/**/*.{js,jsx,ts,tsx,json}'",
     "format": "prettier --write 'src/**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "test": "jest",
@@ -38,6 +40,10 @@
   "dependencies": {
     "@popperjs/core": "^2.9.2",
     "date-fns": "^2.22.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -53,6 +59,7 @@
   ],
   "devDependencies": {
     "@babel/preset-react": "^7.22.5",
+    "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^25.0.3",
     "@rollup/plugin-image": "^3.0.2",
     "@rollup/plugin-node-resolve": "^15.1.0",

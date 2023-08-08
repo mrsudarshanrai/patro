@@ -1,4 +1,4 @@
-import { dateString2Obj, ad2Bs, bs2Ad } from '../src/utils';
+import { dateString2Obj, ad2Bs, bs2Ad } from '../utils';
 
 const adDate = '2022-10-24';
 const bsDate = '2079-07-07';

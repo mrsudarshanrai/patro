@@ -4,10 +4,11 @@ import typescript from '@rollup/plugin-typescript';
 import { terser } from 'rollup-plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import scss from 'rollup-plugin-scss'
-
+import { babel } from '@rollup/plugin-babel'
+import copy from 'rollup-plugin-copy';
 export default [
   {
-    input: './src/index.ts',
+    input: './index.ts',
     output: [
       {
         file: 'dist/index.js',
@@ -20,6 +21,10 @@ export default [
       }
     ],
     plugins: [
+      babel({
+        exclude: 'node_modules/**',
+        presets: ['@babel/preset-react']
+      }),
       peerDepsExternal(),
       resolve(),
       commonjs(),
@@ -30,6 +35,13 @@ export default [
         outputStyle: 'compressed',
       }),
       terser(),
+      copy({
+        targets: [
+          {
+            src: './package.json', dest: 'dist/'
+          },
+        ]
+      })
     ],
   },
 ];
