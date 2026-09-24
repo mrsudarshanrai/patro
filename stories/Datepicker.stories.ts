@@ -12,5 +12,6 @@ type Story = StoryObj<typeof meta>;
 export const Calendar: Story = {
   args: {
     showExtra: true,
+    calendarType: 'AD',
   },
 };

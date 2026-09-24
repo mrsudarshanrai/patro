@@ -4,13 +4,21 @@ import { createPopper } from '@popperjs/core';
 import { Datepicker as DatepickerType } from './types';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { ICalendar } from '../Calendar/types';
-import { formatDisplayDate } from '../utils';
+import { formatDisplayDate, formatSecondaryDate } from '../utils';
+import { icons } from './icons';
 
 const Datepicker = (props: DatepickerType.Props) => {
-  const { calendarType = ICalendar.CalendarTypeEnum.AD, onChange, defaultDate, ...rest } = props;
+  const {
+    calendarType = ICalendar.CalendarTypeEnum.AD,
+    onChange,
+    defaultDate,
+    label,
+    theme,
+    ...rest
+  } = props;
   const [isPopperVisible, setIsPopperVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
-  const [inputRef, setInputRef] = useState<HTMLInputElement | null>(null);
+  const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -52,7 +60,7 @@ const Datepicker = (props: DatepickerType.Props) => {
     onChange && onChange(date);
   };
 
-  const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+  const onInputKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') closePopper();
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -61,18 +69,26 @@ const Datepicker = (props: DatepickerType.Props) => {
   };
 
   return (
-    <div className='_patro_datepicker'>
-      <input
+    <div className='_patro_datepicker _patro' data-calendar-type={calendarType} data-theme={theme}>
+      {label && <div className='_patro_datepicker_label'>{label}</div>}
+      <div
         ref={setInputRef}
         className='_patro_datepicker_input'
-        role='combobox'
+        role='button'
+        tabIndex={0}
         aria-haspopup='dialog'
         aria-expanded={isPopperVisible}
-        readOnly
-        value={formatDisplayDate(selectedDate, calendarType)}
         onClick={togglePopper}
         onKeyDown={onInputKeyDown}
-      />
+      >
+        <span className='_patro_datepicker_input_primary'>
+          {formatDisplayDate(selectedDate, calendarType)}
+        </span>
+        <span className='_patro_datepicker_input_secondary'>
+          {formatSecondaryDate(selectedDate, calendarType)}
+        </span>
+        <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
+      </div>
       {isPopperVisible && (
         <div ref={setPopperRef} role='dialog' className='_patro_datepicker_popper'>
           <Calendar
@@ -80,6 +96,7 @@ const Datepicker = (props: DatepickerType.Props) => {
             {...rest}
             calendarType={calendarType}
             defaultDate={selectedDate}
+            theme={theme}
             onChange={onSelect}
           />
         </div>
