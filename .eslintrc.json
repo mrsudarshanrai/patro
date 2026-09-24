@@ -11,7 +11,15 @@
     "prettier",
     "plugin:storybook/recommended"
   ],
-  "overrides": [],
+  "ignorePatterns": ["dist", "node_modules", "coverage", "package-lock.json"],
+  "overrides": [
+    {
+      "files": ["*.json"],
+      "rules": {
+        "quotes": "off"
+      }
+    }
+  ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -29,6 +37,9 @@
   "settings": {
     "import/resolver": {
       "typescript": {}
+    },
+    "react": {
+      "version": "detect"
     }
   }
 }

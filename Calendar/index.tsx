@@ -23,7 +23,6 @@ const Calendar = (props: ICalendar.IProps) => {
     onChange && onChange(date);
   };
 
-  console.log(dates);
   return (
     <div className='_patro_container _patro'>
       <CalendarHeader

@@ -5,7 +5,7 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
   const { dates, showExtra, onSelect } = props;
   return (
     <>
-      {dates.map((days: IUseCalendarData.IDates, i: number) => {
+      {dates.map((days: IUseCalendarData.IDates[], i: number) => {
         return (
           <div key={i} className='_patro_dates'>
             {Array.isArray(days) &&
