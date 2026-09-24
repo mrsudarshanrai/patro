@@ -11,7 +11,10 @@ const getDates = (month = currentMonth, year = currentYear) => new Date(year, mo
 const getMonth = (month: number) => Object.keys(en.months)[month - 1];
 
 const getMonthFirstDay = (month = currentMonth, year = currentYear) => {
-  return +new Date(`${year}-${zeroPad(month)}-01`).getDay();
+  // Local numeric construction avoids the UTC-vs-local mismatch that comes
+  // from parsing a date-only ISO string (which is parsed as UTC midnight)
+  // and then reading its local weekday.
+  return new Date(year, month - 1, 1).getDay();
 };
 
 const switchYear = (year: number, month: number) => {
