@@ -5,6 +5,10 @@ const MONTHS_IN_YEAR = 12;
 const MIN_BS_YEAR = 1978;
 const MAX_BS_YEAR = 2099;
 
+// Last AD date the `dates` table above can resolve to (the last day of
+// MAX_BS_YEAR, BS 2099-12-31). AD dates beyond this have no BS table entry.
+const MAX_AD_DATE = '2043-04-14';
+
 const currentYear = +new Date().getFullYear();
 const currentMonth = +new Date().getMonth() + 1;
 const currentDate = +new Date().getDate();
@@ -213,4 +217,5 @@ export {
   START_ENGLISH_DATE,
   MIN_BS_YEAR,
   MAX_BS_YEAR,
+  MAX_AD_DATE,
 };
