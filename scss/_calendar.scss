@@ -1,127 +1,204 @@
 ._patro_container {
   width: 288px;
   height: fit-content;
-  padding: 15px;
-  background-color: $white;
-  border-radius: 5px;
-  box-shadow:
-    rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  padding: 8px 8px 10px;
+  background-color: var(--patro-surface);
+  border-radius: var(--patro-radius-popover);
+  box-shadow: var(--patro-shadow);
+  font-family: var(--patro-font);
+  color: var(--patro-text);
 }
 
 ._patro {
   &_header {
     display: flex;
-    justify-content: space-between;
-    height: 60px;
-    &_actionBtn {
-      outline: none;
-      background-color: transparent;
-      border: 0;
-      cursor: pointer;
-    }
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px 10px 8px;
+    margin: 0;
+
     &_info {
+      flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      &_month_year {
-        font-size: 14px;
-        margin: 0 0 2px 0;
+      gap: 1px;
+      margin: 0;
+    }
+    &_title {
+      margin: 0;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--patro-text);
+    }
+    &_subtitle {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 17px;
+      font-weight: 500;
+      font-family: var(--patro-font-devanagari);
+      color: var(--patro-sub);
+    }
+    &_actionBtn {
+      width: 28px;
+      height: 28px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      outline: none;
+      border: 0;
+      border-radius: 8px;
+      background-color: transparent;
+      color: var(--patro-muted);
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--patro-hover);
+        color: var(--patro-text);
+      }
+      &:active {
+        background-color: var(--patro-border);
+        color: var(--patro-text);
+      }
+      svg {
+        display: block;
       }
     }
+  }
+}
+
+// BS-primary: bigger Devanagari title, smaller AD subtitle.
+._patro_container[data-calendar-type='BS'] ._patro {
+  &_header_title {
+    font-family: var(--patro-font-devanagari);
+    font-size: 17px;
+    line-height: 22px;
+  }
+  &_header_subtitle {
+    font-family: var(--patro-font);
+    font-size: 12px;
+    line-height: 16px;
   }
 }
 
 ._patro_days,
 ._patro_dates {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 ._patro_days {
+  gap: 2px;
+  margin-bottom: 2px;
   &_day {
-    text-align: center;
-    font-size: 14px;
-    width: 35px;
-    height: 33px;
+    height: 24px;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: $day_color;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--patro-muted);
   }
 }
 ._patro_dates {
-  border: 0 !important;
+  gap: 2px;
 
-  &:last-child {
-  }
-  &:not(:first-child),
-  :not(:nth-child(1)),
-  :not(:last-child) {
-    // border-top: 1px solid $date_border_color;
-  }
   &_date {
-    width: 100%;
-    height: 33px;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    cursor: pointer;
-    color: $date_color;
-    border-right: 1px solid $date_border_color;
     position: relative;
-    sub {
-      position: absolute;
-      bottom: 1px;
-      right: 2px;
-      font-size: 9px;
-    }
-    &:first-child {
-      border-left: 1px solid $date_border_color;
-    }
-    &:first-child {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
-    &:nth-child(2) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
-    &:nth-child(3) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
-    &:nth-child(4) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
-    &:nth-child(5) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
-    &:nth-child(6) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
-    }
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    border-radius: var(--patro-radius-cell);
+    cursor: pointer;
+    color: var(--patro-text);
+    background: transparent;
+    box-shadow: none;
 
-    &:nth-child(7) {
-      border-top: 1px solid $date_border_color;
-      border-bottom: 1px solid $date_border_color;
+    &_primary {
+      font-size: 14px;
+      line-height: 16px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: inherit;
+    }
+    sub {
+      position: static;
+      font-family: var(--patro-font-devanagari);
+      font-size: 11.5px;
+      line-height: 13px;
+      font-weight: 500;
+      color: var(--patro-sub);
     }
   }
-  &_current_month_date {
-    &:hover {
-      background-color: $primary;
-      color: $hover_date_color;
-      transition: background-color 0.3s;
-    }
+
+  &_current_month_date:hover {
+    background-color: var(--patro-hover);
   }
+
   &_date_offset {
-    color: $offset_date;
+    color: var(--patro-faint);
+    sub {
+      color: var(--patro-faint-sub);
+    }
   }
+
+  // Today and selected are independent and can co-occur.
+  &_today {
+    color: var(--patro-today);
+    ._patro_dates_date_primary {
+      font-weight: 600;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      width: 12px;
+      height: 2px;
+      margin-left: -6px;
+      border-radius: 1px;
+      background: var(--patro-accent);
+    }
+  }
+
   &_current_date {
-    background-color: $primary;
-    color: $white;
+    background-color: var(--patro-sel-bg);
+    box-shadow:
+      inset 0 0 0 1px var(--patro-accent),
+      var(--patro-glow);
+    color: var(--patro-sel-text);
+
+    ._patro_dates_date_primary {
+      font-weight: 600;
+    }
+    sub {
+      color: var(--patro-sel-sub);
+    }
+  }
+}
+
+// BS-primary: secondary moves to a top-right corner label, primary becomes
+// the big Devanagari number - same DOM order, repositioned via CSS only.
+._patro_container[data-calendar-type='BS'] ._patro_dates_date {
+  &_primary {
+    order: 2;
+    margin-top: 7px;
+    font-family: var(--patro-font-devanagari);
+    font-size: 17px;
+    line-height: 20px;
+  }
+  sub {
+    order: 1;
+    position: absolute;
+    top: 3px;
+    right: 5px;
+    font-family: var(--patro-font);
   }
 }

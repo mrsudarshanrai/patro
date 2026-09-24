@@ -18,7 +18,7 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                     key={i + index}
                     className={type}
                   >
-                    {dayOfMonth}
+                    <span className='_patro_dates_date_primary'>{dayOfMonth}</span>
                     {showExtra && <sub>{extraDate}</sub>}
                   </p>
                 );

@@ -6,6 +6,7 @@ export namespace ICalendar {
     calendarType?: calendarType; // change calendar type
     showExtra?: boolean; // show/hide extra date
     defaultDate?: Date; // date the calendar opens on / stays in sync with
+    theme?: 'light' | 'dark'; // sets data-theme on the root; light (the default tokens) needs no prop
   }
 
   export enum CalendarTypeEnum {

@@ -8,7 +8,13 @@ import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange, calendarType = ICalendar.CalendarTypeEnum.AD, showExtra, defaultDate } = props;
+  const {
+    onChange,
+    calendarType = ICalendar.CalendarTypeEnum.AD,
+    showExtra,
+    defaultDate,
+    theme,
+  } = props;
   const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
 
   // Re-sync when a controlling parent (e.g. Datepicker) passes a new date,
@@ -31,7 +37,7 @@ const Calendar = (props: ICalendar.IProps) => {
   };
 
   return (
-    <div className='_patro_container _patro'>
+    <div className='_patro_container _patro' data-calendar-type={calendarType} data-theme={theme}>
       <CalendarHeader
         nextMonth={nextMonth}
         prevMonth={prevMonth}
