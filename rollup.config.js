@@ -11,7 +11,10 @@ export default [
     input: './index.ts',
     output: [
       {
-        file: 'dist/index.js',
+        // .cjs is required (not .js) because the package is "type": "module" -
+        // a plain .js file here would be loaded as ESM, silently discarding
+        // this bundle's require()/exports.X = ... CommonJS syntax.
+        file: 'dist/index.cjs',
         format: 'cjs',
       },
       {
@@ -30,7 +33,13 @@ export default [
       commonjs(),
       typescript({ tsconfig: './tsconfig.json' }),
       scss({
-        output: './dist/css/style.css',
+        // rollup-plugin-scss v4 renamed the string-path output option to
+        // `fileName` (relative to the rollup output dir) - `output` is now
+        // either a callback or `false`; passing it a string here silently
+        // did nothing and the plugin fell back to a hashed asset filename,
+        // so dist/css/style.css (the path package.json's "files" and
+        // consumers rely on) was never actually produced.
+        fileName: 'css/style.css',
         failOnError: true,
         outputStyle: 'compressed',
       }),

@@ -3,7 +3,7 @@
   "version": "0.0.4-beta",
   "description": "AD and BS Calendar",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.es.js",
   "types": "dist/index.d.ts",
   "type": "module",
