@@ -128,6 +128,21 @@ const getHeaderMonths = (calendarType: ICalendar.calendarType, ...args: IHeaderM
   else return getBsHeaderMonth(...args);
 };
 
+/** Formats a JS Date as a display string in the given calendar system, e.g. for a Datepicker's input value. */
+const formatDisplayDate = (date: Date, calendarType: ICalendar.calendarType) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  if (isAd(calendarType)) {
+    return `${zeroPad(day)} ${getMonth(month)} ${year}`;
+  }
+
+  const [bsYear, bsMonth, bsDay] = ad2Bs(createDateString(year, month, day)).split('-');
+  const bsMonthName = Object.keys(np.months)[parseInt(remove1stZero(bsMonth)) - 1];
+  return `${en2NpNumber(bsDay)} ${bsMonthName} ${en2NpNumber(bsYear)}`;
+};
+
 export {
   zeroPad,
   createDateString,
@@ -138,6 +153,7 @@ export {
   switchYear,
   getOffsetMonthDates,
   getHeaderMonths,
+  formatDisplayDate,
   dateString2Obj,
   en2NpNumber,
   remove1stZero,

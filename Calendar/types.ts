@@ -5,6 +5,7 @@ export namespace ICalendar {
     onChange?: (date: IUseCalendarData.IDates) => void; // onChange
     calendarType?: calendarType; // change calendar type
     showExtra?: boolean; // show/hide extra date
+    defaultDate?: Date; // date the calendar opens on / stays in sync with
   }
 
   export enum CalendarTypeEnum {

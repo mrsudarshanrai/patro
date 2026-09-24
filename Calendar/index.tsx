@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
 import '../scss/style.scss';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
@@ -8,8 +8,15 @@ import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 
 const Calendar = (props: ICalendar.IProps) => {
-  const { onChange, calendarType = ICalendar.CalendarTypeEnum.AD, showExtra } = props;
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { onChange, calendarType = ICalendar.CalendarTypeEnum.AD, showExtra, defaultDate } = props;
+  const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
+
+  // Re-sync when a controlling parent (e.g. Datepicker) passes a new date,
+  // not just on mount.
+  useEffect(() => {
+    if (defaultDate) setSelectedDate(defaultDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultDate?.getTime()]);
 
   // get calendar data
   const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate);

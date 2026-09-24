@@ -1,7 +1,5 @@
 import { ICalendar } from '../Calendar/types';
 
 export namespace Datepicker {
-  export type Props = ICalendar.IProps & {
-    prop?: string;
-  };
+  export type Props = ICalendar.IProps;
 }
