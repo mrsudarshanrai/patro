@@ -42,9 +42,14 @@ const getBSMonthYear = (month: number, currentBsYear: number) => {
     };
 };
 
-type ICreateBsMonths = [length: number, year: number, month: number];
+type ICreateBsMonths = [
+  length: number,
+  year: number,
+  month: number,
+  selectedBs: IUseCalendarData.ICurrDate,
+];
 const createBsMonths = (...args: ICreateBsMonths) => {
-  const [length, year, month] = args;
+  const [length, year, month, selectedBs] = args;
 
   return Array.from({ length }, (_, i) => ({
     dayOfMonth: en2NpNumber(String(i + 1)),
@@ -52,7 +57,9 @@ const createBsMonths = (...args: ICreateBsMonths) => {
     month,
     adDate: bs2Ad(createDateString(year, month, i + 1)),
     extraDate: bs2Ad(createDateString(year, month, i + 1)).split('-')[2],
-    type: '_patro_dates_date _patro_dates_current_month_date',
+    type: `_patro_dates_date _patro_dates_current_month_date ${
+      month === selectedBs.month && i + 1 === selectedBs.date ? '_patro_dates_current_date' : ''
+    }`,
   }));
 };
 
@@ -63,6 +70,7 @@ const createBsMonths = (...args: ICreateBsMonths) => {
  * @param MONTH
  * @param date
  * @param currDate
+ * @param selectedBs
  * @returns
  */
 const getRawBsDates = (
@@ -71,6 +79,7 @@ const getRawBsDates = (
   MONTH: number,
   date: number,
   currDate: IUseCalendarData.ICurrDate,
+  selectedBs: IUseCalendarData.ICurrDate,
 ) => {
   const { year, month } = switchYear(YEAR, MONTH);
   let cells: BSutil.Date[] = [];
@@ -107,6 +116,7 @@ const getRawBsDates = (
     currentBsMonthDatesCount,
     parseInt(bsYear),
     +remove1stZero(bsMonth),
+    selectedBs,
   );
   const nextMonthBsDates = getOffsetMonthDates({
     monthCount: nextBsMonthDatesCount,
