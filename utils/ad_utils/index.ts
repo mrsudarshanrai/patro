@@ -1,8 +1,14 @@
 import { weeksDaysCount } from '../../constants/dateConstants';
-import { getDates, getMonthFirstDay, createDateArray, switchYear } from '../dateUtils';
-import { getNextMonthDatesOffset, getPrevMonthDatesOffset } from '../../utils/bs_utils';
+import {
+  getDates,
+  getMonthFirstDay,
+  createDateArray,
+  switchYear,
+  getOffsetMonthDates,
+} from '../dateUtils';
 import { AdUtil } from './types';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
+import { ad2Bs } from './ad2bs';
 
 const getRawAdDates = (
   YEAR: number,
@@ -23,18 +29,24 @@ const getRawAdDates = (
   const nextMonthStartDay = getMonthFirstDay(month + 1, year);
 
   /** get AD date offsets */
-  const previousMonthDates = getPrevMonthDatesOffset(
-    previousMonthDatesCount,
-    getMonthStartDayIndex,
-    month,
+  const previousMonthDates = getOffsetMonthDates({
+    monthCount: previousMonthDatesCount,
+    length: getMonthStartDayIndex,
     year,
-  );
-  const nextMonthDates = getNextMonthDatesOffset(
-    nextMonthDatesCount,
-    nextMonthStartDay,
-    month,
+    month: month - 1,
+    direction: 'prev',
+    self: 'AD',
+    convertToOther: ad2Bs,
+  });
+  const nextMonthDates = getOffsetMonthDates({
+    monthCount: nextMonthDatesCount,
+    length: nextMonthStartDay,
     year,
-  );
+    month: month + 1,
+    direction: 'next',
+    self: 'AD',
+    convertToOther: ad2Bs,
+  });
   const currentMonthDates = createDateArray(currentMonthDatesCount, month, year, date, currDate);
 
   const rawDate = [...previousMonthDates, ...currentMonthDates, ...nextMonthDates];

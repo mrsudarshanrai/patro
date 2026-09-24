@@ -6,11 +6,10 @@ import {
   dates,
   MIN_BS_YEAR,
 } from '../../constants/dateConstants';
-import { switchYear } from '../dateUtils';
+import { switchYear, getOffsetMonthDates } from '../dateUtils';
 import { bs2Ad } from './bs2ad';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
-import { ad2Bs, getRawAdDates } from '../../utils/ad_utils';
-import { IDateUtils } from '../../types/IUtils/IDateUtils';
+import { getRawAdDates } from '../../utils/ad_utils';
 import { BSutil } from './types';
 const { en, np } = config;
 
@@ -43,24 +42,6 @@ const getBSMonthYear = (month: number, currentBsYear: number) => {
     };
 };
 
-type IGetPrevMonthDatesOffset = [monthCount: number, length: number, year: number, month: number];
-
-const getBsPrevMonthDatesOffset = (...args: IGetPrevMonthDatesOffset) => {
-  const [monthCount, length, year, month] = args;
-  const { year: YEAR, month: MONTH } = switchYear(year, month);
-
-  if (length != 0)
-    return Array.from({ length: monthCount }, (_, i) => ({
-      dayOfMonth: en2NpNumber(String(i + 1)),
-      year,
-      month: MONTH,
-      adDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)),
-      extraDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
-      type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
-    })).slice(-length);
-  return [];
-};
-
 type ICreateBsMonths = [length: number, year: number, month: number];
 const createBsMonths = (...args: ICreateBsMonths) => {
   const [length, year, month] = args;
@@ -73,24 +54,6 @@ const createBsMonths = (...args: ICreateBsMonths) => {
     extraDate: bs2Ad(createDateString(year, month, i + 1)).split('-')[2],
     type: '_patro_dates_date _patro_dates_current_month_date',
   }));
-};
-
-type IGetNextMonthDatesOffset = [monthCount: number, length: number, year: number, month: number];
-
-const getBsNextMonthDatesOffset = (...args: IGetNextMonthDatesOffset) => {
-  const [monthCount, length, year, month] = args;
-  const { year: YEAR, month: MONTH } = switchYear(year, month);
-
-  return Array.from({ length: monthCount }, (_, i) => {
-    return {
-      dayOfMonth: en2NpNumber(String(i + 1)),
-      year: YEAR,
-      month: MONTH + 1,
-      adDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)),
-      extraDate: bs2Ad(createDateString(YEAR, MONTH, i + 1)).split('-')[2],
-      type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
-    };
-  }).slice(0, weeksDaysCount - length);
 };
 
 /**
@@ -131,23 +94,29 @@ const getRawBsDates = (
     parseInt(bsYear),
   );
 
-  const previousMonthBsDates = getBsPrevMonthDatesOffset(
-    previousBsMonthDatesCount,
-    bsMonthStartDayIndex,
-    parseInt(bsYear),
-    +remove1stZero(bsMonth) - 1,
-  );
+  const previousMonthBsDates = getOffsetMonthDates({
+    monthCount: previousBsMonthDatesCount,
+    length: bsMonthStartDayIndex,
+    year: parseInt(bsYear),
+    month: +remove1stZero(bsMonth) - 1,
+    direction: 'prev',
+    self: 'BS',
+    convertToOther: bs2Ad,
+  });
   const currentBsMonthDates = createBsMonths(
     currentBsMonthDatesCount,
     parseInt(bsYear),
     +remove1stZero(bsMonth),
   );
-  const nextMonthBsDates = getBsNextMonthDatesOffset(
-    nextBsMonthDatesCount,
-    nextBsMonthStartDayIndex,
-    parseInt(bsYear),
-    +remove1stZero(bsMonth) + 1,
-  );
+  const nextMonthBsDates = getOffsetMonthDates({
+    monthCount: nextBsMonthDatesCount,
+    length: nextBsMonthStartDayIndex,
+    year: parseInt(bsYear),
+    month: +remove1stZero(bsMonth) + 1,
+    direction: 'next',
+    self: 'BS',
+    convertToOther: bs2Ad,
+  });
 
   const rawDate = [...previousMonthBsDates, ...currentBsMonthDates, ...nextMonthBsDates];
   rawDate.forEach((row: BSutil.Date, i) => {
@@ -204,44 +173,12 @@ const getBsHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYe
   };
 };
 
-const getPrevMonthDatesOffset = (...args: IDateUtils.IGetMonthOffset_Params) => {
-  const [monthCount, length, month, year] = args;
-  const prevMonth = month - 1 <= 0 ? '01' : month - 1;
-  if (length != 0)
-    return Array.from({ length: monthCount }, (_, i) => ({
-      dayOfMonth: i + 1,
-      year,
-      month: month - 1,
-      adDate: createDateString(year, month - 1, i + 1),
-      extraDate: en2NpNumber(ad2Bs(createDateString(year, +prevMonth, i + 1)).split('-')[2]),
-      type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
-    })).slice(-length);
-  return [];
-};
-
-const getNextMonthDatesOffset = (...args: IDateUtils.IGetMonthOffset_Params) => {
-  const [monthCount, length, month, year] = args;
-  const { year: YEAR, month: MONTH } = switchYear(year, month + 1);
-  return Array.from({ length: monthCount }, (_, i) => ({
-    dayOfMonth: i + 1,
-    year: YEAR,
-    month: MONTH + 1,
-    adDate: createDateString(YEAR, MONTH, i + 1),
-    extraDate: en2NpNumber(ad2Bs(createDateString(YEAR, MONTH, i + 1)).split('-')[2]),
-    type: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
-  })).slice(0, weeksDaysCount - length);
-};
-
 export {
   getBsMonthStartingDay,
   createBsMonths,
-  getBsPrevMonthDatesOffset,
-  getBsNextMonthDatesOffset,
   getBSMonthYear,
   getRawBsDates,
   getBsHeaderMonth,
   evaluateNepaliDate,
-  getPrevMonthDatesOffset,
-  getNextMonthDatesOffset,
   bs2Ad,
 };

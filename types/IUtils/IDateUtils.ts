@@ -9,10 +9,13 @@ export namespace IDateUtils {
     currDate: IUseCalendarData.ICurrDate,
   ];
 
-  export type IGetMonthOffset_Params = [
-    monthCount: number,
-    length: number,
-    month: number,
-    year: number,
-  ];
+  export type IOffsetMonthDates_Params = {
+    monthCount: number;
+    length: number;
+    year: number;
+    month: number;
+    direction: 'prev' | 'next';
+    self: 'AD' | 'BS';
+    convertToOther: (ownDate: string) => string;
+  };
 }
