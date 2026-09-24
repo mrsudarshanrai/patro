@@ -32,7 +32,7 @@ const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
     const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
     const type = `_patro_dates_date _patro_dates_current_month_date ${
       month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
-    }`;
+    } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`;
 
     return {
       dayOfMonth,
@@ -49,6 +49,13 @@ const zeroPad = (value: number | undefined) => ('0' + value).slice(-2);
 
 const createDateString = (year: number, month: number, date?: number) =>
   `${year}-${zeroPad(month)}-${zeroPad(date) || '01'}`;
+
+// Computed fresh, not from the module-load-time currentYear/currentMonth/
+// currentDate constants, which would freeze "today" at app-load time.
+const isTodayAdDate = (adDate: string) => {
+  const now = new Date();
+  return adDate === createDateString(now.getFullYear(), now.getMonth() + 1, now.getDate());
+};
 
 /** data sanitizer */
 const isDayValid = (day: number) => day > 32 || day < 1 || !day;
@@ -98,23 +105,27 @@ const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
   const cells = Array.from({ length: monthCount }, (_, i) => {
     const ownDate = createDateString(year, month, i + 1);
     const otherDate = convertToOther(ownDate);
+    const adDate = self === 'AD' ? ownDate : otherDate;
+    const type = `${OFFSET_CELL_CLASS[direction]} ${
+      isTodayAdDate(adDate) ? '_patro_dates_today' : ''
+    }`;
 
     return self === 'AD'
       ? {
           dayOfMonth: i + 1,
           year,
           month,
-          adDate: ownDate,
+          adDate,
           extraDate: en2NpNumber(otherDate.split('-')[2]),
-          type: OFFSET_CELL_CLASS[direction],
+          type,
         }
       : {
           dayOfMonth: en2NpNumber(String(i + 1)),
           year,
           month,
-          adDate: otherDate,
+          adDate,
           extraDate: otherDate.split('-')[2],
-          type: OFFSET_CELL_CLASS[direction],
+          type,
         };
   });
 
@@ -143,6 +154,21 @@ const formatDisplayDate = (date: Date, calendarType: ICalendar.calendarType) => 
   return `${en2NpNumber(bsDay)} ${bsMonthName} ${en2NpNumber(bsYear)}`;
 };
 
+/** Formats the *other* calendar system's short date, e.g. a Datepicker input's secondary text. */
+const formatSecondaryDate = (date: Date, calendarType: ICalendar.calendarType) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  if (isAd(calendarType)) {
+    const [, bsMonth, bsDay] = ad2Bs(createDateString(year, month, day)).split('-');
+    const bsMonthName = Object.keys(np.months)[parseInt(remove1stZero(bsMonth)) - 1];
+    return `${en2NpNumber(bsDay)} ${bsMonthName}`;
+  }
+
+  return `${day} ${getMonth(month).slice(0, 3)} ${year}`;
+};
+
 export {
   zeroPad,
   createDateString,
@@ -152,8 +178,10 @@ export {
   createDateArray,
   switchYear,
   getOffsetMonthDates,
+  isTodayAdDate,
   getHeaderMonths,
   formatDisplayDate,
+  formatSecondaryDate,
   dateString2Obj,
   en2NpNumber,
   remove1stZero,

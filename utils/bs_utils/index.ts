@@ -6,7 +6,7 @@ import {
   dates,
   MIN_BS_YEAR,
 } from '../../constants/dateConstants';
-import { switchYear, getOffsetMonthDates } from '../dateUtils';
+import { switchYear, getOffsetMonthDates, isTodayAdDate } from '../dateUtils';
 import { bs2Ad } from './bs2ad';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 import { getRawAdDates } from '../../utils/ad_utils';
@@ -51,16 +51,20 @@ type ICreateBsMonths = [
 const createBsMonths = (...args: ICreateBsMonths) => {
   const [length, year, month, selectedBs] = args;
 
-  return Array.from({ length }, (_, i) => ({
-    dayOfMonth: en2NpNumber(String(i + 1)),
-    year,
-    month,
-    adDate: bs2Ad(createDateString(year, month, i + 1)),
-    extraDate: bs2Ad(createDateString(year, month, i + 1)).split('-')[2],
-    type: `_patro_dates_date _patro_dates_current_month_date ${
-      month === selectedBs.month && i + 1 === selectedBs.date ? '_patro_dates_current_date' : ''
-    }`,
-  }));
+  return Array.from({ length }, (_, i) => {
+    const adDate = bs2Ad(createDateString(year, month, i + 1));
+
+    return {
+      dayOfMonth: en2NpNumber(String(i + 1)),
+      year,
+      month,
+      adDate,
+      extraDate: adDate.split('-')[2],
+      type: `_patro_dates_date _patro_dates_current_month_date ${
+        month === selectedBs.month && i + 1 === selectedBs.date ? '_patro_dates_current_date' : ''
+      } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`,
+    };
+  });
 };
 
 /**
