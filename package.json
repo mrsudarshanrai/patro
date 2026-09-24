@@ -1,6 +1,6 @@
 {
   "name": "patro",
-  "version": "0.0.4-beta",
+  "version": "0.1.0-beta",
   "description": "AD and BS Calendar",
   "license": "MIT",
   "main": "dist/index.cjs",
@@ -9,11 +9,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/mrsudarshanrai/patro.git"
   },
   "bugs": {
-    "url": ""
+    "url": "https://github.com/mrsudarshanrai/patro/issues"
   },
+  "homepage": "https://github.com/mrsudarshanrai/patro#readme",
   "engines": {
     "node": ">=10"
   },
