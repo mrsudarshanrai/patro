@@ -22,9 +22,7 @@
   --patro-sel-sub: #5d5294;
   --patro-halo: color-mix(in srgb, #796cbf 18%, transparent);
   --patro-glow: 0 0 0 transparent;
-  --patro-shadow:
-    0 0 0 1px #cfd3e5,
-    0 8px 24px color-mix(in srgb, #292b31 12%, transparent);
+  --patro-shadow: 0 0 0 1px #cfd3e5, 0 8px 24px color-mix(in srgb, #292b31 12%, transparent);
 
   --patro-radius-popover: 14px;
   --patro-radius-cell: 8px;
@@ -54,7 +52,5 @@
   --patro-sel-sub: #d2cefd;
   --patro-halo: color-mix(in srgb, #9184d9 22%, transparent);
   --patro-glow: 0 0 14px color-mix(in srgb, #9184d9 30%, transparent);
-  --patro-shadow:
-    0 0 0 1px #595d6c,
-    0 6px 18px rgba(0, 0, 0, 0.55);
+  --patro-shadow: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
 }
