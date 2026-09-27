@@ -211,10 +211,14 @@ const bsYears = Object.keys(dates).map(Number);
 const MIN_BS_YEAR = Math.min(...bsYears);
 const MAX_BS_YEAR = Math.max(...bsYears);
 
-const totalTableDays = bsYears.reduce(
-  (sum, year) => sum + dates[year].slice(1).reduce((a, b) => a + b, 0),
-  0,
-);
+// Days from START_ENGLISH_DATE to the 1st of each BS year.
+const bsYearStartDays: Record<number, number> = {};
+let totalTableDays = 0;
+for (const year of bsYears) {
+  bsYearStartDays[year] = totalTableDays;
+  totalTableDays += dates[year].slice(1).reduce((a, b) => a + b, 0);
+}
+
 // Last AD date the table resolves to (the last day of MAX_BS_YEAR).
 const MAX_AD_DATE = new Date(
   Date.parse(`${START_ENGLISH_DATE}T00:00:00Z`) + (totalTableDays - 1) * 86400000,
@@ -229,6 +233,7 @@ export {
   weeksDaysCount,
   config,
   dates,
+  bsYearStartDays,
   MONTHS_IN_YEAR,
   START_ENGLISH_DATE,
   MIN_BS_YEAR,

@@ -1,4 +1,10 @@
-import { MAX_BS_YEAR, MIN_BS_YEAR, START_ENGLISH_DATE, dates } from '../../constants/dateConstants';
+import {
+  MAX_BS_YEAR,
+  MIN_BS_YEAR,
+  START_ENGLISH_DATE,
+  bsYearStartDays,
+  dates,
+} from '../../constants/dateConstants';
 import { createDateString } from '../dateUtils';
 import { dateString2Obj } from '../../utils';
 
@@ -27,19 +33,8 @@ const bs2Ad = (bsDate: string) => {
   const [year, month, day] = validateBsDate(bsDate)
     .split('-')
     .map((item) => parseInt(item));
-  let daysDiff = 0;
-  for (let i = MIN_BS_YEAR; i <= year; i++) {
-    if (i === year) {
-      for (let j = 1; j < month; j++) {
-        daysDiff += dates[i][j];
-      }
-      daysDiff += day - 1;
-    } else {
-      for (let j = 1; j <= 12; j++) {
-        daysDiff += dates[i][j];
-      }
-    }
-  }
+  let daysDiff = bsYearStartDays[year] + day - 1;
+  for (let m = 1; m < month; m++) daysDiff += dates[year][m];
   return evaluateEnglishDate(START_ENGLISH_DATE, daysDiff);
 };
 

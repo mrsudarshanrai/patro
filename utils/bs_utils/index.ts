@@ -6,6 +6,7 @@ import {
   dates,
   MIN_BS_YEAR,
   MAX_BS_YEAR,
+  bsYearStartDays,
 } from '../../constants/dateConstants';
 import { switchYear, getOffsetMonthDates, isTodayAdDate } from '../dateUtils';
 import { bs2Ad } from './bs2ad';
@@ -149,29 +150,16 @@ const getRawBsDates = (
   return dates;
 };
 
-const evaluateNepaliDate = (daysElpased: number) => {
-  let currentYear = 0;
-  let currentMonth = 0;
-  let currentDay = 0;
-  let totalD = 0;
-  let flag = false;
+const evaluateNepaliDate = (daysElapsed: number) => {
+  // A BS year is never longer than 366 days, so this never overshoots.
+  let year = Math.min(MAX_BS_YEAR, MIN_BS_YEAR + Math.floor(daysElapsed / 366));
+  while (year < MAX_BS_YEAR && bsYearStartDays[year + 1] <= daysElapsed) year++;
 
-  for (let i = MIN_BS_YEAR; i <= MAX_BS_YEAR; i++) {
-    if (flag) {
-      break;
-    }
-    for (let j = 1; j <= 12; j++) {
-      totalD += dates[i][j];
-      if (daysElpased - totalD < 0) {
-        currentDay = daysElpased - totalD + dates[i][j] + 1;
-        flag = true;
-        currentYear = i;
-        currentMonth = j;
-        break;
-      }
-    }
-  }
-  return createDateString(currentYear, currentMonth, currentDay);
+  let remaining = daysElapsed - bsYearStartDays[year];
+  let month = 1;
+  while (remaining >= dates[year][month]) remaining -= dates[year][month++];
+
+  return createDateString(year, month, remaining + 1);
 };
 
 const getBsHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
