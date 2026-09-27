@@ -37,16 +37,20 @@ test('every year has 12 months of 29-32 days totalling 365 or 366', () => {
 });
 
 test('every supported AD day round-trips and maps to the next BS day', () => {
-  const day = new Date(`${START_ENGLISH_DATE}T00:00:00Z`);
+  const toAd = (day: Date) =>
+    createDateString(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate());
   let previousBs: string | undefined;
 
-  while (true) {
-    const ad = createDateString(day.getUTCFullYear(), day.getUTCMonth() + 1, day.getUTCDate());
+  for (
+    const day = new Date(`${START_ENGLISH_DATE}T00:00:00Z`);
+    toAd(day) <= MAX_AD_DATE;
+    day.setUTCDate(day.getUTCDate() + 1)
+  ) {
+    const ad = toAd(day);
     const bs = ad2Bs(ad);
     expect(bs2Ad(bs)).toBe(ad);
     if (previousBs) expect(bs > previousBs).toBe(true);
     previousBs = bs;
-    if (ad === MAX_AD_DATE) break;
-    day.setUTCDate(day.getUTCDate() + 1);
   }
+  expect(previousBs).toBe(ad2Bs(MAX_AD_DATE));
 });
