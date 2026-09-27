@@ -4,7 +4,7 @@ import { createPopper } from '@popperjs/core';
 import { Datepicker as DatepickerType } from './types';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { ICalendar } from '../Calendar/types';
-import { formatDisplayDate, formatSecondaryDate } from '../utils';
+import { adDateToLocalDate, formatDisplayDate, formatSecondaryDate } from '../utils';
 import { icons } from './icons';
 
 const Datepicker = (props: DatepickerType.Props) => {
@@ -55,7 +55,7 @@ const Datepicker = (props: DatepickerType.Props) => {
   }, [isPopperVisible, inputRef, popperRef]);
 
   const onSelect = (date: IUseCalendarData.IDates) => {
-    setSelectedDate(new Date(date.adDate));
+    setSelectedDate(adDateToLocalDate(date.adDate));
     closePopper();
     onChange && onChange(date);
   };

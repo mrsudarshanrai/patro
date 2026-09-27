@@ -74,6 +74,13 @@ const dateString2Obj = (date: string) => {
   return { year, month, day };
 };
 
+// `new Date('YYYY-MM-DD')` parses as UTC midnight, which is the previous day
+// when read back with local getters anywhere west of UTC.
+const adDateToLocalDate = (adDate: string) => {
+  const { year, month, day } = dateString2Obj(adDate);
+  return new Date(year, month - 1, day);
+};
+
 const en2NpNumber = (value: string) =>
   value
     .split('')
@@ -183,6 +190,7 @@ export {
   formatDisplayDate,
   formatSecondaryDate,
   dateString2Obj,
+  adDateToLocalDate,
   en2NpNumber,
   remove1stZero,
 };

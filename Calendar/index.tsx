@@ -6,6 +6,7 @@ import { CalendarGrid } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
+import { adDateToLocalDate } from '../utils';
 
 const Calendar = (props: ICalendar.IProps) => {
   const {
@@ -32,7 +33,7 @@ const Calendar = (props: ICalendar.IProps) => {
 
   // on date select
   const onSelect = (date: IUseCalendarData.IDates) => {
-    setSelectedDate(() => new Date(date.adDate));
+    setSelectedDate(() => adDateToLocalDate(date.adDate));
     onChange && onChange(date);
   };
 
