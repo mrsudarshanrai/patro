@@ -82,6 +82,12 @@ const weeksDaysCount = Object.values(config.en.days).length;
 
 type Dates = { [year: number]: number[] };
 
+// BS month lengths: dates[year] = [year, Baisakh..Chaitra]. There's no formula -
+// they're set yearly from astronomical calculation. 2000-2098 matches the
+// `nepali-datetime` npm package, cross-checked against nepalipatro.com; years
+// more than a few ahead are published projections and sources disagree on
+// them. test/dateTable.test.ts pins verified real-world dates - update it
+// with evidence, not just to make it pass.
 const dates: Dates = [];
 dates[1978] = [1978, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[1979] = [1979, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
