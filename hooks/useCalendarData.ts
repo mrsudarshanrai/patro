@@ -105,40 +105,30 @@ const useCalendarData = (
     return { year, month, date: day };
   }, [selectedBsDate]);
 
-  /**
-   * generate AD dates
-   */
   const adDates = useMemo(
     () => getRawAdDates(adYear, adMonth, selected.date, selected),
     [adYear, adMonth, selected],
   );
 
-  /**
-   * generate BS dates
-   */
   const bsDates = useMemo(
     () => getRawBsDates(bsAnchor, adYear, adMonth, selected.date, selected, selectedBs),
     [bsAnchor, adYear, adMonth, selected, selectedBs],
   );
 
-  const dateObj = {
+  return {
+    dates: calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates,
     adDate: selectedAdDate,
     bsDate: selectedBsDate,
-    headerMonths: {
-      ...getHeaderMonths(
-        calendarType,
-        bsAnchor.split('-')[1],
-        adMonth,
-        String(bsYear),
-        String(adYear),
-      ),
-    },
+    header: getHeaderMonths(
+      calendarType,
+      bsAnchor.split('-')[1],
+      adMonth,
+      String(bsYear),
+      String(adYear),
+    ),
+    nextMonth,
+    prevMonth,
   };
-
-  const dates: IUseCalendarData.IDates[][] =
-    calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates;
-
-  return [dates, dateObj, nextMonth, prevMonth];
 };
 
 export { useCalendarData, stepViewAnchor };

@@ -18,20 +18,19 @@ const Calendar = (props: ICalendar.IProps) => {
   } = props;
   const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
 
-  // Re-sync when a controlling parent (e.g. Datepicker) passes a new date,
-  // not just on mount.
+  // Re-sync when a parent (e.g. Datepicker) passes a new date, not just on mount.
   useEffect(() => {
     if (defaultDate) setSelectedDate(defaultDate);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultDate?.getTime()]);
 
-  // get calendar data
-  const [dates, dateObj, nextMonth, prevMonth] = useCalendarData(calendarType, selectedDate);
   const {
-    headerMonths: { month, oMonth, oYear, year },
-  } = dateObj || {};
+    dates,
+    header: { month, oMonth, oYear, year },
+    nextMonth,
+    prevMonth,
+  } = useCalendarData(calendarType, selectedDate);
 
-  // on date select
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(() => adDateToLocalDate(date.adDate));
     onChange && onChange(date);

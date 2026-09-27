@@ -12,8 +12,7 @@ const firstRender = (calendarType: ICalendar.calendarType, defaultDate?: Date) =
   };
   renderToString(createElement(Probe));
   if (!result) throw new Error('hook did not render');
-  const [, dateObj] = result;
-  return { month: dateObj.headerMonths.month, selected: dateObj.adDate };
+  return { month: result.header.month, selected: result.adDate };
 };
 
 test('first render already shows the defaultDate month and selection', () => {

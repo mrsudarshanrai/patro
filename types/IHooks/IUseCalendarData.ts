@@ -1,19 +1,17 @@
 export namespace IUseCalendarData {
-  export type IReturn = [
-    dates: IDates[][],
-    dateObj: {
-      bsDate: string;
-      adDate: string;
-      headerMonths: {
-        month: string;
-        oMonth: string;
-        oYear: string;
-        year: string;
-      };
-    },
-    nextMonth: () => void,
-    prevMonth: () => void,
-  ];
+  export interface IReturn {
+    dates: IDates[][];
+    adDate: string;
+    bsDate: string;
+    header: {
+      month: string;
+      oMonth: string;
+      oYear: string;
+      year: string;
+    };
+    nextMonth: () => void;
+    prevMonth: () => void;
+  }
 
   export interface ICurrDate {
     month: number;
