@@ -16,7 +16,7 @@
   },
   "homepage": "https://github.com/mrsudarshanrai/patro#readme",
   "engines": {
-    "node": ">=10"
+    "node": ">=18"
   },
   "keywords": [
     "ad2bs",
@@ -37,25 +37,21 @@
     "test": "jest && npm run test:tz",
     "test:tz": "node scripts/test-timezones.mjs",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepublishOnly": "npm run lint && npm test && npm run build"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
   },
   "husky": {
     "hooks": {
       "pre-commit": "npm run format"
     }
   },
-  "files": [
-    "dist",
-    "package.json",
-    "dist/css/style.css"
-  ],
   "devDependencies": {
     "@babel/preset-react": "^7.22.5",
     "@rollup/plugin-babel": "^6.0.3",
@@ -97,5 +93,8 @@
     "ts-jest": "^29.4.13",
     "tslib": "^2.6.1",
     "typescript": "^5.1.6"
-  }
+  },
+  "files": [
+    "dist"
+  ]
 }
