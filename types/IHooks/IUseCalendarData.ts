@@ -22,10 +22,12 @@ export namespace IUseCalendarData {
   }
   export interface IDates {
     dayOfMonth: number | string;
-    year?: number;
-    month?: number;
-    type: string;
+    year: number;
+    month: number;
     adDate: string;
-    extraDate?: string;
+    extraDate: string;
+    isToday: boolean;
+    isSelected: boolean;
+    offset?: 'prev' | 'next';
   }
 }

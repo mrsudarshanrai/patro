@@ -81,26 +81,18 @@ test('AD grid highlights the selected day, and only that day', () => {
   const selected = { year: 2024, month: 3, date: 15 };
   const grid = getRawAdDates(2024, 3, 15, selected).flat();
 
-  expect(grid.find((cell) => cell.adDate === '2024-03-15')?.type).toContain(
-    '_patro_dates_current_date',
-  );
-  expect(grid.find((cell) => cell.adDate === '2024-03-14')?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(grid.find((cell) => cell.adDate === '2024-03-15')?.isSelected).toBe(true);
+  expect(grid.find((cell) => cell.adDate === '2024-03-14')?.isSelected).toBe(false);
 });
 
 test('the same day in another year is not highlighted as selected', () => {
   const adSelected = { year: 2026, month: 10, date: 5 };
   const adGrid = getRawAdDates(2027, 10, 5, adSelected).flat();
-  expect(adGrid.find((cell) => cell.adDate === '2027-10-05')?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(adGrid.find((cell) => cell.adDate === '2027-10-05')?.isSelected).toBe(false);
 
   const bsSelected = { year: 2079, month: 7, date: 7 };
   const bsGrid = getRawBsDates('2080-07-07', 2023, 10, 24, adSelected, bsSelected).flat();
-  expect(bsGrid.find((cell) => cell.adDate === bs2Ad('2080-07-07'))?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(bsGrid.find((cell) => cell.adDate === bs2Ad('2080-07-07'))?.isSelected).toBe(false);
 });
 
 test('BS grid highlights the selected day, and only that day', () => {
@@ -109,12 +101,8 @@ test('BS grid highlights the selected day, and only that day', () => {
   const grid = getRawBsDates(bsDate, 2022, 10, 24, adSelected, bsSelected).flat();
 
   // BS 2079-07-07 is AD 2022-10-24 (the fixture at the top of this file).
-  expect(grid.find((cell) => cell.adDate === '2022-10-24')?.type).toContain(
-    '_patro_dates_current_date',
-  );
-  expect(grid.find((cell) => cell.adDate === '2022-10-23')?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(grid.find((cell) => cell.adDate === '2022-10-24')?.isSelected).toBe(true);
+  expect(grid.find((cell) => cell.adDate === '2022-10-23')?.isSelected).toBe(false);
 });
 
 test('formatDisplayDate formats a date in the given calendar system', () => {

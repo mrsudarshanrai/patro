@@ -11,24 +11,16 @@ const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
     const dayOfMonth = i + 1;
     const adDate = createDateString(year, month, i + 1);
     const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
-    const type = `_patro_dates_date _patro_dates_current_month_date ${
-      year === currYear && month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
-    } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`;
-
     return {
       dayOfMonth,
       year,
       month,
       adDate,
       extraDate,
-      type,
+      isToday: isTodayAdDate(adDate),
+      isSelected: year === currYear && month === currMonth && date === i + 1,
     };
   });
-};
-
-const OFFSET_CELL_CLASS = {
-  prev: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
-  next: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
 };
 
 // Leading ("prev") or trailing ("next") spillover cells around a month, for
@@ -43,9 +35,7 @@ const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
     const ownDate = createDateString(year, month, i + 1);
     const otherDate = convertToOther(ownDate);
     const adDate = self === 'AD' ? ownDate : otherDate;
-    const type = `${OFFSET_CELL_CLASS[direction]} ${
-      isTodayAdDate(adDate) ? '_patro_dates_today' : ''
-    }`;
+    const flags = { isToday: isTodayAdDate(adDate), isSelected: false, offset: direction };
 
     return self === 'AD'
       ? {
@@ -54,7 +44,7 @@ const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
           month,
           adDate,
           extraDate: en2NpNumber(otherDate.split('-')[2]),
-          type,
+          ...flags,
         }
       : {
           dayOfMonth: en2NpNumber(String(i + 1)),
@@ -62,7 +52,7 @@ const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
           month,
           adDate,
           extraDate: otherDate.split('-')[2],
-          type,
+          ...flags,
         };
   });
 
