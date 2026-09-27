@@ -1,48 +1,17 @@
-import { ICalendar } from '../Calendar/types';
-import { weeksDaysCount, config } from '../constants/dateConstants';
+import { config } from '../constants/dateConstants';
 import { Constant } from '../constants/types';
-import { IDateUtils } from '../types/IUtils/IDateUtils';
-import { ad2Bs, getAdHeaderMonth, isAd } from './ad_utils';
-import { getBsHeaderMonth } from './bs_utils';
 const { en, np }: Constant.Config = config;
 
 const getDates = (month: number, year: number) => new Date(year, month, 0).getDate();
 
 const getMonth = (month: number) => Object.keys(en.months)[month - 1];
 
-const getMonthFirstDay = (month: number, year: number) => {
-  // Local numeric construction avoids the UTC-vs-local mismatch that comes
-  // from parsing a date-only ISO string (which is parsed as UTC midnight)
-  // and then reading its local weekday.
-  return new Date(year, month - 1, 1).getDay();
-};
+const getMonthFirstDay = (month: number, year: number) => new Date(year, month - 1, 1).getDay();
 
 const switchYear = (year: number, month: number) => {
   if (month > 12) return { year: +year + 1, month: 1 };
   if (month <= 0) return { year: +year - 1, month: 12 };
   else return { year, month };
-};
-const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
-  const [length, month, year, date, currDate] = args;
-  const { month: currMonth } = currDate;
-
-  return Array.from({ length }, (_, i) => {
-    const dayOfMonth = i + 1;
-    const adDate = createDateString(year, month, i + 1);
-    const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
-    const type = `_patro_dates_date _patro_dates_current_month_date ${
-      month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
-    } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`;
-
-    return {
-      dayOfMonth,
-      year,
-      month,
-      adDate,
-      extraDate,
-      type,
-    };
-  });
 };
 
 const zeroPad = (value: number | undefined) => ('0' + value).slice(-2);
@@ -61,7 +30,6 @@ const isTodayAdDate = (adDate: string) => {
   return adDate === createDateString(year, month, date);
 };
 
-/** data sanitizer */
 const isDayValid = (day: number) => day > 32 || day < 1 || !day;
 const isMonthValid = (month: number) => month > 12 || month < 1 || !month;
 const isYearValid = (year: number) => !year || year.toString().length < 4;
@@ -78,8 +46,7 @@ const dateString2Obj = (date: string) => {
   return { year, month, day };
 };
 
-// `new Date('YYYY-MM-DD')` parses as UTC midnight, which is the previous day
-// when read back with local getters anywhere west of UTC.
+// `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
   const { year, month, day } = dateString2Obj(adDate);
   return new Date(year, month - 1, day);
@@ -93,107 +60,15 @@ const en2NpNumber = (value: string) =>
 
 const remove1stZero = (value: string) => value.replace(/^0+/, '');
 
-const OFFSET_CELL_CLASS = {
-  prev: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_prev_month_date_offset',
-  next: '_patro_dates_date _patro_dates_current_month_date _patro_dates_date_offset _patro_dates_next_month_date_offset',
-};
-
-/**
- * Builds the leading ("prev") or trailing ("next") spillover day-cells shown
- * around a month's own days in the calendar grid, for either calendar
- * system. Always routes the offset month through `switchYear` so a month
- * that rolls past January/December also rolls its year — that wraparound
- * used to be hand-rolled separately per direction and per calendar system,
- * and the one hand-rolled copy that skipped switchYear was the source of
- * the AD/BS mismatch at year boundaries.
- */
-const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
-  const { monthCount, length, direction, self, convertToOther } = params;
-  const { year, month } = switchYear(params.year, params.month);
-
-  if (direction === 'prev' && length === 0) return [];
-
-  const cells = Array.from({ length: monthCount }, (_, i) => {
-    const ownDate = createDateString(year, month, i + 1);
-    const otherDate = convertToOther(ownDate);
-    const adDate = self === 'AD' ? ownDate : otherDate;
-    const type = `${OFFSET_CELL_CLASS[direction]} ${
-      isTodayAdDate(adDate) ? '_patro_dates_today' : ''
-    }`;
-
-    return self === 'AD'
-      ? {
-          dayOfMonth: i + 1,
-          year,
-          month,
-          adDate,
-          extraDate: en2NpNumber(otherDate.split('-')[2]),
-          type,
-        }
-      : {
-          dayOfMonth: en2NpNumber(String(i + 1)),
-          year,
-          month,
-          adDate,
-          extraDate: otherDate.split('-')[2],
-          type,
-        };
-  });
-
-  return direction === 'prev' ? cells.slice(-length) : cells.slice(0, weeksDaysCount - length);
-};
-
-type IHeaderMonths = [bsMonth: string, adMonth: number, bsYear: string, adYear: string];
-
-const getHeaderMonths = (calendarType: ICalendar.calendarType, ...args: IHeaderMonths) => {
-  if (isAd(calendarType)) return getAdHeaderMonth(...args);
-  else return getBsHeaderMonth(...args);
-};
-
-/** Formats a JS Date as a display string in the given calendar system, e.g. for a Datepicker's input value. */
-const formatDisplayDate = (date: Date, calendarType: ICalendar.calendarType) => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  if (isAd(calendarType)) {
-    return `${zeroPad(day)} ${getMonth(month)} ${year}`;
-  }
-
-  const [bsYear, bsMonth, bsDay] = ad2Bs(createDateString(year, month, day)).split('-');
-  const bsMonthName = Object.keys(np.months)[parseInt(remove1stZero(bsMonth)) - 1];
-  return `${en2NpNumber(bsDay)} ${bsMonthName} ${en2NpNumber(bsYear)}`;
-};
-
-/** Formats the *other* calendar system's short date, e.g. a Datepicker input's secondary text. */
-const formatSecondaryDate = (date: Date, calendarType: ICalendar.calendarType) => {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  if (isAd(calendarType)) {
-    const [, bsMonth, bsDay] = ad2Bs(createDateString(year, month, day)).split('-');
-    const bsMonthName = Object.keys(np.months)[parseInt(remove1stZero(bsMonth)) - 1];
-    return `${en2NpNumber(bsDay)} ${bsMonthName}`;
-  }
-
-  return `${day} ${getMonth(month).slice(0, 3)} ${year}`;
-};
-
 export {
   zeroPad,
   createDateString,
   getDates,
   getMonthFirstDay,
   getMonth,
-  createDateArray,
   switchYear,
-  getOffsetMonthDates,
   getToday,
   isTodayAdDate,
-  getHeaderMonths,
-  formatDisplayDate,
-  formatSecondaryDate,
   dateString2Obj,
   adDateToLocalDate,
   en2NpNumber,

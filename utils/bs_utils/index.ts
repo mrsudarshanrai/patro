@@ -1,19 +1,16 @@
-import { createDateString, en2NpNumber, remove1stZero } from '../../utils';
+import { dates as bsDates, weeksDaysCount } from '../../constants/dateConstants';
 import {
-  dates as bsDates,
-  weeksDaysCount,
-  config,
-  dates,
-  MIN_BS_YEAR,
-  MAX_BS_YEAR,
-  bsYearStartDays,
-} from '../../constants/dateConstants';
-import { switchYear, getOffsetMonthDates, isTodayAdDate } from '../dateUtils';
+  createDateString,
+  en2NpNumber,
+  isTodayAdDate,
+  remove1stZero,
+  switchYear,
+} from '../dateUtils';
+import { getOffsetMonthDates } from '../gridUtils';
 import { bs2Ad } from './bs2ad';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
-import { getRawAdDates } from '../../utils/ad_utils';
+import { getRawAdDates } from '../ad_utils';
 import { BSutil } from './types';
-const { en, np } = config;
 
 const getBsMonthStartingDay = (arr: Array<BSutil.Date[]>) => {
   for (let a = 0; a < arr.length; a++) {
@@ -69,16 +66,6 @@ const createBsMonths = (...args: ICreateBsMonths) => {
   });
 };
 
-/**
- *
- * @param bsDate
- * @param YEAR
- * @param MONTH
- * @param date
- * @param currDate
- * @param selectedBs
- * @returns
- */
 const getRawBsDates = (
   bsDate: string,
   YEAR: number,
@@ -150,38 +137,4 @@ const getRawBsDates = (
   return dates;
 };
 
-const evaluateNepaliDate = (daysElapsed: number) => {
-  // A BS year is never longer than 366 days, so this never overshoots.
-  let year = Math.min(MAX_BS_YEAR, MIN_BS_YEAR + Math.floor(daysElapsed / 366));
-  while (year < MAX_BS_YEAR && bsYearStartDays[year + 1] <= daysElapsed) year++;
-
-  let remaining = daysElapsed - bsYearStartDays[year];
-  let month = 1;
-  while (remaining >= dates[year][month]) remaining -= dates[year][month++];
-
-  return createDateString(year, month, remaining + 1);
-};
-
-const getBsHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
-  const parsedBsMonth = parseInt(remove1stZero(bsMonth));
-  const enMonths = Object.values(en.months);
-  const beforeMonthIndex = adMonth - 1;
-  return {
-    oMonth: `${enMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
-      enMonths[adMonth === 12 ? 0 : adMonth]
-    } - `,
-    month: Object.keys(np.months)[parsedBsMonth - 1],
-    oYear: adYear,
-    year: bsYear,
-  };
-};
-
-export {
-  getBsMonthStartingDay,
-  createBsMonths,
-  getBSMonthYear,
-  getRawBsDates,
-  getBsHeaderMonth,
-  evaluateNepaliDate,
-  bs2Ad,
-};
+export { getBsMonthStartingDay, createBsMonths, getBSMonthYear, getRawBsDates, bs2Ad };

@@ -5,10 +5,8 @@ import {
   bsYearStartDays,
   dates,
 } from '../../constants/dateConstants';
-import { createDateString } from '../dateUtils';
-import { dateString2Obj } from '../../utils';
+import { createDateString, dateString2Obj } from '../dateUtils';
 
-/** BS date sanitizer */
 const isBsYearValid = (year: number) => year < MIN_BS_YEAR || year > MAX_BS_YEAR;
 const isBsDayValid = (day: number, year: number, month: number) => {
   return day > dates[year][month];

@@ -1,11 +1,6 @@
 import { weeksDaysCount } from '../../constants/dateConstants';
-import {
-  getDates,
-  getMonthFirstDay,
-  createDateArray,
-  switchYear,
-  getOffsetMonthDates,
-} from '../dateUtils';
+import { getDates, getMonthFirstDay, switchYear } from '../dateUtils';
+import { createDateArray, getOffsetMonthDates } from '../gridUtils';
 import { AdUtil } from './types';
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
 import { ad2Bs } from './ad2bs';
