@@ -34,6 +34,19 @@ test('AD date past the BS table range throws', () => {
   expect(ad2Bs('2043-04-14')).toBe('2099-12-31');
 });
 
+test('impossible AD dates throw instead of rolling over', () => {
+  expect(() => ad2Bs('2026-02-30')).toThrow();
+  expect(() => ad2Bs('2026-02-29')).toThrow();
+  expect(() => ad2Bs('2026-04-31')).toThrow();
+  expect(() => ad2Bs('2026-10-00')).toThrow();
+  expect(ad2Bs('2024-02-29')).toBe('2080-11-17');
+});
+
+test('AD date before the BS table range throws', () => {
+  expect(() => ad2Bs('1921-04-12')).toThrow('AD Date out of range');
+  expect(ad2Bs('1921-04-13')).toBe('1978-01-01');
+});
+
 test('getMonthFirstDay returns the correct weekday regardless of local timezone', () => {
   // Hand-verified: Jan 1 2023 = Sunday, Feb 1 2024 = Thursday.
   expect(getMonthFirstDay(1, 2023)).toBe(0);
