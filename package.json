@@ -34,7 +34,8 @@
     "lint": "eslint './**/*.{js,jsx,ts,tsx,json}'",
     "lint:fix": "eslint --fix './**/*.{js,jsx,ts,tsx,json}'",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
-    "test": "jest",
+    "test": "jest && npm run test:tz",
+    "test:tz": "node scripts/test-timezones.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
