@@ -31,10 +31,15 @@ const getAdHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYe
 };
 
 /** AD To BS */
+const toUtcMs = (date: string) => {
+  const { year, month, day } = dateString2Obj(date);
+  return Date.UTC(year, month - 1, day);
+};
+
 const ad2Bs = (adDate: string) => {
-  const startDate = new Date(START_ENGLISH_DATE);
-  const today = new Date(validateAdDate(adDate));
-  const daysDifference = Math.floor((today.getTime() - startDate.getTime()) / 86400000);
+  const daysDifference = Math.round(
+    (toUtcMs(validateAdDate(adDate)) - toUtcMs(START_ENGLISH_DATE)) / 86400000,
+  );
   if (daysDifference < 0) {
     throw new Error('AD Date out of range');
   }

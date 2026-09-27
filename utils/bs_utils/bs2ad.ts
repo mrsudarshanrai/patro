@@ -18,12 +18,9 @@ const validateBsDate = (date: string) => {
 };
 
 const evaluateEnglishDate = (date: string, days: number) => {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  const year = result.getFullYear();
-  const month = result.getMonth() + 1;
-  const day = result.getDate();
-  return `${year}-${month > 9 ? month : '0' + month}-${day > 9 ? day : '0' + day}`;
+  const { year, month, day } = dateString2Obj(date);
+  const result = new Date(Date.UTC(year, month - 1, day + days));
+  return createDateString(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
 };
 
 const bs2Ad = (bsDate: string) => {
