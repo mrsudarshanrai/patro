@@ -32,11 +32,22 @@ test('AD calendar shows the defaultDate month with selected, today and offset ce
   expect(cell(container, '2026-11-01')).toHaveClass('_patro_dates_next_month_date_offset');
 });
 
+test('AD header subtitle names the two BS months the AD month spans', () => {
+  const subtitle = (date: Date) =>
+    render(<Calendar defaultDate={date} />).container.querySelector('._patro_header_subtitle')
+      ?.textContent;
+
+  expect(subtitle(new Date(2026, 8, 15))).toBe('भाद्र/आश्विन - 2083');
+  expect(subtitle(new Date(2027, 2, 15))).toBe('फाल्गुन/चैत्र - 2083');
+  expect(subtitle(new Date(2026, 3, 15))).toBe('चैत्र/बैशाख - 2082');
+});
+
 test('BS calendar shows the BS month containing defaultDate', () => {
   const { container } = render(<Calendar calendarType='BS' defaultDate={TODAY} showExtra />);
 
   expect(container.firstElementChild).toHaveAttribute('data-calendar-type', 'BS');
   expect(title(container)).toBe('कार्तिक 2083');
+  expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe('Oct/Nov - 2026');
   expect(cell(container, '2026-10-18').textContent).toBe('१18');
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });

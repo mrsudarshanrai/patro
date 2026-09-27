@@ -9,11 +9,9 @@ const isAd = (value: string) => value === ICalendar.CalendarTypeEnum.AD;
 const getAdHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
   const parsedBsMonth = parseInt(remove1stZero(bsMonth));
   const npMonths = Object.keys(np.months);
-  const beforeMonthIndex = parsedBsMonth - 2;
+  // An AD month starts mid-way through one BS month and ends in the next.
   return {
-    oMonth: `${npMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
-      npMonths[parsedBsMonth - 1]
-    } - `,
+    oMonth: `${npMonths[parsedBsMonth - 1]}/${npMonths[parsedBsMonth % 12]} -`,
     month: Object.keys(en.months)[adMonth - 1],
     oYear: bsYear,
     year: adYear,
@@ -27,7 +25,7 @@ const getBsHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYe
   return {
     oMonth: `${enMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
       enMonths[adMonth === 12 ? 0 : adMonth]
-    } - `,
+    } -`,
     month: Object.keys(np.months)[parsedBsMonth - 1],
     oYear: adYear,
     year: bsYear,
