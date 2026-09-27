@@ -189,10 +189,12 @@
 ._patro_container[data-calendar-type='BS'] ._patro_dates_date {
   &_primary {
     order: 2;
-    margin-top: 7px;
     font-family: var(--patro-font-devanagari);
     font-size: 17px;
     line-height: 20px;
+  }
+  &:has(sub) ._patro_dates_date_primary {
+    margin-top: 7px;
   }
   sub {
     order: 1;
