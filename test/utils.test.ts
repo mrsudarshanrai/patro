@@ -89,6 +89,20 @@ test('AD grid highlights the selected day, and only that day', () => {
   );
 });
 
+test('the same day in another year is not highlighted as selected', () => {
+  const adSelected = { year: 2026, month: 10, date: 5 };
+  const adGrid = getRawAdDates(2027, 10, 5, adSelected).flat();
+  expect(adGrid.find((cell) => cell.adDate === '2027-10-05')?.type).not.toContain(
+    '_patro_dates_current_date',
+  );
+
+  const bsSelected = { year: 2079, month: 7, date: 7 };
+  const bsGrid = getRawBsDates('2080-07-07', 2023, 10, 24, adSelected, bsSelected).flat();
+  expect(bsGrid.find((cell) => cell.adDate === bs2Ad('2080-07-07'))?.type).not.toContain(
+    '_patro_dates_current_date',
+  );
+});
+
 test('BS grid highlights the selected day, and only that day', () => {
   const adSelected = { year: 2022, month: 10, date: 24 };
   const bsSelected = { year: 2079, month: 7, date: 7 };

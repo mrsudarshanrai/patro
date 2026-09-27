@@ -5,14 +5,14 @@ import { ad2Bs } from './ad_utils/ad2bs';
 
 const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
   const [length, month, year, date, currDate] = args;
-  const { month: currMonth } = currDate;
+  const { year: currYear, month: currMonth } = currDate;
 
   return Array.from({ length }, (_, i) => {
     const dayOfMonth = i + 1;
     const adDate = createDateString(year, month, i + 1);
     const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
     const type = `_patro_dates_date _patro_dates_current_month_date ${
-      month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
+      year === currYear && month === currMonth && date === i + 1 ? '_patro_dates_current_date' : ''
     } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`;
 
     return {

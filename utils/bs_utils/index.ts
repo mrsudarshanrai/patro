@@ -60,7 +60,9 @@ const createBsMonths = (...args: ICreateBsMonths) => {
       adDate,
       extraDate: adDate.split('-')[2],
       type: `_patro_dates_date _patro_dates_current_month_date ${
-        month === selectedBs.month && i + 1 === selectedBs.date ? '_patro_dates_current_date' : ''
+        year === selectedBs.year && month === selectedBs.month && i + 1 === selectedBs.date
+          ? '_patro_dates_current_date'
+          : ''
       } ${isTodayAdDate(adDate) ? '_patro_dates_today' : ''}`,
     };
   });
