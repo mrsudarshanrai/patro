@@ -1,5 +1,11 @@
 import { ad2Bs, bs2Ad, createDateString } from '../utils';
-import { dates, MIN_BS_YEAR, MAX_BS_YEAR, START_ENGLISH_DATE, MAX_AD_DATE } from '../constants/dateConstants';
+import {
+  dates,
+  MIN_BS_YEAR,
+  MAX_BS_YEAR,
+  START_ENGLISH_DATE,
+  MAX_AD_DATE,
+} from '../constants/dateConstants';
 
 // Verified against independent real-world sources, not derived from the table.
 const checkpoints: [bs: string, ad: string, source: string][] = [
