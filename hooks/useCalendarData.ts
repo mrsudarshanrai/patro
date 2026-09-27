@@ -58,32 +58,29 @@ const stepViewAnchor = (
   return createDateString(stepped.year, stepped.month, 1);
 };
 
+const toCurrDate = (date?: Date): IUseCalendarData.ICurrDate =>
+  date
+    ? { year: date.getFullYear(), month: date.getMonth() + 1, date: date.getDate() }
+    : getToday();
+
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   defaultDate?: Date,
 ): IUseCalendarData.IReturn => {
-  // The AD date (pinned to day 1 of whichever month navigation last landed
-  // on, in whichever calendar system) currently on screen. Everything else
-  // - the AD year/month, the BS year/month, both grids - derives from this
-  // single value, so there's no stale day-of-month left over from a longer
-  // month to build an invalid date string with after navigating.
-  const [viewAnchor, setViewAnchor] = useState(() => {
-    const { year, month, date } = getToday();
-    return getViewAnchor(calendarType, year, month, date);
-  });
-  /** the day the "current/selected" highlight should land on, in AD terms */
-  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate>(getToday);
+  const [selected, setSelected] = useState(() => toCurrDate(defaultDate));
+  // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
+  const [viewAnchor, setViewAnchor] = useState(() =>
+    getViewAnchor(calendarType, selected.year, selected.month, selected.date),
+  );
 
   useEffect(() => {
-    if (defaultDate && 'getMonth' in defaultDate) {
-      const month = defaultDate.getMonth() + 1;
-      const year = defaultDate.getFullYear();
-      const date = defaultDate.getDate();
-      setViewAnchor(getViewAnchor(calendarType, year, month, date));
-      setSelected({ year, month, date });
-    } else {
-      setViewAnchor(getViewAnchor(calendarType, selected.year, selected.month, selected.date));
-    }
+    const target = defaultDate ? toCurrDate(defaultDate) : selected;
+    setViewAnchor(getViewAnchor(calendarType, target.year, target.month, target.date));
+    setSelected((prev) =>
+      prev.year === target.year && prev.month === target.month && prev.date === target.date
+        ? prev
+        : target,
+    );
   }, [defaultDate?.getTime(), calendarType]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
