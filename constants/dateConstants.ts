@@ -1,13 +1,8 @@
 import { Constant } from './types';
 
+// AD date of BS MIN_BS_YEAR-01-01, the anchor every conversion counts from.
 const START_ENGLISH_DATE = '1921-04-13';
 const MONTHS_IN_YEAR = 12;
-const MIN_BS_YEAR = 1978;
-const MAX_BS_YEAR = 2099;
-
-// Last AD date the `dates` table above can resolve to (the last day of
-// MAX_BS_YEAR, BS 2099-12-31). AD dates beyond this have no BS table entry.
-const MAX_AD_DATE = '2043-04-14';
 
 const currentYear = +new Date().getFullYear();
 const currentMonth = +new Date().getMonth() + 1;
@@ -211,6 +206,21 @@ dates[2096] = [2096, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
 dates[2097] = [2097, 31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 30, 30];
 dates[2098] = [2098, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2099] = [2099, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
+
+const bsYears = Object.keys(dates).map(Number);
+const MIN_BS_YEAR = Math.min(...bsYears);
+const MAX_BS_YEAR = Math.max(...bsYears);
+
+const totalTableDays = bsYears.reduce(
+  (sum, year) => sum + dates[year].slice(1).reduce((a, b) => a + b, 0),
+  0,
+);
+// Last AD date the table resolves to (the last day of MAX_BS_YEAR).
+const MAX_AD_DATE = new Date(
+  Date.parse(`${START_ENGLISH_DATE}T00:00:00Z`) + (totalTableDays - 1) * 86400000,
+)
+  .toISOString()
+  .slice(0, 10);
 
 export {
   currentYear,

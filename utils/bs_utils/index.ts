@@ -5,6 +5,7 @@ import {
   config,
   dates,
   MIN_BS_YEAR,
+  MAX_BS_YEAR,
 } from '../../constants/dateConstants';
 import { switchYear, getOffsetMonthDates, isTodayAdDate } from '../dateUtils';
 import { bs2Ad } from './bs2ad';
@@ -155,7 +156,7 @@ const evaluateNepaliDate = (daysElpased: number) => {
   let totalD = 0;
   let flag = false;
 
-  for (let i = MIN_BS_YEAR; i < 2100; i++) {
+  for (let i = MIN_BS_YEAR; i <= MAX_BS_YEAR; i++) {
     if (flag) {
       break;
     }
