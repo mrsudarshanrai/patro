@@ -5,6 +5,7 @@ import {
   getMonthFirstDay,
   en2NpNumber,
   formatDisplayDate,
+  getToday,
 } from '../utils';
 import { getRawAdDates } from '../utils/ad_utils';
 import { getRawBsDates } from '../utils/bs_utils';
@@ -32,6 +33,14 @@ test('AD date past the BS table range throws', () => {
   // 2043-04-14 (BS 2099-12-31) is the last date the table supports.
   expect(() => ad2Bs('2043-04-15')).toThrow('AD Date out of range');
   expect(ad2Bs('2043-04-14')).toBe('2099-12-31');
+});
+
+test('getToday reads the clock at call time, not at import time', () => {
+  jest.useFakeTimers().setSystemTime(new Date(2026, 8, 30, 23, 59));
+  expect(getToday()).toEqual({ year: 2026, month: 9, date: 30 });
+  jest.setSystemTime(new Date(2026, 9, 1, 0, 1));
+  expect(getToday()).toEqual({ year: 2026, month: 10, date: 1 });
+  jest.useRealTimers();
 });
 
 test('impossible AD dates throw instead of rolling over', () => {

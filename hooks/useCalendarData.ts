@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-import { currentDate, currentMonth, currentYear } from '../constants/dateConstants';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
-import { createDateString, dateString2Obj, getHeaderMonths, switchYear, ad2Bs } from '../utils';
+import {
+  createDateString,
+  dateString2Obj,
+  getHeaderMonths,
+  getToday,
+  switchYear,
+  ad2Bs,
+} from '../utils';
 import { getRawAdDates } from '../utils/ad_utils';
 import { bs2Ad, getRawBsDates } from '../utils/bs_utils';
 import { ICalendar } from '../Calendar/types';
@@ -61,15 +67,12 @@ const useCalendarData = (
   // - the AD year/month, the BS year/month, both grids - derives from this
   // single value, so there's no stale day-of-month left over from a longer
   // month to build an invalid date string with after navigating.
-  const [viewAnchor, setViewAnchor] = useState(() =>
-    getViewAnchor(calendarType, currentYear, currentMonth, currentDate),
-  );
-  /** the day the "current/selected" highlight should land on, in AD terms */
-  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate>({
-    year: currentYear,
-    month: currentMonth,
-    date: currentDate,
+  const [viewAnchor, setViewAnchor] = useState(() => {
+    const { year, month, date } = getToday();
+    return getViewAnchor(calendarType, year, month, date);
   });
+  /** the day the "current/selected" highlight should land on, in AD terms */
+  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate>(getToday);
 
   useEffect(() => {
     if (defaultDate && 'getMonth' in defaultDate) {

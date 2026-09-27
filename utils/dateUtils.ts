@@ -1,16 +1,16 @@
 import { ICalendar } from '../Calendar/types';
-import { currentYear, currentMonth, weeksDaysCount, config } from '../constants/dateConstants';
+import { weeksDaysCount, config } from '../constants/dateConstants';
 import { Constant } from '../constants/types';
 import { IDateUtils } from '../types/IUtils/IDateUtils';
 import { ad2Bs, getAdHeaderMonth, isAd } from './ad_utils';
 import { getBsHeaderMonth } from './bs_utils';
 const { en, np }: Constant.Config = config;
 
-const getDates = (month = currentMonth, year = currentYear) => new Date(year, month, 0).getDate();
+const getDates = (month: number, year: number) => new Date(year, month, 0).getDate();
 
 const getMonth = (month: number) => Object.keys(en.months)[month - 1];
 
-const getMonthFirstDay = (month = currentMonth, year = currentYear) => {
+const getMonthFirstDay = (month: number, year: number) => {
   // Local numeric construction avoids the UTC-vs-local mismatch that comes
   // from parsing a date-only ISO string (which is parsed as UTC midnight)
   // and then reading its local weekday.
@@ -50,11 +50,15 @@ const zeroPad = (value: number | undefined) => ('0' + value).slice(-2);
 const createDateString = (year: number, month: number, date?: number) =>
   `${year}-${zeroPad(month)}-${zeroPad(date) || '01'}`;
 
-// Computed fresh, not from the module-load-time currentYear/currentMonth/
-// currentDate constants, which would freeze "today" at app-load time.
-const isTodayAdDate = (adDate: string) => {
+// Read at call time so a page left open past midnight moves on to the new day.
+const getToday = () => {
   const now = new Date();
-  return adDate === createDateString(now.getFullYear(), now.getMonth() + 1, now.getDate());
+  return { year: now.getFullYear(), month: now.getMonth() + 1, date: now.getDate() };
+};
+
+const isTodayAdDate = (adDate: string) => {
+  const { year, month, date } = getToday();
+  return adDate === createDateString(year, month, date);
 };
 
 /** data sanitizer */
@@ -185,6 +189,7 @@ export {
   createDateArray,
   switchYear,
   getOffsetMonthDates,
+  getToday,
   isTodayAdDate,
   getHeaderMonths,
   formatDisplayDate,
