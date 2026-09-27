@@ -8,6 +8,28 @@ import { bs2Ad, getRawBsDates } from '../utils/bs_utils';
 import { ICalendar } from '../Calendar/types';
 
 /**
+ * AD date (pinned to day 1 of whichever calendar system is displayed) to
+ * anchor the view on for a given AD year/month/date - day 1 of the AD month
+ * in AD mode, or the AD date of day 1 of the containing BS month in BS mode.
+ * Pinning to the AD month's day 1 in BS mode would land on the wrong BS
+ * month whenever the BS month boundary falls after day 1 of the AD month.
+ */
+const getViewAnchor = (
+  calendarType: ICalendar.calendarType,
+  year: number,
+  month: number,
+  date: number,
+): string => {
+  if (calendarType === ICalendar.CalendarTypeEnum.BS) {
+    const { year: bsYear, month: bsMonth } = dateString2Obj(
+      ad2Bs(createDateString(year, month, date)),
+    );
+    return bs2Ad(createDateString(bsYear, bsMonth, 1));
+  }
+  return createDateString(year, month, 1);
+};
+
+/**
  * Given the AD date (pinned to day 1) a calendar view is anchored on, returns
  * the anchor for one month forward/back (`step` = 1 or -1) in whichever
  * calendar system is currently displayed - stepping by a true BS month in BS
@@ -40,7 +62,7 @@ const useCalendarData = (
   // single value, so there's no stale day-of-month left over from a longer
   // month to build an invalid date string with after navigating.
   const [viewAnchor, setViewAnchor] = useState(() =>
-    createDateString(currentYear, currentMonth, 1),
+    getViewAnchor(calendarType, currentYear, currentMonth, currentDate),
   );
   /** the day the "current/selected" highlight should land on, in AD terms */
   const [selected, setSelected] = useState<IUseCalendarData.ICurrDate>({
@@ -54,7 +76,7 @@ const useCalendarData = (
       const month = defaultDate.getMonth() + 1;
       const year = defaultDate.getFullYear();
       const date = defaultDate.getDate();
-      setViewAnchor(createDateString(year, month, 1));
+      setViewAnchor(getViewAnchor(calendarType, year, month, date));
       setSelected({ year, month, date });
     }
     // Re-sync whenever the caller passes a new date (e.g. Datepicker
