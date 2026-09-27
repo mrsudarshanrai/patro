@@ -78,11 +78,10 @@ const useCalendarData = (
       const date = defaultDate.getDate();
       setViewAnchor(getViewAnchor(calendarType, year, month, date));
       setSelected({ year, month, date });
+    } else {
+      setViewAnchor(getViewAnchor(calendarType, selected.year, selected.month, selected.date));
     }
-    // Re-sync whenever the caller passes a new date (e.g. Datepicker
-    // updating its selection), not just once at mount.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultDate?.getTime()]);
+  }, [defaultDate?.getTime(), calendarType]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
   const bsAnchor = useMemo(() => ad2Bs(viewAnchor), [viewAnchor]);
