@@ -21,7 +21,6 @@ const Calendar = (props: ICalendar.IProps) => {
   // Re-sync when a parent (e.g. Datepicker) passes a new date, not just on mount.
   useEffect(() => {
     if (defaultDate) setSelectedDate(defaultDate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultDate?.getTime()]);
 
   const {
@@ -33,7 +32,7 @@ const Calendar = (props: ICalendar.IProps) => {
 
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(() => adDateToLocalDate(date.adDate));
-    onChange && onChange(date);
+    onChange?.(date);
   };
 
   return (

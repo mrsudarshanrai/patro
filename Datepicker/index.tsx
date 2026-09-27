@@ -23,7 +23,6 @@ const Datepicker = (props: DatepickerType.Props) => {
 
   useEffect(() => {
     if (defaultDate) setSelectedDate(defaultDate);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultDate?.getTime()]);
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
@@ -57,7 +56,7 @@ const Datepicker = (props: DatepickerType.Props) => {
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(adDateToLocalDate(date.adDate));
     closePopper();
-    onChange && onChange(date);
+    onChange?.(date);
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
