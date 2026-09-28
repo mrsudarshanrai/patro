@@ -350,3 +350,37 @@ describe('minDate / maxDate / isDateDisabled', () => {
     expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-10-10');
   });
 });
+
+describe('locale and numerals', () => {
+  const subtitle = (container: HTMLElement) =>
+    container.querySelector('._patro_header_subtitle')?.textContent;
+
+  test('BS calendar fully in English with Latin digits', () => {
+    const { container } = render(
+      <Calendar calendar='BS' defaultValue={TODAY} locale='en' numerals='latin' />,
+    );
+    expect(title(container)).toBe('Kartik 2083');
+    expect(subtitle(container)).toBe('Oct – Nov 2026');
+    expect(screen.getAllByRole('columnheader')[0]).toHaveTextContent('Su');
+    expect(cell(container, '2026-10-29').textContent).toBe('1229');
+    expect(cell(container, '2026-10-29')).toHaveAttribute(
+      'aria-label',
+      '29 October 2026, 12 Kartik 2083',
+    );
+  });
+
+  test('AD calendar fully in Nepali with Devanagari digits', () => {
+    const { container } = render(
+      <Calendar defaultValue={TODAY} locale='ne' numerals='devanagari' />,
+    );
+    expect(title(container)).toBe('अक्टोबर २०२६');
+    expect(subtitle(container)).toBe('आश्विन – कार्तिक २०८३');
+    expect(screen.getAllByRole('columnheader')[0]).toHaveTextContent('आइत');
+    expect(cell(container, '2026-10-29').textContent).toBe('२९१२');
+  });
+
+  test('locale alone keeps each calendar in its own digits', () => {
+    const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} locale='en' />);
+    expect(title(container)).toBe('Kartik २०८३');
+  });
+});

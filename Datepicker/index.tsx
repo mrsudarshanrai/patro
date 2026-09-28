@@ -17,6 +17,8 @@ const Datepicker = (props: DatepickerProps) => {
     label,
     placeholder,
     theme,
+    locale,
+    numerals,
     ...calendarProps
   } = props;
   const [isPopperVisible, setIsPopperVisible] = useState(false);
@@ -32,7 +34,7 @@ const Datepicker = (props: DatepickerProps) => {
     selectedDate && isSupportedAdDate(toAdDateString(selectedDate))
       ? toAdDateString(selectedDate)
       : null;
-  const display = {};
+  const display = { locale, numerals };
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
   const closePopper = () => setIsPopperVisible(false);
@@ -128,6 +130,8 @@ const Datepicker = (props: DatepickerProps) => {
           <Calendar
             {...calendarProps}
             calendar={calendar}
+            locale={locale}
+            numerals={numerals}
             value={selectedDate}
             theme={theme}
             onChange={onSelect}

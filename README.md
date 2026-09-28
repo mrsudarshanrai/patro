@@ -86,7 +86,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`.
+`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`, `Locale`, `Numerals`.
 
 | Prop                | Type                                 | Default                                 | Description                                                                      |
 | ------------------- | ------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------- |
@@ -95,6 +95,8 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.                 |
 | `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                                     |
 | `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                                      |
+| `locale`            | `'en' \| 'ne'`                       | each calendar's own                     | Language for month and weekday names. By default AD is English and BS is Nepali. |
+| `numerals`          | `'latin' \| 'devanagari'`            | each calendar's own                     | Digits for every number. By default AD uses Latin and BS Devanagari digits.      |
 | `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                |
 | `minDate`           | `Date`                               | -                                       | Earliest selectable day. Earlier days are disabled and navigation stops there.   |
 | `maxDate`           | `Date`                               | -                                       | Latest selectable day.                                                           |

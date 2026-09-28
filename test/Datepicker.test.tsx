@@ -159,3 +159,13 @@ test('passes date bounds through to the calendar', async () => {
   expect(screen.getByTitle('2026-10-09')).toHaveClass('_patro_dates_disabled');
   expect(screen.getByLabelText('Previous month')).toBeDisabled();
 });
+
+test('locale and numerals apply to the input text and placeholder', () => {
+  const { input, unmount } = setup({ calendar: 'BS', locale: 'en', numerals: 'latin' });
+  expect(input).toHaveTextContent('12 Kartik 2083');
+  expect(input).toHaveTextContent('29 Oct 2026');
+  unmount();
+
+  const { input: empty } = setup({ calendar: 'BS', locale: 'en', defaultValue: null });
+  expect(empty).toHaveTextContent('Select a date');
+});

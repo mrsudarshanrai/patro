@@ -21,6 +21,10 @@ export interface CalendarProps {
   calendar?: CalendarSystem;
   /** Show the other calendar's date on each day. Defaults to true. */
   showSecondaryDate?: boolean;
+  /** Language of month and weekday names. Defaults to each calendar's own (AD English, BS Nepali). */
+  locale?: Locale;
+  /** Digits for all numbers. Defaults to each calendar's own (AD Latin, BS Devanagari). */
+  numerals?: Numerals;
   theme?: 'light' | 'dark';
   /** Earliest selectable day. */
   minDate?: Date;

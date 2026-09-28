@@ -33,6 +33,8 @@ const Calendar = (props: CalendarProps) => {
     minDate,
     maxDate,
     isDateDisabled,
+    locale,
+    numerals,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -58,7 +60,7 @@ const Calendar = (props: CalendarProps) => {
     isDayDisabled,
   } = useCalendarData(calendar, selectedDate, { minDate, maxDate, isDateDisabled });
 
-  const display: DisplayOptions = {};
+  const display: DisplayOptions = { locale, numerals };
   const title = monthTitle(firstAdDate, calendar, display);
   const subtitle = monthRange(firstAdDate, lastAdDate, calendar, display);
 
