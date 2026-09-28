@@ -3,7 +3,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
-import scss from 'rollup-plugin-scss';
 export default [
   {
     input: './index.ts',
@@ -24,11 +23,6 @@ export default [
       resolve(),
       commonjs(),
       typescript({ tsconfig: './tsconfig.build.json' }),
-      scss({
-        fileName: 'css/style.css',
-        failOnError: true,
-        outputStyle: 'compressed',
-      }),
       terser(),
     ],
   },

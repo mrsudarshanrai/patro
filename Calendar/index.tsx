@@ -1,6 +1,5 @@
 import { KeyboardEvent, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
-import '../scss/style.scss';
 import { CalendarProps } from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';

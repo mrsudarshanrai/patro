@@ -28,7 +28,7 @@
     "react-datepicker"
   ],
   "scripts": {
-    "build": "rm -rf ./dist && rollup -c --bundleConfigAsCjs",
+    "build": "rm -rf ./dist && rollup -c --bundleConfigAsCjs && npm run build:css",
     "dev": "rollup -c --bundleConfigAsCjs -w",
     "prepare": "husky",
     "lint": "eslint .",
@@ -39,7 +39,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "build:css": "sass scss/style.scss dist/css/style.css --style=compressed --no-source-map"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8"
@@ -80,7 +81,6 @@
     "react-dom": "^18.2.0",
     "rollup": "^4.63.5",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-scss": "^4.0.1",
     "sass": "^1.64.1",
     "storybook": "^10.6.0",
     "ts-jest": "^29.4.14",
