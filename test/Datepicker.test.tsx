@@ -102,3 +102,36 @@ test('Escape inside the calendar closes the popover and returns focus to the inp
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(input).toHaveFocus();
 });
+
+describe('empty state (defaultDate={null})', () => {
+  test('shows the placeholder, then the picked date', async () => {
+    const { user, input, container } = setup({ defaultDate: null });
+    expect(input).toHaveTextContent('Select a date');
+    expect(container.querySelector('._patro_datepicker_input_secondary')).toBeNull();
+
+    await user.click(input);
+    expect(container.querySelector('._patro_header_title')).toHaveTextContent('October 2026');
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+    expect(screen.getByTitle('2026-10-29')).toHaveClass('_patro_dates_today');
+
+    await user.click(screen.getByTitle('2026-10-05'));
+    expect(input).toHaveTextContent('05 October 2026');
+  });
+
+  test('uses a Nepali placeholder in BS mode and accepts a custom one', () => {
+    const { input, unmount } = setup({ defaultDate: null, calendarType: 'BS' });
+    expect(input).toHaveTextContent('मिति छान्नुहोस्');
+    unmount();
+
+    const { input: custom } = setup({ defaultDate: null, placeholder: 'Pick a day' });
+    expect(custom).toHaveTextContent('Pick a day');
+  });
+
+  test('a parent can clear the value by passing null', () => {
+    const { input, rerender } = setup();
+    expect(input).toHaveTextContent('29 October 2026');
+
+    rerender(<Datepicker defaultDate={null} />);
+    expect(input).toHaveTextContent('Select a date');
+  });
+});

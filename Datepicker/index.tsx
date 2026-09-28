@@ -7,24 +7,34 @@ import { ICalendar } from '../Calendar/types';
 import { adDateToLocalDate, formatDisplayDate, formatSecondaryDate } from '../utils';
 import { icons } from './icons';
 
+const DEFAULT_PLACEHOLDER: Record<ICalendar.calendarType, string> = {
+  AD: 'Select a date',
+  BS: 'मिति छान्नुहोस्',
+};
+
 const Datepicker = (props: DatepickerType.Props) => {
   const {
     calendarType = ICalendar.CalendarTypeEnum.AD,
     onChange,
     defaultDate,
     label,
+    placeholder,
     theme,
     ...rest
   } = props;
   const [isPopperVisible, setIsPopperVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    defaultDate === undefined ? new Date() : defaultDate,
+  );
   const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
   const defaultTime = defaultDate?.getTime();
+  const cleared = defaultDate === null;
   useEffect(() => {
     if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
-  }, [defaultTime]);
+    else if (cleared) setSelectedDate(null);
+  }, [defaultTime, cleared]);
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
   const closePopper = () => setIsPopperVisible(false);
@@ -91,12 +101,20 @@ const Datepicker = (props: DatepickerType.Props) => {
         onClick={togglePopper}
         onKeyDown={onInputKeyDown}
       >
-        <span className='_patro_datepicker_input_primary'>
-          {formatDisplayDate(selectedDate, calendarType)}
-        </span>
-        <span className='_patro_datepicker_input_secondary'>
-          {formatSecondaryDate(selectedDate, calendarType)}
-        </span>
+        {selectedDate ? (
+          <>
+            <span className='_patro_datepicker_input_primary'>
+              {formatDisplayDate(selectedDate, calendarType)}
+            </span>
+            <span className='_patro_datepicker_input_secondary'>
+              {formatSecondaryDate(selectedDate, calendarType)}
+            </span>
+          </>
+        ) : (
+          <span className='_patro_datepicker_input_placeholder'>
+            {placeholder ?? DEFAULT_PLACEHOLDER[calendarType]}
+          </span>
+        )}
         <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
       </div>
       {isPopperVisible && (

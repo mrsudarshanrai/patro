@@ -58,31 +58,40 @@ const stepViewAnchor = (
   return createDateString(stepped.year, stepped.month, 1);
 };
 
-const toCurrDate = (date?: Date): IUseCalendarData.ICurrDate =>
-  date
-    ? { year: date.getFullYear(), month: date.getMonth() + 1, date: date.getDate() }
-    : getToday();
+const toCurrDate = (date: Date): IUseCalendarData.ICurrDate => ({
+  year: date.getFullYear(),
+  month: date.getMonth() + 1,
+  date: date.getDate(),
+});
+
+const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICurrDate | null) =>
+  a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
+
+// Matches no cell, so nothing is highlighted as selected.
+const NO_SELECTION: IUseCalendarData.ICurrDate = { year: 0, month: 0, date: 0 };
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
-  defaultDate?: Date,
+  defaultDate?: Date | null,
 ): IUseCalendarData.IReturn => {
-  const [selected, setSelected] = useState(() => toCurrDate(defaultDate));
-  // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
-  const [viewAnchor, setViewAnchor] = useState(() =>
-    getViewAnchor(calendarType, selected.year, selected.month, selected.date),
+  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
+    defaultDate === null ? null : defaultDate ? toCurrDate(defaultDate) : getToday(),
   );
+  // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
+  const [viewAnchor, setViewAnchor] = useState(() => {
+    const { year, month, date } = selected ?? getToday();
+    return getViewAnchor(calendarType, year, month, date);
+  });
 
   const defaultTime = defaultDate?.getTime();
+  const cleared = defaultDate === null;
   useEffect(() => {
-    const target = defaultTime !== undefined ? toCurrDate(new Date(defaultTime)) : selected;
-    setViewAnchor(getViewAnchor(calendarType, target.year, target.month, target.date));
-    setSelected((prev) =>
-      prev.year === target.year && prev.month === target.month && prev.date === target.date
-        ? prev
-        : target,
-    );
-  }, [defaultTime, calendarType, selected]);
+    const next =
+      defaultTime !== undefined ? toCurrDate(new Date(defaultTime)) : cleared ? null : selected;
+    const { year, month, date } = next ?? getToday();
+    setViewAnchor(getViewAnchor(calendarType, year, month, date));
+    setSelected((prev) => (isSameDay(prev, next) ? prev : next));
+  }, [defaultTime, cleared, calendarType, selected]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
   const bsAnchor = useMemo(() => ad2Bs(viewAnchor), [viewAnchor]);
@@ -97,24 +106,28 @@ const useCalendarData = (
   }, [calendarType]);
 
   const selectedAdDate = useMemo(
-    () => createDateString(selected.year, selected.month, selected.date),
+    () => (selected ? createDateString(selected.year, selected.month, selected.date) : null),
     [selected],
   );
-  const selectedBsDate = useMemo(() => ad2Bs(selectedAdDate), [selectedAdDate]);
+  const selectedBsDate = useMemo(
+    () => (selectedAdDate ? ad2Bs(selectedAdDate) : null),
+    [selectedAdDate],
+  );
   const selectedBs = useMemo(() => {
+    if (!selectedBsDate) return NO_SELECTION;
     const { year, month, day } = dateString2Obj(selectedBsDate);
     return { year, month, date: day };
   }, [selectedBsDate]);
 
-  const adDates = useMemo(
-    () => getRawAdDates(adYear, adMonth, selected.date, selected),
-    [adYear, adMonth, selected],
-  );
+  const adDates = useMemo(() => {
+    const sel = selected ?? NO_SELECTION;
+    return getRawAdDates(adYear, adMonth, sel.date, sel);
+  }, [adYear, adMonth, selected]);
 
-  const bsDates = useMemo(
-    () => getRawBsDates(bsAnchor, adYear, adMonth, selected.date, selected, selectedBs),
-    [bsAnchor, adYear, adMonth, selected, selectedBs],
-  );
+  const bsDates = useMemo(() => {
+    const sel = selected ?? NO_SELECTION;
+    return getRawBsDates(bsAnchor, adYear, adMonth, sel.date, sel, selectedBs);
+  }, [bsAnchor, adYear, adMonth, selected, selectedBs]);
 
   return {
     dates: calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates,

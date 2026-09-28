@@ -66,16 +66,17 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label`):
+`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`):
 
-| Prop           | Type                           | Default | Description                                                                  |
-| -------------- | ------------------------------ | ------- | ---------------------------------------------------------------------------- |
-| `calendarType` | `'AD' \| 'BS'`                 | `'AD'`  | Which calendar system to display.                                            |
-| `defaultDate`  | `Date`                         | today   | The date the calendar opens on. Updating this prop re-syncs the display.     |
-| `showExtra`    | `boolean`                      | -       | Show the other calendar system's date as a small subscript on each day cell. |
-| `theme`        | `'light' \| 'dark'`            | -       | Sets `data-theme` on the component root. See [Theming](#theming).            |
-| `onChange`     | `(date: SelectedDate) => void` | -       | Called when a day is selected. `date.adDate` is the AD date, `'YYYY-MM-DD'`. |
-| `label`        | `string`                       | -       | `Datepicker` only. Text label shown above the input.                         |
+| Prop           | Type                           | Default                                 | Description                                                                                                                       |
+| -------------- | ------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `calendarType` | `'AD' \| 'BS'`                 | `'AD'`                                  | Which calendar system to display.                                                                                                 |
+| `defaultDate`  | `Date \| null`                 | today                                   | The selected date. Updating this prop re-syncs the display. `null` means nothing selected (the Datepicker shows its placeholder). |
+| `showExtra`    | `boolean`                      | -                                       | Show the other calendar system's date as a small subscript on each day cell.                                                      |
+| `theme`        | `'light' \| 'dark'`            | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                                                                 |
+| `onChange`     | `(date: SelectedDate) => void` | -                                       | Called when a day is selected. `date.adDate` is the AD date, `'YYYY-MM-DD'`.                                                      |
+| `label`        | `string`                       | -                                       | `Datepicker` only. Text label shown above the input.                                                                              |
+| `placeholder`  | `string`                       | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when `defaultDate` is `null` and no day is picked yet.                                                   |
 
 ## Utilities
 

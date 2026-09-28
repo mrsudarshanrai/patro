@@ -5,7 +5,7 @@ export namespace ICalendar {
     onChange?: (date: IUseCalendarData.IDates) => void; // onChange
     calendarType?: calendarType; // change calendar type
     showExtra?: boolean; // show/hide extra date
-    defaultDate?: Date; // date the calendar opens on / stays in sync with
+    defaultDate?: Date | null; // initial/synced selection; null = nothing selected, omitted = today
     theme?: 'light' | 'dark'; // sets data-theme on the root; light (the default tokens) needs no prop
   }
 

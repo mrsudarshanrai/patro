@@ -1,8 +1,8 @@
 export namespace IUseCalendarData {
   export interface IReturn {
     dates: IDates[][];
-    adDate: string;
-    bsDate: string;
+    adDate: string | null;
+    bsDate: string | null;
     header: {
       month: string;
       oMonth: string;

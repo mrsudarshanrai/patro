@@ -51,6 +51,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    &_placeholder {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      color: var(--patro-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     &_icon {
       width: 30px;
       height: 30px;
@@ -76,4 +87,8 @@
 
 ._patro_datepicker_popper {
   margin-top: 6px;
+}
+
+._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {
+  font-family: var(--patro-font-devanagari);
 }

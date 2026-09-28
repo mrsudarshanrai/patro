@@ -32,7 +32,9 @@ const Calendar = (props: ICalendar.IProps) => {
     defaultDate,
     theme,
   } = props;
-  const [selectedDate, setSelectedDate] = useState(defaultDate ?? new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(
+    defaultDate === undefined ? new Date() : defaultDate,
+  );
   const [focusedAdDate, setFocusedAdDate] = useState<string>();
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
@@ -40,9 +42,11 @@ const Calendar = (props: ICalendar.IProps) => {
 
   // Re-sync when a parent (e.g. Datepicker) passes a new date, not just on mount.
   const defaultTime = defaultDate?.getTime();
+  const cleared = defaultDate === null;
   useEffect(() => {
     if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
-  }, [defaultTime]);
+    else if (cleared) setSelectedDate(null);
+  }, [defaultTime, cleared]);
 
   const {
     dates,
@@ -59,9 +63,11 @@ const Calendar = (props: ICalendar.IProps) => {
   const today = getToday();
   // Keep focus on something visible after month changes: focused, else selected, else today.
   const activeAdDate =
-    [focusedAdDate, selectedAdDate, createDateString(today.year, today.month, today.date)].find(
-      inView,
-    ) ?? monthStart;
+    [
+      focusedAdDate,
+      selectedAdDate ?? undefined,
+      createDateString(today.year, today.month, today.date),
+    ].find(inView) ?? monthStart;
 
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(() => adDateToLocalDate(date.adDate));

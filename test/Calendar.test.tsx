@@ -174,3 +174,10 @@ describe('keyboard navigation', () => {
     expect(focused(container)).toBe('2026-10-06');
   });
 });
+
+test('defaultDate={null} shows the current month with nothing selected', () => {
+  const { container } = render(<Calendar defaultDate={null} />);
+  expect(title(container)).toBe('October 2026');
+  expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+  expect(screen.getByRole('grid').querySelector('[aria-selected="true"]')).toBeNull();
+});
