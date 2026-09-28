@@ -32,6 +32,10 @@ export interface CalendarProps {
   maxDate?: Date;
   /** Return true to disable a day, e.g. weekends or holidays. */
   isDateDisabled?: (date: PatroDate) => boolean;
+  /** First day of the week, 0 = Sunday (default) … 6 = Saturday. */
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** Always show 6 week rows so the calendar keeps one height. Defaults to true. */
+  fixedWeeks?: boolean;
 }
 
 export interface DatepickerProps extends CalendarProps {

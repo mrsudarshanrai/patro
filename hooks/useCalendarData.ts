@@ -102,12 +102,14 @@ type Options = {
   minDate?: Date;
   maxDate?: Date;
   isDateDisabled?: (date: PatroDate) => boolean;
+  weekStartsOn?: number;
+  fixedWeeks?: boolean;
 };
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   selectedDate?: Date | null,
-  { minDate, maxDate, isDateDisabled }: Options = {},
+  { minDate, maxDate, isDateDisabled, weekStartsOn, fixedWeeks }: Options = {},
 ): IUseCalendarData.IReturn => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
   const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
@@ -162,8 +164,12 @@ const useCalendarData = (
     [selectedAdDate],
   );
   const dates = useMemo(
-    () => getMonthGrid(calendarType, viewAnchor, selectedAdDate, isDayDisabled),
-    [calendarType, viewAnchor, selectedAdDate, isDayDisabled],
+    () =>
+      getMonthGrid(calendarType, viewAnchor, selectedAdDate, isDayDisabled, {
+        weekStartsOn,
+        fixedWeeks,
+      }),
+    [calendarType, viewAnchor, selectedAdDate, isDayDisabled, weekStartsOn, fixedWeeks],
   );
 
   return {

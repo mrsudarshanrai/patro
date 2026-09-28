@@ -1,8 +1,12 @@
 import { weekdayNames } from '../../utils';
 import { ICalendar } from '../types';
 
-const CalendarDays = ({ calendar, display }: ICalendar.CalendarDaysProps) => {
-  const { long, short } = weekdayNames(calendar, display);
+const rotate = <T,>(items: T[], by: number) => [...items.slice(by), ...items.slice(0, by)];
+
+const CalendarDays = ({ calendar, display, weekStartsOn }: ICalendar.CalendarDaysProps) => {
+  const names = weekdayNames(calendar, display);
+  const long = rotate(names.long, weekStartsOn);
+  const short = rotate(names.short, weekStartsOn);
   return (
     <div className='_patro_days' role='row'>
       {short.map((day, index) => (

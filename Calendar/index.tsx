@@ -35,6 +35,8 @@ const Calendar = (props: CalendarProps) => {
     isDateDisabled,
     locale,
     numerals,
+    weekStartsOn = 0,
+    fixedWeeks = true,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -58,7 +60,13 @@ const Calendar = (props: CalendarProps) => {
     minAdDate,
     maxAdDate,
     isDayDisabled,
-  } = useCalendarData(calendar, selectedDate, { minDate, maxDate, isDateDisabled });
+  } = useCalendarData(calendar, selectedDate, {
+    minDate,
+    maxDate,
+    isDateDisabled,
+    weekStartsOn,
+    fixedWeeks,
+  });
 
   const display: DisplayOptions = { locale, numerals };
   const title = monthTitle(firstAdDate, calendar, display);
@@ -136,7 +144,7 @@ const Calendar = (props: CalendarProps) => {
           setShowFocusRing(false);
         }}
       >
-        <CalendarDays calendar={calendar} display={display} />
+        <CalendarDays calendar={calendar} display={display} weekStartsOn={weekStartsOn} />
         <CalendarGrid
           dates={dates}
           calendar={calendar}

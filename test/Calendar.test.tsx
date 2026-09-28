@@ -384,3 +384,29 @@ describe('locale and numerals', () => {
     expect(title(container)).toBe('Kartik २०८३');
   });
 });
+
+describe('grid layout', () => {
+  const rows = (container: HTMLElement) => container.querySelectorAll('._patro_dates').length;
+
+  test('always renders 6 weeks by default, or only the weeks needed with fixedWeeks={false}', () => {
+    const february = new Date(2026, 1, 10);
+    const { container, rerender } = render(<Calendar defaultValue={february} />);
+    expect(rows(container)).toBe(6);
+
+    rerender(<Calendar defaultValue={february} fixedWeeks={false} />);
+    expect(rows(container)).toBe(4);
+  });
+
+  test('weekStartsOn moves the first column', () => {
+    const { container } = render(<Calendar defaultValue={TODAY} weekStartsOn={1} />);
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers[0]).toHaveTextContent('Mo');
+    expect(headers[6]).toHaveTextContent('Su');
+    expect(container.querySelector('[role="gridcell"]')).toHaveAttribute('title', '2026-09-28');
+  });
+
+  test('weekStartsOn works in BS mode', () => {
+    render(<Calendar calendar='BS' defaultValue={TODAY} weekStartsOn={1} />);
+    expect(screen.getAllByRole('columnheader')[0]).toHaveTextContent('सोम');
+  });
+});

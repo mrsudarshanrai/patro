@@ -36,17 +36,21 @@ const chunk = <T>(items: T[], size: number) =>
   );
 
 // Week rows for the month containing `adDate`, padded with the neighbouring months' days.
+// `fixedWeeks` always renders 6 rows so the calendar keeps one height.
 const getMonthGrid = (
   calendarType: ICalendar.calendarType,
   adDate: string,
   selectedAdDate: string | null,
   isDayDisabled?: (adDate: string) => boolean,
+  { weekStartsOn = 0, fixedWeeks = true }: { weekStartsOn?: number; fixedWeeks?: boolean } = {},
 ): IUseCalendarData.IDates[][] => {
   const isAdView = calendarType === ICalendar.CalendarTypeEnum.AD;
   const [first, last] = monthBounds(calendarType, adDate);
-  const lastWeekday = weekday(last);
-  const start = addDays(first, -weekday(first));
-  const end = addDays(last, lastWeekday === weeksDaysCount - 1 ? weeksDaysCount : 6 - lastWeekday);
+  const column = (day: string) => (weekday(day) - weekStartsOn + weeksDaysCount) % weeksDaysCount;
+  const start = addDays(first, -column(first));
+  const end = fixedWeeks
+    ? addDays(start, 6 * weeksDaysCount - 1)
+    : addDays(last, weeksDaysCount - 1 - column(last));
 
   const cells: IUseCalendarData.IDates[] = [];
   for (let ad = start; ad <= end; ad = addDays(ad, 1)) {

@@ -31,5 +31,6 @@ export namespace ICalendar {
   export type CalendarDaysProps = {
     calendar: CalendarSystem;
     display: DisplayOptions;
+    weekStartsOn: number;
   };
 }
