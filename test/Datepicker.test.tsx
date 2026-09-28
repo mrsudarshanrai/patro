@@ -309,3 +309,13 @@ describe('behaviour and forms', () => {
     expect(input).toHaveTextContent('5 October 2026');
   });
 });
+
+test('className and style go on the Datepicker root only', async () => {
+  const { user, input, container } = setup({ className: 'my-picker', style: { width: 320 } });
+  const root = container.firstElementChild as HTMLElement;
+  expect(root).toHaveClass('_patro_datepicker', 'my-picker');
+  expect(root.style.width).toBe('320px');
+
+  await user.click(input);
+  expect(container.querySelector('._patro_container')).not.toHaveClass('my-picker');
+});

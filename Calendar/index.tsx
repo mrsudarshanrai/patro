@@ -41,6 +41,8 @@ const Calendar = (props: CalendarProps) => {
     weekendDays,
     dayClassName,
     onMonthChange,
+    className,
+    style,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -140,7 +142,12 @@ const Calendar = (props: CalendarProps) => {
   };
 
   return (
-    <div className='_patro_container _patro' data-calendar-type={calendar} data-theme={theme}>
+    <div
+      className={['_patro_container _patro', className].filter(Boolean).join(' ')}
+      style={style}
+      data-calendar-type={calendar}
+      data-theme={theme}
+    >
       <CalendarHeader
         nextMonth={nextMonth}
         prevMonth={prevMonth}

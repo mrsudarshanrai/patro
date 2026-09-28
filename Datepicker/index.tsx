@@ -48,6 +48,8 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
     onBlur,
     placement = 'bottom-start',
     portal = false,
+    className,
+    style,
     ...calendarProps
   } = props;
   const generatedId = useId();
@@ -179,7 +181,12 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
   );
 
   return (
-    <div className='_patro_datepicker _patro' data-calendar-type={calendar} data-theme={theme}>
+    <div
+      className={['_patro_datepicker _patro', className].filter(Boolean).join(' ')}
+      style={style}
+      data-calendar-type={calendar}
+      data-theme={theme}
+    >
       {label && (
         <div id={labelId} className='_patro_datepicker_label'>
           {label}

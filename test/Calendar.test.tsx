@@ -451,3 +451,16 @@ test('onMonthChange reports the new month, not the initial one', async () => {
     end: expect.objectContaining({ ad: '2026-11-30' }),
   });
 });
+
+test('className and style go on the root, e.g. to override theme tokens', () => {
+  const { container } = render(
+    <Calendar
+      defaultValue={TODAY}
+      className='my-calendar'
+      style={{ '--patro-accent': 'teal' } as React.CSSProperties}
+    />,
+  );
+  const root = container.firstElementChild as HTMLElement;
+  expect(root).toHaveClass('_patro_container', 'my-calendar');
+  expect(root.style.getPropertyValue('--patro-accent')).toBe('teal');
+});

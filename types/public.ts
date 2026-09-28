@@ -1,4 +1,4 @@
-import type { FocusEvent } from 'react';
+import type { CSSProperties, FocusEvent } from 'react';
 
 export type CalendarSystem = 'AD' | 'BS';
 export type Locale = 'en' | 'ne';
@@ -44,6 +44,10 @@ export interface CalendarProps {
   dayClassName?: (date: PatroDate) => string | undefined;
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
+  /** Added to the root element. */
+  className?: string;
+  /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */
+  style?: CSSProperties;
 }
 
 export interface DatepickerProps extends CalendarProps {

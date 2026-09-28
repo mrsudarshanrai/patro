@@ -80,6 +80,9 @@ Colors, radii, and fonts are CSS custom properties scoped to `._patro`, not the 
 
 ```tsx
 <Calendar theme='dark' />
+
+// Override tokens for one instance:
+<Calendar style={{ '--patro-accent': 'teal' } as React.CSSProperties} />
 ```
 
 For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari) yourself — it isn't bundled or auto-injected. It falls back to your system sans-serif otherwise.
@@ -102,6 +105,8 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `weekendDays`       | `number[]`                                                       | `[]`                | Weekdays to colour as weekends (0 = Sunday), e.g. `[6]` for Saturday as Nepali calendars do. Colour: `--patro-weekend`. |
 | `dayClassName`      | `(date: PatroDate) => string \| undefined`                       | -                   | Extra class names for a day, e.g. `({ bs }) => holidays.has(bs) ? 'holiday' : undefined`.                               |
 | `onMonthChange`     | `({ start, end }: { start: PatroDate; end: PatroDate }) => void` | -                   | Called when the displayed month changes.                                                                                |
+| `className`         | `string`                                                         | -                   | Added to the root element.                                                                                              |
+| `style`             | `CSSProperties`                                                  | -                   | Inline styles on the root, including `--patro-*` token overrides.                                                       |
 | `theme`             | `'light' \| 'dark'`                                              | -                   | Sets `data-theme` on the component root. See [Theming](#theming).                                                       |
 | `minDate`           | `Date`                                                           | -                   | Earliest selectable day. Earlier days are disabled and navigation stops there.                                          |
 | `maxDate`           | `Date`                                                           | -                   | Latest selectable day.                                                                                                  |
