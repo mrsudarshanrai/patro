@@ -21,25 +21,25 @@ const Datepicker = (props: DatepickerType.Props) => {
   const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
+  const defaultTime = defaultDate?.getTime();
   useEffect(() => {
-    if (defaultDate) setSelectedDate(defaultDate);
-  }, [defaultDate?.getTime()]);
+    if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
+  }, [defaultTime]);
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
   const closePopper = () => setIsPopperVisible(false);
 
-  const handleClickOutside = (event: MouseEvent) => {
-    if (
-      inputRef &&
-      popperRef &&
-      !popperRef.contains(event.target as Node) &&
-      !inputRef.contains(event.target as Node)
-    ) {
-      closePopper();
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRef &&
+        popperRef &&
+        !popperRef.contains(event.target as Node) &&
+        !inputRef.contains(event.target as Node)
+      ) {
+        setIsPopperVisible(false);
+      }
+    };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);

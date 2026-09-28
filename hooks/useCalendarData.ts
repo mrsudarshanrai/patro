@@ -73,15 +73,16 @@ const useCalendarData = (
     getViewAnchor(calendarType, selected.year, selected.month, selected.date),
   );
 
+  const defaultTime = defaultDate?.getTime();
   useEffect(() => {
-    const target = defaultDate ? toCurrDate(defaultDate) : selected;
+    const target = defaultTime !== undefined ? toCurrDate(new Date(defaultTime)) : selected;
     setViewAnchor(getViewAnchor(calendarType, target.year, target.month, target.date));
     setSelected((prev) =>
       prev.year === target.year && prev.month === target.month && prev.date === target.date
         ? prev
         : target,
     );
-  }, [defaultDate?.getTime(), calendarType]);
+  }, [defaultTime, calendarType, selected]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
   const bsAnchor = useMemo(() => ad2Bs(viewAnchor), [viewAnchor]);

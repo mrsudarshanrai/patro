@@ -27,6 +27,8 @@ export default tseslint.config(
       quotes: ['warn', 'single'],
       '@typescript-eslint/no-namespace': 'off',
       'no-duplicate-imports': 'error',
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
     },
   },
 );

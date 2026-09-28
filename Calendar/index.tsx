@@ -39,9 +39,10 @@ const Calendar = (props: ICalendar.IProps) => {
   const idPrefix = useId();
 
   // Re-sync when a parent (e.g. Datepicker) passes a new date, not just on mount.
+  const defaultTime = defaultDate?.getTime();
   useEffect(() => {
-    if (defaultDate) setSelectedDate(defaultDate);
-  }, [defaultDate?.getTime()]);
+    if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
+  }, [defaultTime]);
 
   const {
     dates,
