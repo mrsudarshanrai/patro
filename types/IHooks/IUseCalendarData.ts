@@ -11,6 +11,8 @@ export namespace IUseCalendarData {
     };
     nextMonth: () => void;
     prevMonth: () => void;
+    canNextMonth: boolean;
+    canPrevMonth: boolean;
   }
 
   export interface ICurrDate {
@@ -26,6 +28,7 @@ export namespace IUseCalendarData {
     extraDate: string;
     isToday: boolean;
     isSelected: boolean;
+    isDisabled?: boolean;
     offset?: 'prev' | 'next';
   }
 }

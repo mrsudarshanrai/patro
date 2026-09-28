@@ -4,7 +4,13 @@ import { createPopper } from '@popperjs/core';
 import { Datepicker as DatepickerType } from './types';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { ICalendar } from '../Calendar/types';
-import { adDateToLocalDate, formatDisplayDate, formatSecondaryDate } from '../utils';
+import {
+  adDateToLocalDate,
+  createDateString,
+  formatDisplayDate,
+  formatSecondaryDate,
+  isSupportedAdDate,
+} from '../utils';
 import { icons } from './icons';
 
 const DEFAULT_PLACEHOLDER: Record<ICalendar.calendarType, string> = {
@@ -35,6 +41,18 @@ const Datepicker = (props: DatepickerType.Props) => {
     if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
     else if (cleared) setSelectedDate(null);
   }, [defaultTime, cleared]);
+
+  const shownDate =
+    selectedDate &&
+    isSupportedAdDate(
+      createDateString(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth() + 1,
+        selectedDate.getDate(),
+      ),
+    )
+      ? selectedDate
+      : null;
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
   const closePopper = () => setIsPopperVisible(false);
@@ -101,13 +119,13 @@ const Datepicker = (props: DatepickerType.Props) => {
         onClick={togglePopper}
         onKeyDown={onInputKeyDown}
       >
-        {selectedDate ? (
+        {shownDate ? (
           <>
             <span className='_patro_datepicker_input_primary'>
-              {formatDisplayDate(selectedDate, calendarType)}
+              {formatDisplayDate(shownDate, calendarType)}
             </span>
             <span className='_patro_datepicker_input_secondary'>
-              {formatSecondaryDate(selectedDate, calendarType)}
+              {formatSecondaryDate(shownDate, calendarType)}
             </span>
           </>
         ) : (

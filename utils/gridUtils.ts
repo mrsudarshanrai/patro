@@ -7,6 +7,7 @@ import {
   dateString2Obj,
   en2NpNumber,
   getDates,
+  isSupportedAdDate,
   isTodayAdDate,
 } from './dateUtils';
 import { ad2Bs } from './ad_utils/ad2bs';
@@ -51,6 +52,20 @@ const getMonthGrid = (
   for (let ad = start; ad <= end; ad = addDays(ad, 1)) {
     const offset = ad < first ? 'prev' : ad > last ? 'next' : undefined;
     const [adYear, adMonth, adDay] = ad.split('-');
+    if (!isSupportedAdDate(ad)) {
+      cells.push({
+        dayOfMonth: isAdView ? Number(adDay) : '',
+        year: isAdView ? Number(adYear) : 0,
+        month: isAdView ? Number(adMonth) : 0,
+        adDate: ad,
+        extraDate: '',
+        isToday: false,
+        isSelected: false,
+        isDisabled: true,
+        ...(offset && { offset }),
+      });
+      continue;
+    }
     const [bsYear, bsMonth, bsDay] = ad2Bs(ad).split('-');
     cells.push({
       dayOfMonth: isAdView ? Number(adDay) : en2NpNumber(String(Number(bsDay))),
@@ -66,4 +81,4 @@ const getMonthGrid = (
   return chunk(cells, weeksDaysCount);
 };
 
-export { getMonthGrid };
+export { getMonthGrid, monthBounds };

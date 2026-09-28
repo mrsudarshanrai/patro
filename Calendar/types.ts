@@ -34,6 +34,8 @@ export namespace ICalendar {
     oYear: string;
     nextMonth: () => void;
     prevMonth: () => void;
+    canNextMonth: boolean;
+    canPrevMonth: boolean;
   };
 
   export type CalendarDaysProps = {

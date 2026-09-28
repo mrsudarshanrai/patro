@@ -181,3 +181,66 @@ test('defaultDate={null} shows the current month with nothing selected', () => {
   expect(container.querySelector('._patro_dates_current_date')).toBeNull();
   expect(screen.getByRole('grid').querySelector('[aria-selected="true"]')).toBeNull();
 });
+
+describe('supported range edges', () => {
+  test('last month (BS 2099 Chaitra) renders, cannot go further, days past the table are blank', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Calendar calendarType='BS' defaultDate={new Date(2043, 3, 1)} showExtra />,
+    );
+    expect(title(container)).toBe('चैत्र 2099');
+
+    const next = screen.getByLabelText('Next month');
+    expect(next).toBeDisabled();
+    await user.click(next);
+    screen.getByRole('grid').focus();
+    await user.keyboard('{PageDown}{ArrowDown}{ArrowDown}{ArrowDown}');
+    expect(title(container)).toBe('चैत्र 2099');
+
+    const beyond = cell(container, '2043-04-15');
+    expect(beyond).toHaveClass('_patro_dates_disabled');
+    expect(beyond).toHaveAttribute('aria-disabled', 'true');
+    expect(beyond.textContent).toBe('');
+  });
+
+  test('first AD month (April 1921) renders with pre-table days disabled', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar defaultDate={new Date(1921, 3, 13)} onChange={onChange} showExtra />,
+    );
+    expect(title(container)).toBe('April 1921');
+    expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
+      'चैत्र/बैशाख - 1977',
+    );
+    expect(screen.getByLabelText('Previous month')).toBeDisabled();
+
+    const before = cell(container, '1921-04-12');
+    expect(before).toHaveClass('_patro_dates_disabled');
+    expect(before.textContent).toBe('12');
+    expect(cell(container, '1921-04-13').textContent).toBe('13०१');
+
+    await user.click(before);
+    expect(onChange).not.toHaveBeenCalled();
+
+    screen.getByRole('grid').focus();
+    await user.keyboard('{ArrowLeft}{PageUp}');
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '1921-04-13');
+    expect(title(container)).toBe('April 1921');
+  });
+
+  test('first BS month (1978 Baisakh) cannot go back', () => {
+    const { container } = render(
+      <Calendar calendarType='BS' defaultDate={new Date(1921, 3, 20)} />,
+    );
+    expect(title(container)).toBe('बैशाख 1978');
+    expect(screen.getByLabelText('Previous month')).toBeDisabled();
+    expect(screen.getByLabelText('Next month')).toBeEnabled();
+  });
+
+  test('an out-of-range defaultDate shows the nearest month with nothing selected', () => {
+    const { container } = render(<Calendar defaultDate={new Date(2050, 0, 1)} />);
+    expect(title(container)).toBe('April 2043');
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+  });
+});

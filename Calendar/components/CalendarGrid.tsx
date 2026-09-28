@@ -3,7 +3,7 @@ import { adDateToLocalDate, formatDisplayDate } from '../../utils';
 import { ICalendar } from '../types';
 
 const cellClassName = (
-  { isToday, isSelected, offset }: IUseCalendarData.IDates,
+  { isToday, isSelected, isDisabled, offset }: IUseCalendarData.IDates,
   isFocused: boolean,
 ) =>
   [
@@ -13,13 +13,15 @@ const cellClassName = (
     offset && `_patro_dates_${offset}_month_date_offset`,
     isSelected && '_patro_dates_current_date',
     isToday && '_patro_dates_today',
+    isDisabled && '_patro_dates_disabled',
     isFocused && '_patro_dates_focused',
   ]
     .filter(Boolean)
     .join(' ');
 
-const cellLabel = (adDate: string) => {
+const cellLabel = ({ adDate, isDisabled }: IUseCalendarData.IDates) => {
   const date = adDateToLocalDate(adDate);
+  if (isDisabled) return formatDisplayDate(date, 'AD');
   return `${formatDisplayDate(date, 'AD')}, ${formatDisplayDate(date, 'BS')}`;
 };
 
@@ -39,9 +41,10 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
                   aria-selected={date.isSelected}
-                  aria-label={cellLabel(adDate)}
+                  aria-disabled={date.isDisabled || undefined}
+                  aria-label={cellLabel(date)}
                   title={adDate}
-                  onClick={() => onSelect({ adDate })}
+                  onClick={date.isDisabled ? undefined : () => onSelect({ adDate })}
                   key={i + index}
                   className={cellClassName(date, adDate === focusedAdDate)}
                 >

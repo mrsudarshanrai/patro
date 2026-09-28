@@ -6,22 +6,19 @@ import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
-import { ad2Bs, adDateToLocalDate, addDays, createDateString, getToday } from '../utils';
+import {
+  adDateToLocalDate,
+  addDays,
+  createDateString,
+  getToday,
+  isSupportedAdDate,
+} from '../utils';
 
 const DAY_STEPS: Record<string, number> = {
   ArrowLeft: -1,
   ArrowRight: 1,
   ArrowUp: -7,
   ArrowDown: 7,
-};
-
-const isSupported = (adDate: string) => {
-  try {
-    ad2Bs(adDate);
-    return true;
-  } catch {
-    return false;
-  }
 };
 
 const Calendar = (props: ICalendar.IProps) => {
@@ -54,9 +51,11 @@ const Calendar = (props: ICalendar.IProps) => {
     header: { month, oMonth, oYear, year },
     nextMonth,
     prevMonth,
+    canNextMonth,
+    canPrevMonth,
   } = useCalendarData(calendarType, selectedDate);
 
-  const monthCells = dates.flat().filter((cell) => !cell.offset);
+  const monthCells = dates.flat().filter((cell) => !cell.offset && !cell.isDisabled);
   const monthStart = monthCells[0].adDate;
   const monthEnd = monthCells[monthCells.length - 1].adDate;
   const inView = (adDate?: string) => !!adDate && adDate >= monthStart && adDate <= monthEnd;
@@ -80,7 +79,7 @@ const Calendar = (props: ICalendar.IProps) => {
     if (step !== undefined) {
       event.preventDefault();
       const next = addDays(activeAdDate, step);
-      if (!isSupported(next)) return;
+      if (!isSupportedAdDate(next)) return;
       if (next < monthStart) prevMonth();
       if (next > monthEnd) nextMonth();
       setFocusedAdDate(next);
@@ -101,6 +100,8 @@ const Calendar = (props: ICalendar.IProps) => {
       <CalendarHeader
         nextMonth={nextMonth}
         prevMonth={prevMonth}
+        canNextMonth={canNextMonth}
+        canPrevMonth={canPrevMonth}
         month={month}
         year={year}
         oMonth={oMonth}

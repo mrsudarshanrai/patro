@@ -1,4 +1,4 @@
-import { config } from '../constants/dateConstants';
+import { config, MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
 import { Constant } from '../constants/types';
 const { en, np }: Constant.Config = config;
 
@@ -52,6 +52,11 @@ const dateString2Obj = (date: string) => {
   return { year, month, day };
 };
 
+const isSupportedAdDate = (adDate: string) => adDate >= START_ENGLISH_DATE && adDate <= MAX_AD_DATE;
+
+const clampAdDate = (adDate: string) =>
+  adDate < START_ENGLISH_DATE ? START_ENGLISH_DATE : adDate > MAX_AD_DATE ? MAX_AD_DATE : adDate;
+
 // `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
   const { year, month, day } = dateString2Obj(adDate);
@@ -78,6 +83,8 @@ export {
   isTodayAdDate,
   dateString2Obj,
   adDateToLocalDate,
+  isSupportedAdDate,
+  clampAdDate,
   en2NpNumber,
   remove1stZero,
 };

@@ -135,3 +135,8 @@ describe('empty state (defaultDate={null})', () => {
     expect(input).toHaveTextContent('Select a date');
   });
 });
+
+test('an out-of-range defaultDate shows the placeholder instead of crashing', () => {
+  const { input } = setup({ defaultDate: new Date(2050, 0, 1), calendarType: 'BS' });
+  expect(input).toHaveTextContent('मिति छान्नुहोस्');
+});

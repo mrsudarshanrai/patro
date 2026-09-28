@@ -63,6 +63,12 @@
         background-color: var(--patro-border);
         color: var(--patro-text);
       }
+      &:disabled {
+        background-color: transparent;
+        color: var(--patro-muted);
+        opacity: 0.35;
+        cursor: default;
+      }
       svg {
         display: block;
       }
@@ -181,6 +187,13 @@
     sub {
       color: var(--patro-sel-sub);
     }
+  }
+
+  &_disabled,
+  &_disabled:hover {
+    color: var(--patro-faint);
+    background-color: transparent;
+    cursor: default;
   }
 
   &_focused {
