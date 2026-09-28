@@ -8,6 +8,8 @@ A React calendar and datepicker for the Nepali Bikram Sambat (BS) calendar, with
 npm install patro
 ```
 
+Requires React 18 or 19.
+
 Import the stylesheet once, wherever your app already loads global CSS:
 
 ```js
@@ -39,6 +41,18 @@ function App() {
 ```
 
 `Datepicker` renders an input that opens `Calendar` in a popover on click; selecting a date closes the popover and updates the input.
+
+## Keyboard
+
+The day grid is a single Tab stop with a visible focus ring.
+
+| Key                                               | Action                                               |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| Arrow keys                                        | Move by one day / one week, changing month as needed |
+| PageUp / PageDown                                 | Previous / next month                                |
+| Enter / Space                                     | Select the focused day                               |
+| Escape                                            | Close the Datepicker popover                         |
+| Enter / Space / ArrowDown on the Datepicker input | Open the popover                                     |
 
 ## Theming
 
