@@ -1,5 +1,5 @@
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
-import { DisplayOptions, formatDate, formatNumber, otherSystem } from '../../utils';
+import { DisplayOptions, formatDate, formatNumber, otherSystem, toPatroDate } from '../../utils';
 import { CalendarSystem } from '../../types/public';
 import { ICalendar } from '../types';
 
@@ -32,7 +32,16 @@ const number = (value: number | null, system: CalendarSystem, display: DisplayOp
 const cellId = (idPrefix: string, adDate: string) => `${idPrefix}-${adDate}`;
 
 const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
-  const { dates, calendar, display, showSecondaryDate, onSelect, idPrefix, focusedAdDate } = props;
+  const {
+    dates,
+    calendar,
+    display,
+    showSecondaryDate,
+    onSelect,
+    idPrefix,
+    focusedAdDate,
+    dayClassName,
+  } = props;
   return (
     <>
       {dates.map((days: IUseCalendarData.IDates[], i: number) => {
@@ -50,7 +59,12 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                   title={adDate}
                   onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
                   key={i + index}
-                  className={cellClassName(date, adDate === focusedAdDate)}
+                  className={[
+                    cellClassName(date, adDate === focusedAdDate),
+                    secondaryDay !== null && dayClassName?.(toPatroDate(adDate)),
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                 >
                   <span className='_patro_dates_date_primary'>
                     {number(day, calendar, display)}

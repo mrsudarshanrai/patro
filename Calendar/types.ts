@@ -1,5 +1,5 @@
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
-import { CalendarSystem } from '../types/public';
+import { CalendarSystem, PatroDate } from '../types/public';
 import { DisplayOptions } from '../utils/formatUtils';
 
 export namespace ICalendar {
@@ -17,6 +17,7 @@ export namespace ICalendar {
     onSelect: (adDate: string) => void;
     idPrefix: string;
     focusedAdDate?: string;
+    dayClassName?: (date: PatroDate) => string | undefined;
   };
 
   export type CalendarHeaderProps = {

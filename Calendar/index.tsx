@@ -38,6 +38,7 @@ const Calendar = (props: CalendarProps) => {
     weekStartsOn = 0,
     fixedWeeks = true,
     weekendDays,
+    dayClassName,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -159,6 +160,7 @@ const Calendar = (props: CalendarProps) => {
           onSelect={onSelect}
           showSecondaryDate={showSecondaryDate}
           idPrefix={idPrefix}
+          dayClassName={dayClassName}
           focusedAdDate={showFocusRing ? activeAdDate : undefined}
         />
       </div>

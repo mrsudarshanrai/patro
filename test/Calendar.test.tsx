@@ -424,3 +424,16 @@ test('weekend header marking follows weekStartsOn', () => {
   render(<Calendar defaultValue={TODAY} weekendDays={[6]} weekStartsOn={1} />);
   expect(screen.getAllByRole('columnheader')[5]).toHaveClass('_patro_days_day_weekend');
 });
+
+test('dayClassName adds your own classes, e.g. for holidays', () => {
+  const holidays = new Set(['2083-07-04']);
+  const { container } = render(
+    <Calendar
+      calendar='BS'
+      defaultValue={TODAY}
+      dayClassName={({ bs }) => (holidays.has(bs) ? 'holiday' : undefined)}
+    />,
+  );
+  expect(cell(container, '2026-10-21')).toHaveClass('holiday');
+  expect(cell(container, '2026-10-22')).not.toHaveClass('holiday');
+});

@@ -38,6 +38,8 @@ export interface CalendarProps {
   fixedWeeks?: boolean;
   /** Weekdays to colour as weekends (0 = Sunday … 6 = Saturday), e.g. [6] as Nepali calendars do. */
   weekendDays?: number[];
+  /** Extra class names for a day, e.g. to mark holidays or events. */
+  dayClassName?: (date: PatroDate) => string | undefined;
 }
 
 export interface DatepickerProps extends CalendarProps {
