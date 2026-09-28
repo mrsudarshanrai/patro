@@ -4,12 +4,13 @@ import { CalendarSystem } from '../../types/public';
 import { ICalendar } from '../types';
 
 const cellClassName = (
-  { isToday, isSelected, isDisabled, offset }: IUseCalendarData.IDates,
+  { isToday, isSelected, isDisabled, isWeekend, offset }: IUseCalendarData.IDates,
   isFocused: boolean,
 ) =>
   [
     '_patro_dates_date',
     '_patro_dates_current_month_date',
+    isWeekend && '_patro_dates_weekend',
     offset && '_patro_dates_date_offset',
     offset && `_patro_dates_${offset}_month_date_offset`,
     isSelected && '_patro_dates_current_date',

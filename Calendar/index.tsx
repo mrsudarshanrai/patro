@@ -37,6 +37,7 @@ const Calendar = (props: CalendarProps) => {
     numerals,
     weekStartsOn = 0,
     fixedWeeks = true,
+    weekendDays,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -66,6 +67,7 @@ const Calendar = (props: CalendarProps) => {
     isDateDisabled,
     weekStartsOn,
     fixedWeeks,
+    weekendDays,
   });
 
   const display: DisplayOptions = { locale, numerals };
@@ -144,7 +146,12 @@ const Calendar = (props: CalendarProps) => {
           setShowFocusRing(false);
         }}
       >
-        <CalendarDays calendar={calendar} display={display} weekStartsOn={weekStartsOn} />
+        <CalendarDays
+          calendar={calendar}
+          display={display}
+          weekStartsOn={weekStartsOn}
+          weekendDays={weekendDays}
+        />
         <CalendarGrid
           dates={dates}
           calendar={calendar}

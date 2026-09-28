@@ -410,3 +410,17 @@ describe('grid layout', () => {
     expect(screen.getAllByRole('columnheader')[0]).toHaveTextContent('सोम');
   });
 });
+
+test('weekendDays marks those weekdays in the grid and the header', () => {
+  const { container } = render(<Calendar defaultValue={TODAY} weekendDays={[6]} />);
+  expect(cell(container, '2026-10-31')).toHaveClass('_patro_dates_weekend');
+  expect(cell(container, '2026-10-30')).not.toHaveClass('_patro_dates_weekend');
+  const headers = screen.getAllByRole('columnheader');
+  expect(headers[6]).toHaveClass('_patro_days_day_weekend');
+  expect(headers[0]).not.toHaveClass('_patro_days_day_weekend');
+});
+
+test('weekend header marking follows weekStartsOn', () => {
+  render(<Calendar defaultValue={TODAY} weekendDays={[6]} weekStartsOn={1} />);
+  expect(screen.getAllByRole('columnheader')[5]).toHaveClass('_patro_days_day_weekend');
+});

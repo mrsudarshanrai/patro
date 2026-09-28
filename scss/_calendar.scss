@@ -107,6 +107,9 @@
     font-weight: 500;
     color: var(--patro-muted);
   }
+  &_day_weekend {
+    color: var(--patro-weekend);
+  }
 }
 ._patro_dates {
   gap: 2px;
@@ -146,6 +149,10 @@
 
   &_current_month_date:hover {
     background-color: var(--patro-hover);
+  }
+
+  &_weekend {
+    color: var(--patro-weekend);
   }
 
   &_date_offset {

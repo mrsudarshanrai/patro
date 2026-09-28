@@ -32,5 +32,6 @@ export namespace ICalendar {
     calendar: CalendarSystem;
     display: DisplayOptions;
     weekStartsOn: number;
+    weekendDays?: number[];
   };
 }

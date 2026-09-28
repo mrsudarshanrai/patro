@@ -42,7 +42,11 @@ const getMonthGrid = (
   adDate: string,
   selectedAdDate: string | null,
   isDayDisabled?: (adDate: string) => boolean,
-  { weekStartsOn = 0, fixedWeeks = true }: { weekStartsOn?: number; fixedWeeks?: boolean } = {},
+  {
+    weekStartsOn = 0,
+    fixedWeeks = true,
+    weekendDays = [],
+  }: { weekStartsOn?: number; fixedWeeks?: boolean; weekendDays?: number[] } = {},
 ): IUseCalendarData.IDates[][] => {
   const isAdView = calendarType === ICalendar.CalendarTypeEnum.AD;
   const [first, last] = monthBounds(calendarType, adDate);
@@ -79,6 +83,7 @@ const getMonthGrid = (
       adDate: ad,
       isToday: isTodayAdDate(ad),
       isSelected: !offset && ad === selectedAdDate,
+      ...(weekendDays.includes(weekday(ad)) && { isWeekend: true }),
       ...(isDayDisabled?.(ad) && { isDisabled: true }),
       ...(offset && { offset }),
     });

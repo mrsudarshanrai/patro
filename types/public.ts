@@ -36,6 +36,8 @@ export interface CalendarProps {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Always show 6 week rows so the calendar keeps one height. Defaults to true. */
   fixedWeeks?: boolean;
+  /** Weekdays to colour as weekends (0 = Sunday … 6 = Saturday), e.g. [6] as Nepali calendars do. */
+  weekendDays?: number[];
 }
 
 export interface DatepickerProps extends CalendarProps {

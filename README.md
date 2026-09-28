@@ -88,23 +88,24 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 `Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`, `Locale`, `Numerals`.
 
-| Prop                | Type                                 | Default                                 | Description                                                                      |
-| ------------------- | ------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------- |
-| `calendar`          | `'AD' \| 'BS'`                       | `'AD'`                                  | Which calendar system to display.                                                |
-| `value`             | `Date \| null`                       | -                                       | Controlled selection. `null` = nothing selected.                                 |
-| `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.                 |
-| `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                                     |
-| `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                                      |
-| `locale`            | `'en' \| 'ne'`                       | each calendar's own                     | Language for month and weekday names. By default AD is English and BS is Nepali. |
-| `numerals`          | `'latin' \| 'devanagari'`            | each calendar's own                     | Digits for every number. By default AD uses Latin and BS Devanagari digits.      |
-| `weekStartsOn`      | `0`–`6`                              | `0`                                     | First day of the week (0 = Sunday).                                              |
-| `fixedWeeks`        | `boolean`                            | `true`                                  | Always show 6 week rows so the calendar keeps one height.                        |
-| `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                |
-| `minDate`           | `Date`                               | -                                       | Earliest selectable day. Earlier days are disabled and navigation stops there.   |
-| `maxDate`           | `Date`                               | -                                       | Latest selectable day.                                                           |
-| `isDateDisabled`    | `(date: PatroDate) => boolean`       | -                                       | Disable individual days, e.g. `({ date }) => date.getDay() === 6` for Saturdays. |
-| `label`             | `string`                             | -                                       | `Datepicker` only. Text shown above the input.                                   |
-| `placeholder`       | `string`                             | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                                  |
+| Prop                | Type                                 | Default                                 | Description                                                                                                             |
+| ------------------- | ------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `calendar`          | `'AD' \| 'BS'`                       | `'AD'`                                  | Which calendar system to display.                                                                                       |
+| `value`             | `Date \| null`                       | -                                       | Controlled selection. `null` = nothing selected.                                                                        |
+| `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.                                                        |
+| `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                                                                            |
+| `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                                                                             |
+| `locale`            | `'en' \| 'ne'`                       | each calendar's own                     | Language for month and weekday names. By default AD is English and BS is Nepali.                                        |
+| `numerals`          | `'latin' \| 'devanagari'`            | each calendar's own                     | Digits for every number. By default AD uses Latin and BS Devanagari digits.                                             |
+| `weekStartsOn`      | `0`–`6`                              | `0`                                     | First day of the week (0 = Sunday).                                                                                     |
+| `fixedWeeks`        | `boolean`                            | `true`                                  | Always show 6 week rows so the calendar keeps one height.                                                               |
+| `weekendDays`       | `number[]`                           | `[]`                                    | Weekdays to colour as weekends (0 = Sunday), e.g. `[6]` for Saturday as Nepali calendars do. Colour: `--patro-weekend`. |
+| `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                                                       |
+| `minDate`           | `Date`                               | -                                       | Earliest selectable day. Earlier days are disabled and navigation stops there.                                          |
+| `maxDate`           | `Date`                               | -                                       | Latest selectable day.                                                                                                  |
+| `isDateDisabled`    | `(date: PatroDate) => boolean`       | -                                       | Disable individual days, e.g. `({ date }) => date.getDay() === 6` for Saturdays.                                        |
+| `label`             | `string`                             | -                                       | `Datepicker` only. Text shown above the input.                                                                          |
+| `placeholder`       | `string`                             | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                                                                         |
 
 ## Utilities
 

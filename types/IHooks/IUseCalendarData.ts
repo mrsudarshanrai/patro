@@ -30,6 +30,7 @@ export namespace IUseCalendarData {
     isToday: boolean;
     isSelected: boolean;
     isDisabled?: boolean;
+    isWeekend?: boolean;
     offset?: 'prev' | 'next';
   }
 }

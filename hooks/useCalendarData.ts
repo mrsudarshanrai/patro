@@ -104,12 +104,13 @@ type Options = {
   isDateDisabled?: (date: PatroDate) => boolean;
   weekStartsOn?: number;
   fixedWeeks?: boolean;
+  weekendDays?: number[];
 };
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   selectedDate?: Date | null,
-  { minDate, maxDate, isDateDisabled, weekStartsOn, fixedWeeks }: Options = {},
+  { minDate, maxDate, isDateDisabled, weekStartsOn, fixedWeeks, weekendDays }: Options = {},
 ): IUseCalendarData.IReturn => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
   const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
@@ -163,13 +164,20 @@ const useCalendarData = (
     () => (selectedAdDate ? ad2Bs(selectedAdDate) : null),
     [selectedAdDate],
   );
+  // weekendDays is usually an inline array, so key the memo on its contents.
+  const weekendKey = weekendDays?.join(',') ?? '';
+  const weekend = useMemo(
+    () => (weekendKey ? weekendKey.split(',').map(Number) : []),
+    [weekendKey],
+  );
   const dates = useMemo(
     () =>
       getMonthGrid(calendarType, viewAnchor, selectedAdDate, isDayDisabled, {
         weekStartsOn,
         fixedWeeks,
+        weekendDays: weekend,
       }),
-    [calendarType, viewAnchor, selectedAdDate, isDayDisabled, weekStartsOn, fixedWeeks],
+    [calendarType, viewAnchor, selectedAdDate, isDayDisabled, weekStartsOn, fixedWeeks, weekend],
   );
 
   return {
