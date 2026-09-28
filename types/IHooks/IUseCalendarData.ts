@@ -13,6 +13,9 @@ export namespace IUseCalendarData {
     prevMonth: () => void;
     canNextMonth: boolean;
     canPrevMonth: boolean;
+    minAdDate: string;
+    maxAdDate: string;
+    isDayDisabled: (adDate: string) => boolean;
   }
 
   export interface ICurrDate {

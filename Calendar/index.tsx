@@ -5,7 +5,7 @@ import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
-import { addDays, createDateString, getToday, isSupportedAdDate, toPatroDate } from '../utils';
+import { addDays, createDateString, getToday, toPatroDate } from '../utils';
 
 const DAY_STEPS: Record<string, number> = {
   ArrowLeft: -1,
@@ -22,6 +22,9 @@ const Calendar = (props: CalendarProps) => {
     calendar = ICalendar.CalendarTypeEnum.AD,
     showSecondaryDate = true,
     theme,
+    minDate,
+    maxDate,
+    isDateDisabled,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -41,12 +44,18 @@ const Calendar = (props: CalendarProps) => {
     prevMonth,
     canNextMonth,
     canPrevMonth,
-  } = useCalendarData(calendar, selectedDate);
+    minAdDate,
+    maxAdDate,
+    isDayDisabled,
+  } = useCalendarData(calendar, selectedDate, { minDate, maxDate, isDateDisabled });
 
-  const monthCells = dates.flat().filter((cell) => !cell.offset && !cell.isDisabled);
+  const ownDays = dates.flat().filter((cell) => !cell.offset);
+  const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
+  const monthCells = enabledDays.length ? enabledDays : ownDays;
   const monthStart = monthCells[0].adDate;
   const monthEnd = monthCells[monthCells.length - 1].adDate;
-  const inView = (adDate?: string) => !!adDate && adDate >= monthStart && adDate <= monthEnd;
+  const inView = (adDate?: string) =>
+    !!adDate && adDate >= monthStart && adDate <= monthEnd && !isDayDisabled(adDate);
   const today = getToday();
   // Keep focus on something visible after month changes: focused, else selected, else today.
   const activeAdDate =
@@ -67,8 +76,11 @@ const Calendar = (props: CalendarProps) => {
     const step = DAY_STEPS[event.key];
     if (step !== undefined) {
       event.preventDefault();
-      const next = addDays(activeAdDate, step);
-      if (!isSupportedAdDate(next)) return;
+      let next = addDays(activeAdDate, step);
+      while (next >= minAdDate && next <= maxAdDate && isDayDisabled(next)) {
+        next = addDays(next, step);
+      }
+      if (next < minAdDate || next > maxAdDate) return;
       if (next < monthStart) prevMonth();
       if (next > monthEnd) nextMonth();
       setFocusedAdDate(next);
@@ -80,7 +92,7 @@ const Calendar = (props: CalendarProps) => {
       setShowFocusRing(true);
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      onSelect(activeAdDate);
+      if (!isDayDisabled(activeAdDate)) onSelect(activeAdDate);
     }
   };
 

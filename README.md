@@ -88,16 +88,19 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 `Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`.
 
-| Prop                | Type                                 | Default                                 | Description                                                       |
-| ------------------- | ------------------------------------ | --------------------------------------- | ----------------------------------------------------------------- |
-| `calendar`          | `'AD' \| 'BS'`                       | `'AD'`                                  | Which calendar system to display.                                 |
-| `value`             | `Date \| null`                       | -                                       | Controlled selection. `null` = nothing selected.                  |
-| `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.  |
-| `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                      |
-| `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                       |
-| `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming). |
-| `label`             | `string`                             | -                                       | `Datepicker` only. Text shown above the input.                    |
-| `placeholder`       | `string`                             | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                   |
+| Prop                | Type                                 | Default                                 | Description                                                                      |
+| ------------------- | ------------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------- |
+| `calendar`          | `'AD' \| 'BS'`                       | `'AD'`                                  | Which calendar system to display.                                                |
+| `value`             | `Date \| null`                       | -                                       | Controlled selection. `null` = nothing selected.                                 |
+| `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.                 |
+| `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                                     |
+| `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                                      |
+| `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                |
+| `minDate`           | `Date`                               | -                                       | Earliest selectable day. Earlier days are disabled and navigation stops there.   |
+| `maxDate`           | `Date`                               | -                                       | Latest selectable day.                                                           |
+| `isDateDisabled`    | `(date: PatroDate) => boolean`       | -                                       | Disable individual days, e.g. `({ date }) => date.getDay() === 6` for Saturdays. |
+| `label`             | `string`                             | -                                       | `Datepicker` only. Text shown above the input.                                   |
+| `placeholder`       | `string`                             | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                                  |
 
 ## Utilities
 

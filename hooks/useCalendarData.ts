@@ -12,10 +12,13 @@ import {
   isSupportedAdDate,
   monthBounds,
   switchYear,
+  toAdDateString,
+  toPatroDate,
   ad2Bs,
   bs2Ad,
 } from '../utils';
 import { ICalendar } from '../Calendar/types';
+import { PatroDate } from '../types/public';
 import { MAX_AD_DATE, MIN_BS_YEAR, START_ENGLISH_DATE } from '../constants/dateConstants';
 
 /**
@@ -25,13 +28,17 @@ import { MAX_AD_DATE, MIN_BS_YEAR, START_ENGLISH_DATE } from '../constants/dateC
  * Pinning to the AD month's day 1 in BS mode would land on the wrong BS
  * month whenever the BS month boundary falls after day 1 of the AD month.
  */
+type Bounds = { min: string; max: string };
+const FULL_RANGE: Bounds = { min: START_ENGLISH_DATE, max: MAX_AD_DATE };
+
 const getViewAnchor = (
   calendarType: ICalendar.calendarType,
   year: number,
   month: number,
   date: number,
+  bounds: Bounds = FULL_RANGE,
 ): string => {
-  const adDate = clampAdDate(createDateString(year, month, date));
+  const adDate = clampAdDate(createDateString(year, month, date), bounds.min, bounds.max);
   if (calendarType === ICalendar.CalendarTypeEnum.BS) {
     const { year: bsYear, month: bsMonth } = dateString2Obj(ad2Bs(adDate));
     return bs2Ad(createDateString(bsYear, bsMonth, 1));
@@ -40,10 +47,15 @@ const getViewAnchor = (
   return createDateString(clamped.year, clamped.month, 1);
 };
 
-// Whether the neighbouring month has any day inside the supported table range.
-const canStep = (viewAnchor: string, calendarType: ICalendar.calendarType, step: 1 | -1) => {
+// Whether the neighbouring month has any day inside the bounds.
+const canStep = (
+  viewAnchor: string,
+  calendarType: ICalendar.calendarType,
+  step: 1 | -1,
+  bounds: Bounds = FULL_RANGE,
+) => {
   const [first, last] = monthBounds(calendarType, viewAnchor);
-  return step < 0 ? addDays(first, -1) >= START_ENGLISH_DATE : addDays(last, 1) <= MAX_AD_DATE;
+  return step < 0 ? addDays(first, -1) >= bounds.min : addDays(last, 1) <= bounds.max;
 };
 
 /**
@@ -58,8 +70,9 @@ const stepViewAnchor = (
   viewAnchor: string,
   calendarType: ICalendar.calendarType,
   step: 1 | -1,
+  bounds: Bounds = FULL_RANGE,
 ): string => {
-  if (!canStep(viewAnchor, calendarType, step)) return viewAnchor;
+  if (!canStep(viewAnchor, calendarType, step, bounds)) return viewAnchor;
   if (calendarType === ICalendar.CalendarTypeEnum.BS) {
     const { year, month } = dateString2Obj(ad2Bs(viewAnchor));
     const stepped = switchYear(year, month + step);
@@ -86,17 +99,28 @@ const toSelection = (date: Date): IUseCalendarData.ICurrDate | null => {
 const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICurrDate | null) =>
   a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
 
+type Options = {
+  minDate?: Date;
+  maxDate?: Date;
+  isDateDisabled?: (date: PatroDate) => boolean;
+};
+
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   selectedDate?: Date | null,
+  { minDate, maxDate, isDateDisabled }: Options = {},
 ): IUseCalendarData.IReturn => {
+  const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
+  const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
+  const bounds = useMemo(() => ({ min: minAdDate, max: maxAdDate }), [minAdDate, maxAdDate]);
+
   const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
     selectedDate === null ? null : toSelection(selectedDate ?? new Date()),
   );
   // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
   const [viewAnchor, setViewAnchor] = useState(() => {
     const { year, month, date } = selectedDate ? ymd(selectedDate) : (selected ?? getToday());
-    return getViewAnchor(calendarType, year, month, date);
+    return getViewAnchor(calendarType, year, month, date, bounds);
   });
 
   const selectedTime = selectedDate?.getTime();
@@ -105,9 +129,9 @@ const useCalendarData = (
     const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
     const next = requested ? toSelection(requested) : cleared ? null : selected;
     const { year, month, date } = requested ? ymd(requested) : (next ?? getToday());
-    setViewAnchor(getViewAnchor(calendarType, year, month, date));
+    setViewAnchor(getViewAnchor(calendarType, year, month, date, bounds));
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
-  }, [selectedTime, cleared, calendarType, selected]);
+  }, [selectedTime, cleared, calendarType, selected, bounds]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
   // Only AD April 1921 starts before the table; its 1st falls in BS 1977 Chaitra.
@@ -121,12 +145,20 @@ const useCalendarData = (
   const { year: bsYear } = useMemo(() => dateString2Obj(bsAnchor), [bsAnchor]);
 
   const nextMonth = useCallback(() => {
-    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, 1));
-  }, [calendarType]);
+    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, 1, bounds));
+  }, [calendarType, bounds]);
 
   const prevMonth = useCallback(() => {
-    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, -1));
-  }, [calendarType]);
+    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, -1, bounds));
+  }, [calendarType, bounds]);
+
+  const isDayDisabled = useCallback(
+    (adDate: string) =>
+      adDate < minAdDate ||
+      adDate > maxAdDate ||
+      (!!isDateDisabled && isDateDisabled(toPatroDate(adDate))),
+    [minAdDate, maxAdDate, isDateDisabled],
+  );
 
   const selectedAdDate = useMemo(
     () => (selected ? createDateString(selected.year, selected.month, selected.date) : null),
@@ -137,8 +169,8 @@ const useCalendarData = (
     [selectedAdDate],
   );
   const dates = useMemo(
-    () => getMonthGrid(calendarType, viewAnchor, selectedAdDate),
-    [calendarType, viewAnchor, selectedAdDate],
+    () => getMonthGrid(calendarType, viewAnchor, selectedAdDate, isDayDisabled),
+    [calendarType, viewAnchor, selectedAdDate, isDayDisabled],
   );
 
   return {
@@ -154,8 +186,11 @@ const useCalendarData = (
     ),
     nextMonth,
     prevMonth,
-    canNextMonth: canStep(viewAnchor, calendarType, 1),
-    canPrevMonth: canStep(viewAnchor, calendarType, -1),
+    canNextMonth: canStep(viewAnchor, calendarType, 1, bounds),
+    canPrevMonth: canStep(viewAnchor, calendarType, -1, bounds),
+    minAdDate,
+    maxAdDate,
+    isDayDisabled,
   };
 };
 

@@ -20,6 +20,12 @@ export interface CalendarProps {
   /** Show the other calendar's date on each day. Defaults to true. */
   showSecondaryDate?: boolean;
   theme?: 'light' | 'dark';
+  /** Earliest selectable day. */
+  minDate?: Date;
+  /** Latest selectable day. */
+  maxDate?: Date;
+  /** Return true to disable a day, e.g. weekends or holidays. */
+  isDateDisabled?: (date: PatroDate) => boolean;
 }
 
 export interface DatepickerProps extends CalendarProps {

@@ -152,3 +152,10 @@ test('controlled: the input shows value, and picking a day only calls onChange',
   );
   expect(input).toHaveTextContent('29 October 2026');
 });
+
+test('passes date bounds through to the calendar', async () => {
+  const { user, input } = setup({ minDate: new Date(2026, 9, 10) });
+  await user.click(input);
+  expect(screen.getByTitle('2026-10-09')).toHaveClass('_patro_dates_disabled');
+  expect(screen.getByLabelText('Previous month')).toBeDisabled();
+});

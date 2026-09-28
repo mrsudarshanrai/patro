@@ -278,3 +278,75 @@ describe('supported range edges', () => {
     expect(container.querySelector('._patro_dates_current_date')).toBeNull();
   });
 });
+
+describe('minDate / maxDate / isDateDisabled', () => {
+  const minDate = new Date(2026, 9, 10);
+  const maxDate = new Date(2026, 10, 20);
+
+  test('days outside the bounds are disabled but still show their numbers', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar defaultValue={TODAY} minDate={minDate} maxDate={maxDate} onChange={onChange} />,
+    );
+    const early = cell(container, '2026-10-09');
+    expect(early).toHaveClass('_patro_dates_disabled');
+    expect(early).toHaveAttribute('aria-disabled', 'true');
+    expect(early.textContent).toBe('9२३');
+    expect(cell(container, '2026-10-10')).not.toHaveClass('_patro_dates_disabled');
+
+    await user.click(early);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('navigation stops at the months containing the bounds', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Calendar defaultValue={TODAY} minDate={minDate} maxDate={maxDate} />,
+    );
+    expect(screen.getByLabelText('Previous month')).toBeDisabled();
+    await user.click(screen.getByLabelText('Next month'));
+    expect(title(container)).toBe('November 2026');
+    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    expect(cell(container, '2026-11-21')).toHaveClass('_patro_dates_disabled');
+  });
+
+  test('the view opens inside the bounds when the value is outside them', () => {
+    const { container } = render(<Calendar defaultValue={null} minDate={new Date(2027, 0, 10)} />);
+    expect(title(container)).toBe('January 2027');
+  });
+
+  test('bounds apply in BS mode too', () => {
+    const { container } = render(
+      <Calendar calendar='BS' defaultValue={TODAY} maxDate={new Date(2026, 10, 1)} />,
+    );
+    expect(title(container)).toBe('कार्तिक 2083');
+    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    expect(cell(container, '2026-11-02')).toHaveClass('_patro_dates_disabled');
+  });
+
+  test('isDateDisabled disables matching days and the keyboard skips them', async () => {
+    const user = userEvent.setup();
+    const saturdays = ({ date }: { date: Date }) => date.getDay() === 6;
+    const { container } = render(
+      <Calendar defaultValue={new Date(2026, 9, 30)} isDateDisabled={saturdays} />,
+    );
+    expect(cell(container, '2026-10-31')).toHaveClass('_patro_dates_disabled');
+    expect(cell(container, '2026-10-30')).not.toHaveClass('_patro_dates_disabled');
+
+    screen.getByRole('grid').focus();
+    await user.keyboard('{ArrowRight}');
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-11-01');
+    expect(title(container)).toBe('November 2026');
+  });
+
+  test('the keyboard cannot move past the bounds', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Calendar defaultValue={new Date(2026, 9, 11)} minDate={minDate} />,
+    );
+    screen.getByRole('grid').focus();
+    await user.keyboard('{ArrowLeft}{ArrowLeft}{ArrowUp}');
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-10-10');
+  });
+});

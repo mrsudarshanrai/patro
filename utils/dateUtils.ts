@@ -54,8 +54,11 @@ const dateString2Obj = (date: string) => {
 
 const isSupportedAdDate = (adDate: string) => adDate >= START_ENGLISH_DATE && adDate <= MAX_AD_DATE;
 
-const clampAdDate = (adDate: string) =>
-  adDate < START_ENGLISH_DATE ? START_ENGLISH_DATE : adDate > MAX_AD_DATE ? MAX_AD_DATE : adDate;
+const clampAdDate = (adDate: string, min = START_ENGLISH_DATE, max = MAX_AD_DATE) =>
+  adDate < min ? min : adDate > max ? max : adDate;
+
+const toAdDateString = (date: Date) =>
+  createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
 // `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
@@ -85,6 +88,7 @@ export {
   adDateToLocalDate,
   isSupportedAdDate,
   clampAdDate,
+  toAdDateString,
   en2NpNumber,
   remove1stZero,
 };
