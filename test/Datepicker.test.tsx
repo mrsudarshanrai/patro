@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
+import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Datepicker } from '../Datepicker';
@@ -17,7 +18,8 @@ afterEach(() => {
 const setup = (props: Partial<Parameters<typeof Datepicker>[0]> = {}) => {
   const user = userEvent.setup();
   const utils = render(<Datepicker defaultValue={TODAY} {...props} />);
-  return { user, input: screen.getByRole('button'), ...utils };
+  const input = utils.container.querySelector('[aria-haspopup="dialog"]') as HTMLElement;
+  return { user, input, ...utils };
 };
 
 test('shows the date in both calendars, with an optional label', () => {
@@ -174,4 +176,136 @@ test('formatValue replaces the input text', () => {
   const { input } = setup({ formatValue: ({ bs, ad }) => `${bs} (${ad})` });
   expect(input).toHaveTextContent('2083-07-12 (2026-10-29)');
   expect(input.querySelector('._patro_datepicker_input_secondary')).toBeNull();
+});
+
+describe('behaviour and forms', () => {
+  test('disabled cannot be focused or opened', async () => {
+    const { user, input } = setup({ disabled: true });
+    expect(input).toHaveAttribute('aria-disabled', 'true');
+    expect(input).toHaveAttribute('tabindex', '-1');
+    await user.click(input);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('readOnly is focusable but cannot be opened', async () => {
+    const { user, input } = setup({ readOnly: true });
+    expect(input).toHaveAttribute('aria-readonly', 'true');
+    input.focus();
+    await user.keyboard('{Enter}{ArrowDown}');
+    await user.click(input);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('invalid sets aria-invalid and error styling', () => {
+    const { input } = setup({ invalid: true });
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveClass('_patro_datepicker_input_invalid');
+  });
+
+  test('closeOnSelect={false} keeps the popover open after picking', async () => {
+    const { user, input } = setup({ closeOnSelect: false });
+    await user.click(input);
+    await user.click(screen.getByTitle('2026-10-05'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(input).toHaveTextContent('5 October 2026');
+  });
+
+  test('controlled open only changes when the parent says so', async () => {
+    const onOpenChange = jest.fn();
+    const { user, input, rerender } = setup({ open: true, onOpenChange });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await user.click(input);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    rerender(<Datepicker defaultValue={TODAY} open={false} onOpenChange={onOpenChange} />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('defaultOpen starts open, and onOpenChange reports changes', async () => {
+    const onOpenChange = jest.fn();
+    const { user, input } = setup({ defaultOpen: true, onOpenChange });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    await user.click(input);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('clearable shows a clear button that empties the value', async () => {
+    const onChange = jest.fn();
+    const { user, input } = setup({ clearable: true, onChange });
+    await user.click(screen.getByLabelText('Clear date'));
+    expect(onChange).toHaveBeenCalledWith(null);
+    expect(input).toHaveTextContent('Select a date');
+    expect(screen.queryByLabelText('Clear date')).not.toBeInTheDocument();
+    expect(input).toHaveFocus();
+  });
+
+  test('name submits the date with a native form, in AD or BS', () => {
+    const { container, rerender } = render(
+      <form>
+        <Datepicker name='dob' defaultValue={TODAY} />
+      </form>,
+    );
+    const form = () => new FormData(container.querySelector('form') as HTMLFormElement);
+    expect(form().get('dob')).toBe('2026-10-29');
+
+    rerender(
+      <form>
+        <Datepicker name='dob' defaultValue={TODAY} valueFormat='bs' />
+      </form>,
+    );
+    expect(form().get('dob')).toBe('2083-07-12');
+  });
+
+  test('required blocks form submission while empty', () => {
+    const { container } = render(
+      <form>
+        <Datepicker name='dob' required defaultValue={null} />
+      </form>,
+    );
+    const form = container.querySelector('form') as HTMLFormElement;
+    expect(form.checkValidity()).toBe(false);
+    expect(screen.getByRole('button')).toHaveAttribute('aria-required', 'true');
+  });
+
+  test('label, id and aria props are wired to the input', () => {
+    render(
+      <>
+        <Datepicker
+          label='Date of birth'
+          id='dob'
+          aria-describedby='dob-help'
+          defaultValue={TODAY}
+        />
+        <p id='dob-help'>As on your citizenship</p>
+      </>,
+    );
+    const input = screen.getByRole('button', { name: /Date of birth/ });
+    expect(input).toHaveAttribute('id', 'dob');
+    expect(input).toHaveAccessibleDescription('As on your citizenship');
+  });
+
+  test('focus props, autoFocus and ref reach the input', async () => {
+    const onFocus = jest.fn();
+    const onBlur = jest.fn();
+    const ref = createRef<HTMLDivElement>();
+    render(<Datepicker ref={ref} autoFocus onFocus={onFocus} onBlur={onBlur} />);
+    expect(ref.current).toBe(screen.getByRole('button'));
+    expect(ref.current).toHaveFocus();
+    expect(onFocus).toHaveBeenCalled();
+    ref.current?.blur();
+    expect(onBlur).toHaveBeenCalled();
+  });
+
+  test('portal renders the popover in document.body', async () => {
+    const { user, input, container } = setup({ portal: true });
+    await user.click(input);
+    expect(screen.getByRole('dialog').parentElement).toBe(document.body);
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+
+    await user.click(screen.getByTitle('2026-10-05'));
+    expect(input).toHaveTextContent('5 October 2026');
+  });
 });

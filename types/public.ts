@@ -1,3 +1,5 @@
+import type { FocusEvent } from 'react';
+
 export type CalendarSystem = 'AD' | 'BS';
 export type Locale = 'en' | 'ne';
 export type Numerals = 'latin' | 'devanagari';
@@ -50,4 +52,33 @@ export interface DatepickerProps extends CalendarProps {
   placeholder?: string;
   /** Custom input text for the selected date, replacing the default two-calendar text. */
   formatValue?: (value: PatroDate) => string;
+  disabled?: boolean;
+  /** Focusable and shows its value, but can't be opened or changed. */
+  readOnly?: boolean;
+  /** Error styling and `aria-invalid`, e.g. after failed form validation. */
+  invalid?: boolean;
+  /** Close the popover after picking a day. Defaults to true. */
+  closeOnSelect?: boolean;
+  /** Controlled popover state. */
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Show a button that clears the value (`onChange(null)`). */
+  clearable?: boolean;
+  /** Form field name; the date is submitted with the form. */
+  name?: string;
+  /** Submitted date format: 'ad' (default) or 'bs', both 'YYYY-MM-DD'. */
+  valueFormat?: 'ad' | 'bs';
+  /** Block form submission while empty (native form validation). */
+  required?: boolean;
+  id?: string;
+  autoFocus?: boolean;
+  'aria-label'?: string;
+  'aria-describedby'?: string;
+  onFocus?: (event: FocusEvent<HTMLDivElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLDivElement>) => void;
+  /** Popover position relative to the input. Defaults to 'bottom-start'. */
+  placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'bottom' | 'top';
+  /** Render the popover in `document.body`, e.g. to escape `overflow: hidden` parents. */
+  portal?: boolean;
 }
