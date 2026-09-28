@@ -19,8 +19,8 @@ const title = (container: HTMLElement) =>
 const cell = (container: HTMLElement, adDate: string) =>
   container.querySelector(`[title="${adDate}"]`) as HTMLElement;
 
-test('AD calendar shows the defaultDate month with selected, today and offset cells', () => {
-  const { container } = render(<Calendar defaultDate={new Date(2026, 9, 12)} />);
+test('AD calendar shows the defaultValue month with selected, today and offset cells', () => {
+  const { container } = render(<Calendar defaultValue={new Date(2026, 9, 12)} />);
 
   expect(container.firstElementChild).toHaveAttribute('data-calendar-type', 'AD');
   expect(title(container)).toBe('October 2026');
@@ -34,7 +34,7 @@ test('AD calendar shows the defaultDate month with selected, today and offset ce
 
 test('AD header subtitle names the two BS months the AD month spans', () => {
   const subtitle = (date: Date) =>
-    render(<Calendar defaultDate={date} />).container.querySelector('._patro_header_subtitle')
+    render(<Calendar defaultValue={date} />).container.querySelector('._patro_header_subtitle')
       ?.textContent;
 
   expect(subtitle(new Date(2026, 8, 15))).toBe('भाद्र/आश्विन - 2083');
@@ -42,8 +42,8 @@ test('AD header subtitle names the two BS months the AD month spans', () => {
   expect(subtitle(new Date(2026, 3, 15))).toBe('चैत्र/बैशाख - 2082');
 });
 
-test('BS calendar shows the BS month containing defaultDate', () => {
-  const { container } = render(<Calendar calendarType='BS' defaultDate={TODAY} showExtra />);
+test('BS calendar shows the BS month containing defaultValue', () => {
+  const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} showSecondaryDate />);
 
   expect(container.firstElementChild).toHaveAttribute('data-calendar-type', 'BS');
   expect(title(container)).toBe('कार्तिक 2083');
@@ -52,17 +52,53 @@ test('BS calendar shows the BS month containing defaultDate', () => {
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
 
-test('showExtra toggles the other-calendar number', () => {
-  const { container, rerender } = render(<Calendar defaultDate={TODAY} />);
-  expect(cell(container, '2026-10-29').querySelector('sub')).toBeNull();
-
-  rerender(<Calendar defaultDate={TODAY} showExtra />);
+test('the secondary date shows by default and can be hidden', () => {
+  const { container, rerender } = render(<Calendar defaultValue={TODAY} />);
   expect(cell(container, '2026-10-29').querySelector('sub')?.textContent).toBe('१२');
+
+  rerender(<Calendar defaultValue={TODAY} showSecondaryDate={false} />);
+  expect(cell(container, '2026-10-29').querySelector('sub')).toBeNull();
+});
+
+test('onChange receives the date in both calendars', async () => {
+  const user = userEvent.setup();
+  const onChange = jest.fn();
+  const { container } = render(<Calendar defaultValue={TODAY} onChange={onChange} />);
+
+  await user.click(cell(container, '2026-10-05'));
+  expect(onChange).toHaveBeenCalledWith({
+    date: new Date(2026, 9, 5),
+    ad: '2026-10-05',
+    bs: '2083-06-19',
+  });
+});
+
+test('controlled: selection follows value, not clicks', async () => {
+  const user = userEvent.setup();
+  const onChange = jest.fn();
+  const { container, rerender } = render(<Calendar value={TODAY} onChange={onChange} />);
+
+  await user.click(cell(container, '2026-10-05'));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-05' }));
+  expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
+  expect(cell(container, '2026-10-05')).not.toHaveClass('_patro_dates_current_date');
+
+  rerender(<Calendar value={new Date(2026, 9, 5)} onChange={onChange} />);
+  expect(cell(container, '2026-10-05')).toHaveClass('_patro_dates_current_date');
+
+  rerender(<Calendar value={null} onChange={onChange} />);
+  expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+});
+
+test('uncontrolled: defaultValue is only the starting value', async () => {
+  const { container, rerender } = render(<Calendar defaultValue={TODAY} />);
+  rerender(<Calendar defaultValue={new Date(2026, 9, 5)} />);
+  expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
 
 test('month navigation steps by one month in the displayed calendar', async () => {
   const user = userEvent.setup();
-  const { container } = render(<Calendar calendarType='BS' defaultDate={TODAY} />);
+  const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
 
   await user.click(screen.getByLabelText('Next month'));
   expect(title(container)).toBe('मंसिर 2083');
@@ -72,20 +108,20 @@ test('month navigation steps by one month in the displayed calendar', async () =
 });
 
 test('switching AD to BS keeps the selected date in view', () => {
-  const { container, rerender } = render(<Calendar defaultDate={TODAY} />);
+  const { container, rerender } = render(<Calendar defaultValue={TODAY} />);
   expect(title(container)).toBe('October 2026');
 
-  rerender(<Calendar calendarType='BS' defaultDate={TODAY} />);
+  rerender(<Calendar calendar='BS' defaultValue={TODAY} />);
   expect(title(container)).toBe('कार्तिक 2083');
 });
 
 test('clicking a day selects it and calls onChange with its AD date', async () => {
   const user = userEvent.setup();
   const onChange = jest.fn();
-  const { container } = render(<Calendar defaultDate={TODAY} onChange={onChange} />);
+  const { container } = render(<Calendar defaultValue={TODAY} onChange={onChange} />);
 
   await user.click(cell(container, '2026-10-05'));
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-05' }));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-05' }));
   expect(cell(container, '2026-10-05')).toHaveClass('_patro_dates_current_date');
   expect(cell(container, '2026-10-29')).not.toHaveClass('_patro_dates_current_date');
 });
@@ -96,7 +132,7 @@ describe('keyboard navigation', () => {
 
   const setup = (props: Partial<Parameters<typeof Calendar>[0]> = {}) => {
     const user = userEvent.setup();
-    const utils = render(<Calendar defaultDate={TODAY} {...props} />);
+    const utils = render(<Calendar defaultValue={TODAY} {...props} />);
     const grid = screen.getByRole('grid');
     return { user, grid, ...utils };
   };
@@ -134,8 +170,8 @@ describe('keyboard navigation', () => {
 
   test('arrow keys cross BS month boundaries in BS mode', async () => {
     const { user, container, grid } = setup({
-      calendarType: 'BS',
-      defaultDate: new Date(2026, 10, 12),
+      calendar: 'BS',
+      defaultValue: new Date(2026, 10, 12),
     });
     grid.focus();
 
@@ -161,7 +197,7 @@ describe('keyboard navigation', () => {
     grid.focus();
 
     await user.keyboard('{ArrowRight}{Enter}');
-    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-30' }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-30' }));
     expect(cell(container, '2026-10-30')).toHaveClass('_patro_dates_current_date');
   });
 
@@ -175,8 +211,8 @@ describe('keyboard navigation', () => {
   });
 });
 
-test('defaultDate={null} shows the current month with nothing selected', () => {
-  const { container } = render(<Calendar defaultDate={null} />);
+test('defaultValue={null} shows the current month with nothing selected', () => {
+  const { container } = render(<Calendar defaultValue={null} />);
   expect(title(container)).toBe('October 2026');
   expect(container.querySelector('._patro_dates_current_date')).toBeNull();
   expect(screen.getByRole('grid').querySelector('[aria-selected="true"]')).toBeNull();
@@ -186,7 +222,7 @@ describe('supported range edges', () => {
   test('last month (BS 2099 Chaitra) renders, cannot go further, days past the table are blank', async () => {
     const user = userEvent.setup();
     const { container } = render(
-      <Calendar calendarType='BS' defaultDate={new Date(2043, 3, 1)} showExtra />,
+      <Calendar calendar='BS' defaultValue={new Date(2043, 3, 1)} showSecondaryDate />,
     );
     expect(title(container)).toBe('चैत्र 2099');
 
@@ -207,7 +243,7 @@ describe('supported range edges', () => {
     const user = userEvent.setup();
     const onChange = jest.fn();
     const { container } = render(
-      <Calendar defaultDate={new Date(1921, 3, 13)} onChange={onChange} showExtra />,
+      <Calendar defaultValue={new Date(1921, 3, 13)} onChange={onChange} showSecondaryDate />,
     );
     expect(title(container)).toBe('April 1921');
     expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
@@ -230,16 +266,14 @@ describe('supported range edges', () => {
   });
 
   test('first BS month (1978 Baisakh) cannot go back', () => {
-    const { container } = render(
-      <Calendar calendarType='BS' defaultDate={new Date(1921, 3, 20)} />,
-    );
+    const { container } = render(<Calendar calendar='BS' defaultValue={new Date(1921, 3, 20)} />);
     expect(title(container)).toBe('बैशाख 1978');
     expect(screen.getByLabelText('Previous month')).toBeDisabled();
     expect(screen.getByLabelText('Next month')).toBeEnabled();
   });
 
-  test('an out-of-range defaultDate shows the nearest month with nothing selected', () => {
-    const { container } = render(<Calendar defaultDate={new Date(2050, 0, 1)} />);
+  test('an out-of-range defaultValue shows the nearest month with nothing selected', () => {
+    const { container } = render(<Calendar defaultValue={new Date(2050, 0, 1)} />);
     expect(title(container)).toBe('April 2043');
     expect(container.querySelector('._patro_dates_current_date')).toBeNull();
   });

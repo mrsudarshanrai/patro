@@ -24,7 +24,7 @@ import 'patro/dist/css/style.css';
 import { Calendar } from 'patro';
 
 function App() {
-  return <Calendar calendarType='BS' showExtra onChange={(date) => console.log(date.adDate)} />;
+  return <Calendar calendar='BS' onChange={(value) => console.log(value?.ad, value?.bs)} />;
 }
 ```
 
@@ -34,13 +34,33 @@ function App() {
 import { Datepicker } from 'patro';
 
 function App() {
-  return (
-    <Datepicker calendarType='AD' label='Date' onChange={(date) => console.log(date.adDate)} />
-  );
+  return <Datepicker label='Date' onChange={(value) => console.log(value?.ad)} />;
 }
 ```
 
-`Datepicker` renders an input that opens `Calendar` in a popover on click; selecting a date closes the popover and updates the input.
+`Datepicker` renders an input that opens `Calendar` in a popover; picking a day closes it and updates the input.
+
+### Controlled vs uncontrolled
+
+Pass `defaultValue` (or nothing, meaning today) and the component keeps track of the selection itself. Pass `value` to control it from your state:
+
+```tsx
+const [value, setValue] = useState<Date | null>(null);
+
+<Datepicker value={value} onChange={(picked) => setValue(picked?.date ?? null)} />;
+```
+
+`null` means nothing is selected; the `Datepicker` then shows its placeholder.
+
+`onChange` receives a `PatroDate`:
+
+```ts
+{
+  date: Date;
+  ad: '2026-10-29';
+  bs: '2083-07-12';
+}
+```
 
 ## Keyboard
 
@@ -66,17 +86,18 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`):
+`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`.
 
-| Prop           | Type                           | Default                                 | Description                                                                                                                       |
-| -------------- | ------------------------------ | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `calendarType` | `'AD' \| 'BS'`                 | `'AD'`                                  | Which calendar system to display.                                                                                                 |
-| `defaultDate`  | `Date \| null`                 | today                                   | The selected date. Updating this prop re-syncs the display. `null` means nothing selected (the Datepicker shows its placeholder). |
-| `showExtra`    | `boolean`                      | -                                       | Show the other calendar system's date as a small subscript on each day cell.                                                      |
-| `theme`        | `'light' \| 'dark'`            | -                                       | Sets `data-theme` on the component root. See [Theming](#theming).                                                                 |
-| `onChange`     | `(date: SelectedDate) => void` | -                                       | Called when a day is selected. `date.adDate` is the AD date, `'YYYY-MM-DD'`.                                                      |
-| `label`        | `string`                       | -                                       | `Datepicker` only. Text label shown above the input.                                                                              |
-| `placeholder`  | `string`                       | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when `defaultDate` is `null` and no day is picked yet.                                                   |
+| Prop                | Type                                 | Default                                 | Description                                                       |
+| ------------------- | ------------------------------------ | --------------------------------------- | ----------------------------------------------------------------- |
+| `calendar`          | `'AD' \| 'BS'`                       | `'AD'`                                  | Which calendar system to display.                                 |
+| `value`             | `Date \| null`                       | -                                       | Controlled selection. `null` = nothing selected.                  |
+| `defaultValue`      | `Date \| null`                       | today                                   | Starting selection when uncontrolled. `null` = nothing selected.  |
+| `onChange`          | `(value: PatroDate \| null) => void` | -                                       | Called when a day is picked.                                      |
+| `showSecondaryDate` | `boolean`                            | `true`                                  | Show the other calendar's date on each day.                       |
+| `theme`             | `'light' \| 'dark'`                  | -                                       | Sets `data-theme` on the component root. See [Theming](#theming). |
+| `label`             | `string`                             | -                                       | `Datepicker` only. Text shown above the input.                    |
+| `placeholder`       | `string`                             | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                   |
 
 ## Utilities
 

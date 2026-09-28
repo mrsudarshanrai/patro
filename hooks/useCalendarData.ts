@@ -88,26 +88,26 @@ const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICu
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
-  defaultDate?: Date | null,
+  selectedDate?: Date | null,
 ): IUseCalendarData.IReturn => {
   const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
-    defaultDate === null ? null : toSelection(defaultDate ?? new Date()),
+    selectedDate === null ? null : toSelection(selectedDate ?? new Date()),
   );
   // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
   const [viewAnchor, setViewAnchor] = useState(() => {
-    const { year, month, date } = defaultDate ? ymd(defaultDate) : (selected ?? getToday());
+    const { year, month, date } = selectedDate ? ymd(selectedDate) : (selected ?? getToday());
     return getViewAnchor(calendarType, year, month, date);
   });
 
-  const defaultTime = defaultDate?.getTime();
-  const cleared = defaultDate === null;
+  const selectedTime = selectedDate?.getTime();
+  const cleared = selectedDate === null;
   useEffect(() => {
-    const requested = defaultTime !== undefined ? new Date(defaultTime) : undefined;
+    const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
     const next = requested ? toSelection(requested) : cleared ? null : selected;
     const { year, month, date } = requested ? ymd(requested) : (next ?? getToday());
     setViewAnchor(getViewAnchor(calendarType, year, month, date));
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
-  }, [defaultTime, cleared, calendarType, selected]);
+  }, [selectedTime, cleared, calendarType, selected]);
 
   const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
   // Only AD April 1921 starts before the table; its 1st falls in BS 1977 Chaitra.

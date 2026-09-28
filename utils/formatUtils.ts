@@ -1,6 +1,14 @@
 import { ICalendar } from '../Calendar/types';
+import { PatroDate } from '../types/public';
 import { config } from '../constants/dateConstants';
-import { createDateString, en2NpNumber, getMonth, remove1stZero, zeroPad } from './dateUtils';
+import {
+  adDateToLocalDate,
+  createDateString,
+  en2NpNumber,
+  getMonth,
+  remove1stZero,
+  zeroPad,
+} from './dateUtils';
 import { ad2Bs } from './ad_utils/ad2bs';
 const { en, np } = config;
 
@@ -68,7 +76,14 @@ const formatSecondaryDate = (date: Date, calendarType: ICalendar.calendarType) =
   return `${day} ${getMonth(month).slice(0, 3)} ${year}`;
 };
 
+const toPatroDate = (adDate: string): PatroDate => ({
+  date: adDateToLocalDate(adDate),
+  ad: adDate,
+  bs: ad2Bs(adDate),
+});
+
 export {
+  toPatroDate,
   isAd,
   getAdHeaderMonth,
   getBsHeaderMonth,

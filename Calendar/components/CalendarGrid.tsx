@@ -28,7 +28,7 @@ const cellLabel = ({ adDate, isDisabled }: IUseCalendarData.IDates) => {
 const cellId = (idPrefix: string, adDate: string) => `${idPrefix}-${adDate}`;
 
 const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
-  const { dates, showExtra, onSelect, idPrefix, focusedAdDate } = props;
+  const { dates, showSecondaryDate, onSelect, idPrefix, focusedAdDate } = props;
   return (
     <>
       {dates.map((days: IUseCalendarData.IDates[], i: number) => {
@@ -44,12 +44,12 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                   aria-disabled={date.isDisabled || undefined}
                   aria-label={cellLabel(date)}
                   title={adDate}
-                  onClick={date.isDisabled ? undefined : () => onSelect({ adDate })}
+                  onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
                   key={i + index}
                   className={cellClassName(date, adDate === focusedAdDate)}
                 >
                   <span className='_patro_dates_date_primary'>{dayOfMonth}</span>
-                  {showExtra && <sub>{extraDate}</sub>}
+                  {showSecondaryDate && <sub>{extraDate}</sub>}
                 </p>
               );
             })}

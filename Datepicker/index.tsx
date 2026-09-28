@@ -1,11 +1,9 @@
 import { useEffect, useState, KeyboardEvent } from 'react';
 import { Calendar } from '../Calendar';
 import { createPopper } from '@popperjs/core';
-import { Datepicker as DatepickerType } from './types';
-import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { ICalendar } from '../Calendar/types';
+import { DatepickerProps, PatroDate } from '../types/public';
 import {
-  adDateToLocalDate,
   createDateString,
   formatDisplayDate,
   formatSecondaryDate,
@@ -18,29 +16,25 @@ const DEFAULT_PLACEHOLDER: Record<ICalendar.calendarType, string> = {
   BS: 'मिति छान्नुहोस्',
 };
 
-const Datepicker = (props: DatepickerType.Props) => {
+const Datepicker = (props: DatepickerProps) => {
   const {
-    calendarType = ICalendar.CalendarTypeEnum.AD,
+    value,
+    defaultValue,
     onChange,
-    defaultDate,
+    calendar = ICalendar.CalendarTypeEnum.AD,
     label,
     placeholder,
     theme,
-    ...rest
+    ...calendarProps
   } = props;
   const [isPopperVisible, setIsPopperVisible] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    defaultDate === undefined ? new Date() : defaultDate,
+  const isControlled = value !== undefined;
+  const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
+    defaultValue === undefined ? new Date() : defaultValue,
   );
+  const selectedDate = isControlled ? value : uncontrolledValue;
   const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
-
-  const defaultTime = defaultDate?.getTime();
-  const cleared = defaultDate === null;
-  useEffect(() => {
-    if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
-    else if (cleared) setSelectedDate(null);
-  }, [defaultTime, cleared]);
 
   const shownDate =
     selectedDate &&
@@ -81,11 +75,11 @@ const Datepicker = (props: DatepickerType.Props) => {
     }
   }, [isPopperVisible, inputRef, popperRef]);
 
-  const onSelect = (date: IUseCalendarData.IDates) => {
-    setSelectedDate(adDateToLocalDate(date.adDate));
+  const onSelect = (selected: PatroDate | null) => {
+    if (!isControlled) setUncontrolledValue(selected?.date ?? null);
     closePopper();
     inputRef?.focus();
-    onChange?.(date);
+    onChange?.(selected);
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -107,7 +101,7 @@ const Datepicker = (props: DatepickerType.Props) => {
   };
 
   return (
-    <div className='_patro_datepicker _patro' data-calendar-type={calendarType} data-theme={theme}>
+    <div className='_patro_datepicker _patro' data-calendar-type={calendar} data-theme={theme}>
       {label && <div className='_patro_datepicker_label'>{label}</div>}
       <div
         ref={setInputRef}
@@ -122,15 +116,15 @@ const Datepicker = (props: DatepickerType.Props) => {
         {shownDate ? (
           <>
             <span className='_patro_datepicker_input_primary'>
-              {formatDisplayDate(shownDate, calendarType)}
+              {formatDisplayDate(shownDate, calendar)}
             </span>
             <span className='_patro_datepicker_input_secondary'>
-              {formatSecondaryDate(shownDate, calendarType)}
+              {formatSecondaryDate(shownDate, calendar)}
             </span>
           </>
         ) : (
           <span className='_patro_datepicker_input_placeholder'>
-            {placeholder ?? DEFAULT_PLACEHOLDER[calendarType]}
+            {placeholder ?? DEFAULT_PLACEHOLDER[calendar]}
           </span>
         )}
         <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
@@ -144,10 +138,9 @@ const Datepicker = (props: DatepickerType.Props) => {
           onKeyDown={onPopperKeyDown}
         >
           <Calendar
-            showExtra
-            {...rest}
-            calendarType={calendarType}
-            defaultDate={selectedDate}
+            {...calendarProps}
+            calendar={calendar}
+            value={selectedDate}
             theme={theme}
             onChange={onSelect}
           />

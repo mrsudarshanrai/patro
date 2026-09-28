@@ -1,18 +1,12 @@
-import { KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
+import { KeyboardEvent, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
 import '../scss/style.scss';
-import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
+import { CalendarProps } from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
-import {
-  adDateToLocalDate,
-  addDays,
-  createDateString,
-  getToday,
-  isSupportedAdDate,
-} from '../utils';
+import { addDays, createDateString, getToday, isSupportedAdDate, toPatroDate } from '../utils';
 
 const DAY_STEPS: Record<string, number> = {
   ArrowLeft: -1,
@@ -21,29 +15,24 @@ const DAY_STEPS: Record<string, number> = {
   ArrowDown: 7,
 };
 
-const Calendar = (props: ICalendar.IProps) => {
+const Calendar = (props: CalendarProps) => {
   const {
+    value,
+    defaultValue,
     onChange,
-    calendarType = ICalendar.CalendarTypeEnum.AD,
-    showExtra,
-    defaultDate,
+    calendar = ICalendar.CalendarTypeEnum.AD,
+    showSecondaryDate = true,
     theme,
   } = props;
-  const [selectedDate, setSelectedDate] = useState<Date | null>(
-    defaultDate === undefined ? new Date() : defaultDate,
+  const isControlled = value !== undefined;
+  const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
+    defaultValue === undefined ? new Date() : defaultValue,
   );
+  const selectedDate = isControlled ? value : uncontrolledValue;
   const [focusedAdDate, setFocusedAdDate] = useState<string>();
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
   const idPrefix = useId();
-
-  // Re-sync when a parent (e.g. Datepicker) passes a new date, not just on mount.
-  const defaultTime = defaultDate?.getTime();
-  const cleared = defaultDate === null;
-  useEffect(() => {
-    if (defaultTime !== undefined) setSelectedDate(new Date(defaultTime));
-    else if (cleared) setSelectedDate(null);
-  }, [defaultTime, cleared]);
 
   const {
     dates,
@@ -53,7 +42,7 @@ const Calendar = (props: ICalendar.IProps) => {
     prevMonth,
     canNextMonth,
     canPrevMonth,
-  } = useCalendarData(calendarType, selectedDate);
+  } = useCalendarData(calendar, selectedDate);
 
   const monthCells = dates.flat().filter((cell) => !cell.offset && !cell.isDisabled);
   const monthStart = monthCells[0].adDate;
@@ -68,10 +57,11 @@ const Calendar = (props: ICalendar.IProps) => {
       createDateString(today.year, today.month, today.date),
     ].find(inView) ?? monthStart;
 
-  const onSelect = (date: IUseCalendarData.IDates) => {
-    setSelectedDate(() => adDateToLocalDate(date.adDate));
-    setFocusedAdDate(date.adDate);
-    onChange?.(date);
+  const onSelect = (adDate: string) => {
+    const selected = toPatroDate(adDate);
+    if (!isControlled) setUncontrolledValue(selected.date);
+    setFocusedAdDate(adDate);
+    onChange?.(selected);
   };
 
   const onGridKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -91,12 +81,12 @@ const Calendar = (props: ICalendar.IProps) => {
       setShowFocusRing(true);
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      onSelect({ adDate: activeAdDate } as IUseCalendarData.IDates);
+      onSelect(activeAdDate);
     }
   };
 
   return (
-    <div className='_patro_container _patro' data-calendar-type={calendarType} data-theme={theme}>
+    <div className='_patro_container _patro' data-calendar-type={calendar} data-theme={theme}>
       <CalendarHeader
         nextMonth={nextMonth}
         prevMonth={prevMonth}
@@ -122,11 +112,11 @@ const Calendar = (props: ICalendar.IProps) => {
           setShowFocusRing(false);
         }}
       >
-        <CalendarDays calendarType={calendarType} />
+        <CalendarDays calendarType={calendar} />
         <CalendarGrid
           dates={dates}
           onSelect={onSelect}
-          showExtra={showExtra}
+          showSecondaryDate={showSecondaryDate}
           idPrefix={idPrefix}
           focusedAdDate={showFocusRing ? activeAdDate : undefined}
         />

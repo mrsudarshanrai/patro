@@ -4,10 +4,10 @@ import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
 import { ICalendar } from '../Calendar/types';
 
 // Effects don't run in renderToString, so this is exactly the first paint.
-const firstRender = (calendarType: ICalendar.calendarType, defaultDate?: Date) => {
+const firstRender = (calendarType: ICalendar.calendarType, selectedDate?: Date) => {
   let result: ReturnType<typeof useCalendarData> | undefined;
   const Probe = (): null => {
-    result = useCalendarData(calendarType, defaultDate);
+    result = useCalendarData(calendarType, selectedDate);
     return null;
   };
   renderToString(createElement(Probe));
@@ -15,10 +15,10 @@ const firstRender = (calendarType: ICalendar.calendarType, defaultDate?: Date) =
   return { month: result.header.month, selected: result.adDate };
 };
 
-test('first render already shows the defaultDate month and selection', () => {
-  const defaultDate = new Date(2026, 9, 29);
-  expect(firstRender('BS', defaultDate)).toEqual({ month: 'कार्तिक', selected: '2026-10-29' });
-  expect(firstRender('AD', defaultDate)).toEqual({ month: 'October', selected: '2026-10-29' });
+test('first render already shows the selected month and day', () => {
+  const selectedDate = new Date(2026, 9, 29);
+  expect(firstRender('BS', selectedDate)).toEqual({ month: 'कार्तिक', selected: '2026-10-29' });
+  expect(firstRender('AD', selectedDate)).toEqual({ month: 'October', selected: '2026-10-29' });
 });
 
 test('stepViewAnchor advances one AD month without an invalid date at a month-length boundary', () => {

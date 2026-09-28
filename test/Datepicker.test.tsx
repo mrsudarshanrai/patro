@@ -16,7 +16,7 @@ afterEach(() => {
 
 const setup = (props: Partial<Parameters<typeof Datepicker>[0]> = {}) => {
   const user = userEvent.setup();
-  const utils = render(<Datepicker defaultDate={TODAY} {...props} />);
+  const utils = render(<Datepicker defaultValue={TODAY} {...props} />);
   return { user, input: screen.getByRole('button'), ...utils };
 };
 
@@ -29,7 +29,7 @@ test('shows the date in both calendars, with an optional label', () => {
 });
 
 test('BS mode shows the BS date first', () => {
-  const { input } = setup({ calendarType: 'BS' });
+  const { input } = setup({ calendar: 'BS' });
   expect(input).toHaveTextContent('१२ कार्तिक २०८३');
   expect(input).toHaveTextContent('29 Oct 2026');
 });
@@ -69,7 +69,7 @@ test('picking a day updates the input, closes the popover and calls onChange', a
   await user.click(input);
 
   await user.click(screen.getByTitle('2026-10-05'));
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-05' }));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-05' }));
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(input).toHaveTextContent('05 October 2026');
 
@@ -87,7 +87,7 @@ test('keyboard: ArrowDown opens, arrows + Enter pick a day and focus returns to 
 
   screen.getByRole('grid').focus();
   await user.keyboard('{ArrowLeft}{Enter}');
-  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-28' }));
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-28' }));
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(input).toHaveFocus();
   expect(input).toHaveTextContent('28 October 2026');
@@ -103,9 +103,9 @@ test('Escape inside the calendar closes the popover and returns focus to the inp
   expect(input).toHaveFocus();
 });
 
-describe('empty state (defaultDate={null})', () => {
+describe('empty state (defaultValue={null})', () => {
   test('shows the placeholder, then the picked date', async () => {
-    const { user, input, container } = setup({ defaultDate: null });
+    const { user, input, container } = setup({ defaultValue: null });
     expect(input).toHaveTextContent('Select a date');
     expect(container.querySelector('._patro_datepicker_input_secondary')).toBeNull();
 
@@ -119,24 +119,36 @@ describe('empty state (defaultDate={null})', () => {
   });
 
   test('uses a Nepali placeholder in BS mode and accepts a custom one', () => {
-    const { input, unmount } = setup({ defaultDate: null, calendarType: 'BS' });
+    const { input, unmount } = setup({ defaultValue: null, calendar: 'BS' });
     expect(input).toHaveTextContent('मिति छान्नुहोस्');
     unmount();
 
-    const { input: custom } = setup({ defaultDate: null, placeholder: 'Pick a day' });
+    const { input: custom } = setup({ defaultValue: null, placeholder: 'Pick a day' });
     expect(custom).toHaveTextContent('Pick a day');
   });
 
-  test('a parent can clear the value by passing null', () => {
-    const { input, rerender } = setup();
+  test('a controlling parent can clear the value by passing null', () => {
+    const { input, rerender } = setup({ value: TODAY });
     expect(input).toHaveTextContent('29 October 2026');
 
-    rerender(<Datepicker defaultDate={null} />);
+    rerender(<Datepicker value={null} />);
     expect(input).toHaveTextContent('Select a date');
   });
 });
 
-test('an out-of-range defaultDate shows the placeholder instead of crashing', () => {
-  const { input } = setup({ defaultDate: new Date(2050, 0, 1), calendarType: 'BS' });
+test('an out-of-range defaultValue shows the placeholder instead of crashing', () => {
+  const { input } = setup({ defaultValue: new Date(2050, 0, 1), calendar: 'BS' });
   expect(input).toHaveTextContent('मिति छान्नुहोस्');
+});
+
+test('controlled: the input shows value, and picking a day only calls onChange', async () => {
+  const onChange = jest.fn();
+  const { user, input } = setup({ value: TODAY, onChange });
+  await user.click(input);
+  await user.click(screen.getByTitle('2026-10-05'));
+
+  expect(onChange).toHaveBeenCalledWith(
+    expect.objectContaining({ ad: '2026-10-05', bs: '2083-06-19' }),
+  );
+  expect(input).toHaveTextContent('29 October 2026');
 });
