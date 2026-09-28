@@ -437,3 +437,17 @@ test('dayClassName adds your own classes, e.g. for holidays', () => {
   expect(cell(container, '2026-10-21')).toHaveClass('holiday');
   expect(cell(container, '2026-10-22')).not.toHaveClass('holiday');
 });
+
+test('onMonthChange reports the new month, not the initial one', async () => {
+  const user = userEvent.setup();
+  const onMonthChange = jest.fn();
+  render(<Calendar defaultValue={TODAY} onMonthChange={onMonthChange} />);
+  expect(onMonthChange).not.toHaveBeenCalled();
+
+  await user.click(screen.getByLabelText('Next month'));
+  expect(onMonthChange).toHaveBeenCalledTimes(1);
+  expect(onMonthChange).toHaveBeenCalledWith({
+    start: expect.objectContaining({ ad: '2026-11-01' }),
+    end: expect.objectContaining({ ad: '2026-11-30' }),
+  });
+});

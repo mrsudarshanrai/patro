@@ -1,4 +1,4 @@
-import { KeyboardEvent, useId, useRef, useState } from 'react';
+import { KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
 import { CalendarProps } from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
@@ -7,6 +7,7 @@ import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 import {
   addDays,
+  clampAdDate,
   createDateString,
   DisplayOptions,
   getToday,
@@ -39,6 +40,7 @@ const Calendar = (props: CalendarProps) => {
     fixedWeeks = true,
     weekendDays,
     dayClassName,
+    onMonthChange,
   } = props;
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
@@ -70,6 +72,21 @@ const Calendar = (props: CalendarProps) => {
     fixedWeeks,
     weekendDays,
   });
+
+  // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
+  const onMonthChangeRef = useRef(onMonthChange);
+  useEffect(() => {
+    onMonthChangeRef.current = onMonthChange;
+  });
+  const shownMonth = useRef(firstAdDate);
+  useEffect(() => {
+    if (shownMonth.current === firstAdDate) return;
+    shownMonth.current = firstAdDate;
+    onMonthChangeRef.current?.({
+      start: toPatroDate(clampAdDate(firstAdDate)),
+      end: toPatroDate(clampAdDate(lastAdDate)),
+    });
+  }, [firstAdDate, lastAdDate]);
 
   const display: DisplayOptions = { locale, numerals };
   const title = monthTitle(firstAdDate, calendar, display);

@@ -40,6 +40,8 @@ export interface CalendarProps {
   weekendDays?: number[];
   /** Extra class names for a day, e.g. to mark holidays or events. */
   dayClassName?: (date: PatroDate) => string | undefined;
+  /** Called when the displayed month changes, with its first and last day. */
+  onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
 }
 
 export interface DatepickerProps extends CalendarProps {
