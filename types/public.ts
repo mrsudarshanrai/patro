@@ -13,12 +13,38 @@ export interface PatroDate {
   bs: string;
 }
 
-export interface CalendarProps {
+export interface DateRange {
+  start: Date | null;
+  end: Date | null;
+}
+
+export interface PatroDateRange {
+  start: PatroDate | null;
+  end: PatroDate | null;
+}
+
+export interface SingleSelection {
+  /** Pick one day. The default. */
+  mode?: 'single';
   /** Controlled selection. `null` = nothing selected. */
   value?: Date | null;
   /** Initial selection when uncontrolled. Defaults to today; `null` = nothing selected. */
   defaultValue?: Date | null;
   onChange?: (value: PatroDate | null) => void;
+}
+
+export interface RangeSelection {
+  /** Pick a start day, then an end day. */
+  mode: 'range';
+  /** Controlled range. */
+  value?: DateRange;
+  /** Initial range when uncontrolled. Defaults to empty. */
+  defaultValue?: DateRange;
+  /** Called on every pick, so `end` is `null` while only the start is chosen. */
+  onChange?: (value: PatroDateRange) => void;
+}
+
+export interface CalendarBaseProps {
   /** Calendar system to display. Defaults to 'AD'. */
   calendar?: CalendarSystem;
   /** Show the other calendar's date on each day. Defaults to true. */
@@ -52,12 +78,12 @@ export interface CalendarProps {
   style?: CSSProperties;
 }
 
-export interface DatepickerProps extends CalendarProps {
+export type CalendarProps = CalendarBaseProps & (SingleSelection | RangeSelection);
+
+export interface DatepickerBaseProps extends CalendarBaseProps {
   label?: string;
   /** Shown when there's no value. Defaults to 'Select a date' / 'मिति छान्नुहोस्'. */
   placeholder?: string;
-  /** Custom input text for the selected date, replacing the default two-calendar text. */
-  formatValue?: (value: PatroDate) => string;
   disabled?: boolean;
   /** Focusable and shows its value, but can't be opened or changed. */
   readOnly?: boolean;
@@ -69,9 +95,9 @@ export interface DatepickerProps extends CalendarProps {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** Show a button that clears the value (`onChange(null)`). */
+  /** Show a button that clears the value. */
   clearable?: boolean;
-  /** Form field name; the date is submitted with the form. */
+  /** Form field name; the date is submitted with the form. Range mode submits `name[start]` and `name[end]`. */
   name?: string;
   /** Submitted date format: 'ad' (default) or 'bs', both 'YYYY-MM-DD'. */
   valueFormat?: 'ad' | 'bs';
@@ -88,3 +114,15 @@ export interface DatepickerProps extends CalendarProps {
   /** Render the popover in `document.body`, e.g. to escape `overflow: hidden` parents. */
   portal?: boolean;
 }
+
+export type DatepickerProps = DatepickerBaseProps &
+  (
+    | (SingleSelection & {
+        /** Custom input text for the selected date, replacing the default two-calendar text. */
+        formatValue?: (value: PatroDate) => string;
+      })
+    | (RangeSelection & {
+        /** Custom input text for the selected range. */
+        formatValue?: (value: PatroDateRange) => string;
+      })
+  );

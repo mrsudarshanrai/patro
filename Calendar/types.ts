@@ -18,6 +18,8 @@ export namespace ICalendar {
     idPrefix: string;
     focusedAdDate?: string;
     dayClassName?: (date: PatroDate) => string | undefined;
+    range?: { start: string | null; end: string | null; preview?: string };
+    onHoverDay?: (adDate?: string) => void;
   };
 
   export type CalendarHeaderProps = {

@@ -4,6 +4,8 @@ export { ad2Bs, bs2Ad } from './utils';
 export type {
   CalendarProps,
   CalendarSystem,
+  DateRange,
+  PatroDateRange,
   DatepickerProps,
   Locale,
   Numerals,

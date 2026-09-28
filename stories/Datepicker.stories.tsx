@@ -22,7 +22,7 @@ export const Datepicker: Story = {
   // defaultValue is only read on mount, so remount when the control changes.
   render: (args) => {
     const defaultValue = toDate(args.defaultValue);
-    return <DP key={String(defaultValue)} {...args} defaultValue={defaultValue} />;
+    return <DP key={String(defaultValue)} {...(args as object)} defaultValue={defaultValue} />;
   },
 };
 
@@ -31,5 +31,13 @@ export const Empty: Story = {
     calendar: 'BS',
     label: 'मिति',
     defaultValue: null,
+  },
+};
+
+export const Range: Story = {
+  args: {
+    mode: 'range',
+    label: 'Stay',
+    clearable: true,
   },
 };

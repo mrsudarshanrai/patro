@@ -3,22 +3,39 @@ import { createPortal } from 'react-dom';
 import { createPopper } from '@popperjs/core';
 import { Calendar } from '../Calendar';
 import { ICalendar } from '../Calendar/types';
-import { DatepickerProps, PatroDate } from '../types/public';
+import {
+  CalendarProps,
+  DatepickerProps,
+  DateRange,
+  PatroDate,
+  PatroDateRange,
+  RangeSelection,
+  SingleSelection,
+} from '../types/public';
 import {
   ad2Bs,
   formatDate,
   isSupportedAdDate,
   languageOf,
   otherSystem,
+  datePartsIn,
   toAdDateString,
   toPatroDate,
 } from '../utils';
 import { icons } from './icons';
 
-const DEFAULT_PLACEHOLDER = { en: 'Select a date', ne: 'मिति छान्नुहोस्' };
+const DEFAULT_PLACEHOLDER = {
+  single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
+  range: { en: 'Select dates', ne: 'मितिहरू छान्नुहोस्' },
+};
+const EMPTY_RANGE: DateRange = { start: null, end: null };
+
+const supportedAd = (date: Date | null | undefined) =>
+  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
 
 const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepicker(props, ref) {
   const {
+    mode,
     value,
     defaultValue,
     onChange,
@@ -56,11 +73,14 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
   const inputId = id ?? generatedId;
   const labelId = `${inputId}-label`;
 
+  const isRange = mode === 'range';
   const isControlled = value !== undefined;
-  const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
-    defaultValue === undefined ? new Date() : defaultValue,
+  const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
+    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : new Date(),
   );
-  const selectedDate = isControlled ? value : uncontrolledValue;
+  const currentValue = isControlled ? value : uncontrolledValue;
+  const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
+  const selectedDate = selectedRange ? null : (currentValue as Date | null);
 
   const isOpenControlled = open !== undefined;
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
@@ -69,10 +89,11 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
   const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
-  const shownAdDate =
-    selectedDate && isSupportedAdDate(toAdDateString(selectedDate))
-      ? toAdDateString(selectedDate)
-      : null;
+  const shownAdDate = supportedAd(selectedDate);
+  const shownRange = selectedRange && {
+    start: supportedAd(selectedRange.start),
+    end: supportedAd(selectedRange.end),
+  };
   const display = { locale, numerals };
 
   const setInputNode = useCallback(
@@ -119,19 +140,35 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
 
   const commit = (next: PatroDate | null) => {
     if (!isControlled) setUncontrolledValue(next?.date ?? null);
-    onChange?.(next);
+    (onChange as SingleSelection['onChange'])?.(next);
+  };
+
+  const commitRange = (next: PatroDateRange) => {
+    if (!isControlled) {
+      setUncontrolledValue({ start: next.start?.date ?? null, end: next.end?.date ?? null });
+    }
+    (onChange as RangeSelection['onChange'])?.(next);
+  };
+
+  const close = () => {
+    if (!closeOnSelect) return;
+    setOpen(false);
+    inputRef?.focus();
   };
 
   const onSelect = (selected: PatroDate | null) => {
     commit(selected);
-    if (closeOnSelect) {
-      setOpen(false);
-      inputRef?.focus();
-    }
+    close();
+  };
+
+  const onSelectRange = (selected: PatroDateRange) => {
+    commitRange(selected);
+    if (selected.end) close();
   };
 
   const onClear = () => {
-    commit(null);
+    if (isRange) commitRange({ start: null, end: null });
+    else commit(null);
     inputRef?.focus();
   };
 
@@ -153,12 +190,34 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
     inputRef?.focus();
   };
 
-  const showClear = clearable && !!shownAdDate && !disabled && !readOnly;
-  const submittedValue = shownAdDate
-    ? valueFormat === 'bs'
-      ? ad2Bs(shownAdDate)
-      : shownAdDate
-    : '';
+  const hasValue = shownRange ? !!shownRange.start : !!shownAdDate;
+  const showClear = clearable && hasValue && !disabled && !readOnly;
+  const submitted = (adDate: string | null) =>
+    adDate ? (valueFormat === 'bs' ? ad2Bs(adDate) : adDate) : '';
+  const formFields = shownRange
+    ? [
+        { name: name && `${name}[start]`, value: submitted(shownRange.start) },
+        { name: name && `${name}[end]`, value: submitted(shownRange.end) },
+      ]
+    : [{ name, value: submitted(shownAdDate) }];
+
+  const rangeText = (range: { start: string | null; end: string | null }) => {
+    if (!range.start) return null;
+    if (!range.end) return `${formatDate(range.start, calendar, display)} – …`;
+    const [startYear] = datePartsIn(range.start, calendar);
+    const [endYear] = datePartsIn(range.end, calendar);
+    const start = formatDate(range.start, calendar, display, {
+      short: true,
+      withYear: startYear !== endYear,
+    });
+    return `${start} – ${formatDate(range.end, calendar, display, { short: true })}`;
+  };
+
+  const calendarSelection = (
+    shownRange
+      ? { mode: 'range', value: selectedRange, onChange: onSelectRange }
+      : { value: selectedDate, onChange: onSelect }
+  ) as Pick<CalendarProps, 'mode' | 'value' | 'onChange'>;
 
   const popover = isOpen && (
     <div
@@ -170,12 +229,11 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
     >
       <Calendar
         {...calendarProps}
+        {...(calendarSelection as CalendarProps)}
         calendar={calendar}
         locale={locale}
         numerals={numerals}
-        value={selectedDate}
         theme={theme}
-        onChange={onSelect}
       />
     </div>
   );
@@ -219,9 +277,18 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
           onFocus={onFocus}
           onBlur={onBlur}
         >
-          {shownAdDate && formatValue ? (
+          {shownRange && shownRange.start ? (
             <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
-              {formatValue(toPatroDate(shownAdDate))}
+              {formatValue
+                ? (formatValue as (value: PatroDateRange) => string)({
+                    start: toPatroDate(shownRange.start),
+                    end: shownRange.end ? toPatroDate(shownRange.end) : null,
+                  })
+                : rangeText(shownRange)}
+            </span>
+          ) : shownAdDate && formatValue ? (
+            <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
+              {(formatValue as (value: PatroDate) => string)(toPatroDate(shownAdDate))}
             </span>
           ) : shownAdDate ? (
             <>
@@ -236,7 +303,8 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
             </>
           ) : (
             <span className='_patro_datepicker_input_placeholder'>
-              {placeholder ?? DEFAULT_PLACEHOLDER[languageOf(calendar, display)]}
+              {placeholder ??
+                DEFAULT_PLACEHOLDER[isRange ? 'range' : 'single'][languageOf(calendar, display)]}
             </span>
           )}
           <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
@@ -251,20 +319,22 @@ const Datepicker = forwardRef<HTMLDivElement, DatepickerProps>(function Datepick
             {icons.clearIcon}
           </button>
         )}
-        {(name || required) && (
-          // Real input so native forms submit and validate the date; focus goes back to the picker.
-          <input
-            className='_patro_datepicker_native'
-            name={name}
-            value={submittedValue}
-            required={required}
-            disabled={disabled}
-            tabIndex={-1}
-            aria-hidden
-            onChange={() => undefined}
-            onFocus={() => inputRef?.focus()}
-          />
-        )}
+        {(name || required) &&
+          formFields.map((field, index) => (
+            // Real input so native forms submit and validate the date; focus goes back to the picker.
+            <input
+              key={index}
+              className='_patro_datepicker_native'
+              name={field.name}
+              value={field.value}
+              required={required}
+              disabled={disabled}
+              tabIndex={-1}
+              aria-hidden
+              onChange={() => undefined}
+              onFocus={() => inputRef?.focus()}
+            />
+          ))}
       </div>
       {popover && (portal ? createPortal(popover, document.body) : popover)}
     </div>

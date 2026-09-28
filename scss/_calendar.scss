@@ -197,6 +197,19 @@
     }
   }
 
+  &_in_range {
+    background-color: var(--patro-range-bg);
+  }
+
+  &_range_preview {
+    background-color: color-mix(in srgb, var(--patro-range-bg) 55%, transparent);
+  }
+
+  &_range_end#{&}_range_preview {
+    outline: 1px dashed var(--patro-accent);
+    outline-offset: -1px;
+  }
+
   &_current_date {
     background-color: var(--patro-sel-bg);
     box-shadow:

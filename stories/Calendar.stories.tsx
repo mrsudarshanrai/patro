@@ -22,6 +22,13 @@ export const Calendar: Story = {
   // defaultValue is only read on mount, so remount when the control changes.
   render: (args) => {
     const defaultValue = toDate(args.defaultValue);
-    return <Cal key={String(defaultValue)} {...args} defaultValue={defaultValue} />;
+    return <Cal key={String(defaultValue)} {...(args as object)} defaultValue={defaultValue} />;
+  },
+};
+
+export const Range: Story = {
+  args: {
+    mode: 'range',
+    weekendDays: [6],
   },
 };
