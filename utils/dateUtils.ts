@@ -19,6 +19,12 @@ const zeroPad = (value: number | undefined) => ('0' + value).slice(-2);
 const createDateString = (year: number, month: number, date?: number) =>
   `${year}-${zeroPad(month)}-${zeroPad(date) || '01'}`;
 
+const addDays = (adDate: string, days: number) => {
+  const { year, month, day } = dateString2Obj(adDate);
+  const result = new Date(Date.UTC(year, month - 1, day + days));
+  return createDateString(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
+};
+
 // Read at call time so a page left open past midnight moves on to the new day.
 const getToday = () => {
   const now = new Date();
@@ -63,6 +69,7 @@ const remove1stZero = (value: string) => value.replace(/^0+/, '');
 export {
   zeroPad,
   createDateString,
+  addDays,
   getDates,
   getMonthFirstDay,
   getMonth,

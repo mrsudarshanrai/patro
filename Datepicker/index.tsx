@@ -56,6 +56,7 @@ const Datepicker = (props: DatepickerType.Props) => {
   const onSelect = (date: IUseCalendarData.IDates) => {
     setSelectedDate(adDateToLocalDate(date.adDate));
     closePopper();
+    inputRef?.focus();
     onChange?.(date);
   };
 
@@ -65,6 +66,16 @@ const Datepicker = (props: DatepickerType.Props) => {
       event.preventDefault();
       togglePopper();
     }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setIsPopperVisible(true);
+    }
+  };
+
+  const onPopperKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Escape') return;
+    closePopper();
+    inputRef?.focus();
   };
 
   return (
@@ -89,7 +100,13 @@ const Datepicker = (props: DatepickerType.Props) => {
         <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
       </div>
       {isPopperVisible && (
-        <div ref={setPopperRef} role='dialog' className='_patro_datepicker_popper'>
+        <div
+          ref={setPopperRef}
+          role='dialog'
+          aria-label='Choose a date'
+          className='_patro_datepicker_popper'
+          onKeyDown={onPopperKeyDown}
+        >
           <Calendar
             showExtra
             {...rest}

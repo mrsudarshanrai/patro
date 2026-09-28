@@ -3,15 +3,15 @@ import { ICalendar } from '../types';
 const { en, np } = config;
 
 const days = (calendarType: ICalendar.calendarType) => {
-  return Object.values(calendarType === ICalendar.CalendarTypeEnum.AD ? en.days : np.days);
+  return Object.entries(calendarType === ICalendar.CalendarTypeEnum.AD ? en.days : np.days);
 };
 
 const CalendarDays = ({ calendarType }: ICalendar.CalendarDaysProps) => {
   return (
-    <div className='_patro_days'>
-      {days(calendarType).map((day: string) => (
-        <div className='_patro_days_day' key={day}>
-          {day}
+    <div className='_patro_days' role='row'>
+      {days(calendarType).map(([name, short]) => (
+        <div className='_patro_days_day' key={name} role='columnheader' aria-label={name}>
+          {short}
         </div>
       ))}
     </div>

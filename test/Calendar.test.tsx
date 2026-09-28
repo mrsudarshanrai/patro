@@ -89,3 +89,88 @@ test('clicking a day selects it and calls onChange with its AD date', async () =
   expect(cell(container, '2026-10-05')).toHaveClass('_patro_dates_current_date');
   expect(cell(container, '2026-10-29')).not.toHaveClass('_patro_dates_current_date');
 });
+
+describe('keyboard navigation', () => {
+  const focused = (container: HTMLElement) =>
+    container.querySelector('._patro_dates_focused')?.getAttribute('title');
+
+  const setup = (props: Partial<Parameters<typeof Calendar>[0]> = {}) => {
+    const user = userEvent.setup();
+    const utils = render(<Calendar defaultDate={TODAY} {...props} />);
+    const grid = screen.getByRole('grid');
+    return { user, grid, ...utils };
+  };
+
+  test('tabbing into the grid focuses the selected day and wires it for screen readers', async () => {
+    const { user, container, grid } = setup();
+    await user.tab();
+    await user.tab();
+    await user.tab();
+
+    expect(grid).toHaveFocus();
+    expect(focused(container)).toBe('2026-10-29');
+    const active = document.getElementById(grid.getAttribute('aria-activedescendant') ?? '');
+    expect(active).toHaveAttribute('title', '2026-10-29');
+    expect(active).toHaveAttribute('aria-label', '29 October 2026, १२ कार्तिक २०८३');
+    expect(active).toHaveAttribute('aria-selected', 'true');
+    expect(grid).toHaveAccessibleName('October 2026');
+  });
+
+  test('arrow keys move by day and week, crossing into the next month', async () => {
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{ArrowRight}');
+    expect(focused(container)).toBe('2026-10-30');
+    await user.keyboard('{ArrowLeft}{ArrowLeft}');
+    expect(focused(container)).toBe('2026-10-28');
+    await user.keyboard('{ArrowDown}');
+    expect(focused(container)).toBe('2026-11-04');
+    expect(title(container)).toBe('November 2026');
+    await user.keyboard('{ArrowUp}');
+    expect(focused(container)).toBe('2026-10-28');
+    expect(title(container)).toBe('October 2026');
+  });
+
+  test('arrow keys cross BS month boundaries in BS mode', async () => {
+    const { user, container, grid } = setup({
+      calendarType: 'BS',
+      defaultDate: new Date(2026, 10, 12),
+    });
+    grid.focus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(focused(container)).toBe('2026-11-19');
+    expect(title(container)).toBe('मंसिर 2083');
+  });
+
+  test('PageDown and PageUp change month and keep a visible day focused', async () => {
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{PageDown}');
+    expect(title(container)).toBe('November 2026');
+    expect(focused(container)).toBe('2026-11-01');
+    await user.keyboard('{PageUp}');
+    expect(focused(container)).toBe('2026-10-29');
+  });
+
+  test('Enter selects the focused day', async () => {
+    const onChange = jest.fn();
+    const { user, container, grid } = setup({ onChange });
+    grid.focus();
+
+    await user.keyboard('{ArrowRight}{Enter}');
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-30' }));
+    expect(cell(container, '2026-10-30')).toHaveClass('_patro_dates_current_date');
+  });
+
+  test('clicking a day does not show the keyboard focus ring', async () => {
+    const { user, container } = setup();
+    await user.click(cell(container, '2026-10-05'));
+    expect(container.querySelector('._patro_dates_focused')).toBeNull();
+
+    await user.keyboard('{ArrowRight}');
+    expect(focused(container)).toBe('2026-10-06');
+  });
+});

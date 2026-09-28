@@ -19,6 +19,8 @@ export namespace ICalendar {
     showExtra?: boolean;
     dates: IUseCalendarData.IDates[][];
     onSelect: (date: Onselect) => void;
+    idPrefix: string;
+    focusedAdDate?: string;
   };
 
   export type Onselect = {

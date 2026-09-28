@@ -76,3 +76,29 @@ test('picking a day updates the input, closes the popover and calls onChange', a
   await user.click(input);
   expect(screen.getByTitle('2026-10-05')).toHaveClass('_patro_dates_current_date');
 });
+
+test('keyboard: ArrowDown opens, arrows + Enter pick a day and focus returns to the input', async () => {
+  const onChange = jest.fn();
+  const { user, input } = setup({ onChange });
+  input.focus();
+
+  await user.keyboard('{ArrowDown}');
+  expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+  screen.getByRole('grid').focus();
+  await user.keyboard('{ArrowLeft}{Enter}');
+  expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ adDate: '2026-10-28' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(input).toHaveFocus();
+  expect(input).toHaveTextContent('28 October 2026');
+});
+
+test('Escape inside the calendar closes the popover and returns focus to the input', async () => {
+  const { user, input } = setup();
+  await user.click(input);
+  screen.getByRole('grid').focus();
+
+  await user.keyboard('{Escape}');
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(input).toHaveFocus();
+});
