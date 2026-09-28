@@ -6,9 +6,8 @@ import {
   en2NpNumber,
   formatDisplayDate,
   getToday,
+  getMonthGrid,
 } from '../utils';
-import { getRawAdDates } from '../utils/ad_utils';
-import { getRawBsDates } from '../utils/bs_utils';
 
 const adDate = '2022-10-24';
 const bsDate = '2079-07-07';
@@ -63,11 +62,7 @@ test('getMonthFirstDay returns the correct weekday regardless of local timezone'
 });
 
 test('AD grid leading cells show the correct BS date across a January year boundary', () => {
-  // Regression: the previous-month offset builder used to compute the
-  // leading (previous-month spillover) cells' BS subscript from the wrong
-  // month/year whenever the AD grid is January, since it mishandled rolling
-  // back into December of the *previous* year.
-  const grid = getRawAdDates(2024, 1, 1, { year: 2024, month: 1, date: 1 });
+  const grid = getMonthGrid('AD', '2024-01-01', '2024-01-01');
   const leadingCells = grid.flat().filter((cell) => cell.adDate < '2024-01-01');
 
   expect(leadingCells.length).toBeGreaterThan(0);
@@ -78,29 +73,23 @@ test('AD grid leading cells show the correct BS date across a January year bound
 });
 
 test('AD grid highlights the selected day, and only that day', () => {
-  const selected = { year: 2024, month: 3, date: 15 };
-  const grid = getRawAdDates(2024, 3, 15, selected).flat();
+  const grid = getMonthGrid('AD', '2024-03-01', '2024-03-15').flat();
 
   expect(grid.find((cell) => cell.adDate === '2024-03-15')?.isSelected).toBe(true);
   expect(grid.find((cell) => cell.adDate === '2024-03-14')?.isSelected).toBe(false);
 });
 
 test('the same day in another year is not highlighted as selected', () => {
-  const adSelected = { year: 2026, month: 10, date: 5 };
-  const adGrid = getRawAdDates(2027, 10, 5, adSelected).flat();
+  const adGrid = getMonthGrid('AD', '2027-10-01', '2026-10-05').flat();
   expect(adGrid.find((cell) => cell.adDate === '2027-10-05')?.isSelected).toBe(false);
 
-  const bsSelected = { year: 2079, month: 7, date: 7 };
-  const bsGrid = getRawBsDates('2080-07-07', 2023, 10, 24, adSelected, bsSelected).flat();
+  const bsGrid = getMonthGrid('BS', bs2Ad('2080-07-01'), bs2Ad(bsDate)).flat();
   expect(bsGrid.find((cell) => cell.adDate === bs2Ad('2080-07-07'))?.isSelected).toBe(false);
 });
 
 test('BS grid highlights the selected day, and only that day', () => {
-  const adSelected = { year: 2022, month: 10, date: 24 };
-  const bsSelected = { year: 2079, month: 7, date: 7 };
-  const grid = getRawBsDates(bsDate, 2022, 10, 24, adSelected, bsSelected).flat();
+  const grid = getMonthGrid('BS', bs2Ad('2079-07-01'), adDate).flat();
 
-  // BS 2079-07-07 is AD 2022-10-24 (the fixture at the top of this file).
   expect(grid.find((cell) => cell.adDate === '2022-10-24')?.isSelected).toBe(true);
   expect(grid.find((cell) => cell.adDate === '2022-10-23')?.isSelected).toBe(false);
 });

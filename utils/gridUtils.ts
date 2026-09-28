@@ -1,62 +1,69 @@
-import { weeksDaysCount } from '../constants/dateConstants';
-import { IDateUtils } from '../types/IUtils/IDateUtils';
-import { createDateString, en2NpNumber, isTodayAdDate, switchYear } from './dateUtils';
+import { ICalendar } from '../Calendar/types';
+import { dates as bsTable, weeksDaysCount } from '../constants/dateConstants';
+import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
+import {
+  addDays,
+  createDateString,
+  dateString2Obj,
+  en2NpNumber,
+  getDates,
+  isTodayAdDate,
+} from './dateUtils';
 import { ad2Bs } from './ad_utils/ad2bs';
+import { bs2Ad } from './bs_utils/bs2ad';
 
-const createDateArray = (...args: IDateUtils.ICreateDateArray_Params) => {
-  const [length, month, year, date, currDate] = args;
-  const { year: currYear, month: currMonth } = currDate;
-
-  return Array.from({ length }, (_, i) => {
-    const dayOfMonth = i + 1;
-    const adDate = createDateString(year, month, i + 1);
-    const extraDate = en2NpNumber(ad2Bs(createDateString(year, month, i + 1)).split('-')[2]);
-    return {
-      dayOfMonth,
-      year,
-      month,
-      adDate,
-      extraDate,
-      isToday: isTodayAdDate(adDate),
-      isSelected: year === currYear && month === currMonth && date === i + 1,
-    };
-  });
+const weekday = (adDate: string) => {
+  const { year, month, day } = dateString2Obj(adDate);
+  return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 };
 
-// Leading ("prev") or trailing ("next") spillover cells around a month, for
-// either calendar; switchYear handles the January/December year rollover.
-const getOffsetMonthDates = (params: IDateUtils.IOffsetMonthDates_Params) => {
-  const { monthCount, length, direction, self, convertToOther } = params;
-  const { year, month } = switchYear(params.year, params.month);
-
-  if (direction === 'prev' && length === 0) return [];
-
-  const cells = Array.from({ length: monthCount }, (_, i) => {
-    const ownDate = createDateString(year, month, i + 1);
-    const otherDate = convertToOther(ownDate);
-    const adDate = self === 'AD' ? ownDate : otherDate;
-    const flags = { isToday: isTodayAdDate(adDate), isSelected: false, offset: direction };
-
-    return self === 'AD'
-      ? {
-          dayOfMonth: i + 1,
-          year,
-          month,
-          adDate,
-          extraDate: en2NpNumber(otherDate.split('-')[2]),
-          ...flags,
-        }
-      : {
-          dayOfMonth: en2NpNumber(String(i + 1)),
-          year,
-          month,
-          adDate,
-          extraDate: otherDate.split('-')[2],
-          ...flags,
-        };
-  });
-
-  return direction === 'prev' ? cells.slice(-length) : cells.slice(0, weeksDaysCount - length);
+// First and last AD dates of the month containing `adDate`, in the given calendar.
+const monthBounds = (calendarType: ICalendar.calendarType, adDate: string) => {
+  if (calendarType === ICalendar.CalendarTypeEnum.AD) {
+    const { year, month } = dateString2Obj(adDate);
+    return [createDateString(year, month, 1), createDateString(year, month, getDates(month, year))];
+  }
+  const { year, month } = dateString2Obj(ad2Bs(adDate));
+  return [
+    bs2Ad(createDateString(year, month, 1)),
+    bs2Ad(createDateString(year, month, bsTable[year][month])),
+  ];
 };
 
-export { createDateArray, getOffsetMonthDates };
+const chunk = <T>(items: T[], size: number) =>
+  Array.from({ length: Math.ceil(items.length / size) }, (_, i) =>
+    items.slice(i * size, (i + 1) * size),
+  );
+
+// Week rows for the month containing `adDate`, padded with the neighbouring months' days.
+const getMonthGrid = (
+  calendarType: ICalendar.calendarType,
+  adDate: string,
+  selectedAdDate: string | null,
+): IUseCalendarData.IDates[][] => {
+  const isAdView = calendarType === ICalendar.CalendarTypeEnum.AD;
+  const [first, last] = monthBounds(calendarType, adDate);
+  const lastWeekday = weekday(last);
+  const start = addDays(first, -weekday(first));
+  const end = addDays(last, lastWeekday === weeksDaysCount - 1 ? weeksDaysCount : 6 - lastWeekday);
+
+  const cells: IUseCalendarData.IDates[] = [];
+  for (let ad = start; ad <= end; ad = addDays(ad, 1)) {
+    const offset = ad < first ? 'prev' : ad > last ? 'next' : undefined;
+    const [adYear, adMonth, adDay] = ad.split('-');
+    const [bsYear, bsMonth, bsDay] = ad2Bs(ad).split('-');
+    cells.push({
+      dayOfMonth: isAdView ? Number(adDay) : en2NpNumber(String(Number(bsDay))),
+      year: Number(isAdView ? adYear : bsYear),
+      month: Number(isAdView ? adMonth : bsMonth),
+      adDate: ad,
+      extraDate: isAdView ? en2NpNumber(bsDay) : adDay,
+      isToday: isTodayAdDate(ad),
+      isSelected: !offset && ad === selectedAdDate,
+      ...(offset && { offset }),
+    });
+  }
+  return chunk(cells, weeksDaysCount);
+};
+
+export { getMonthGrid };

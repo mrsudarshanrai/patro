@@ -32,25 +32,24 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
       {dates.map((days: IUseCalendarData.IDates[], i: number) => {
         return (
           <div key={i} className='_patro_dates' role='row'>
-            {Array.isArray(days) &&
-              days.map((date: IUseCalendarData.IDates, index: number) => {
-                const { adDate, dayOfMonth, extraDate } = date;
-                return (
-                  <p
-                    id={cellId(idPrefix, adDate)}
-                    role='gridcell'
-                    aria-selected={date.isSelected}
-                    aria-label={cellLabel(adDate)}
-                    title={adDate}
-                    onClick={() => onSelect({ adDate })}
-                    key={i + index}
-                    className={cellClassName(date, adDate === focusedAdDate)}
-                  >
-                    <span className='_patro_dates_date_primary'>{dayOfMonth}</span>
-                    {showExtra && <sub>{extraDate}</sub>}
-                  </p>
-                );
-              })}
+            {days.map((date: IUseCalendarData.IDates, index: number) => {
+              const { adDate, dayOfMonth, extraDate } = date;
+              return (
+                <p
+                  id={cellId(idPrefix, adDate)}
+                  role='gridcell'
+                  aria-selected={date.isSelected}
+                  aria-label={cellLabel(adDate)}
+                  title={adDate}
+                  onClick={() => onSelect({ adDate })}
+                  key={i + index}
+                  className={cellClassName(date, adDate === focusedAdDate)}
+                >
+                  <span className='_patro_dates_date_primary'>{dayOfMonth}</span>
+                  {showExtra && <sub>{extraDate}</sub>}
+                </p>
+              );
+            })}
           </div>
         );
       })}

@@ -5,12 +5,12 @@ import {
   createDateString,
   dateString2Obj,
   getHeaderMonths,
+  getMonthGrid,
   getToday,
   switchYear,
   ad2Bs,
+  bs2Ad,
 } from '../utils';
-import { getRawAdDates } from '../utils/ad_utils';
-import { bs2Ad, getRawBsDates } from '../utils/bs_utils';
 import { ICalendar } from '../Calendar/types';
 
 /**
@@ -67,9 +67,6 @@ const toCurrDate = (date: Date): IUseCalendarData.ICurrDate => ({
 const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICurrDate | null) =>
   a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
 
-// Matches no cell, so nothing is highlighted as selected.
-const NO_SELECTION: IUseCalendarData.ICurrDate = { year: 0, month: 0, date: 0 };
-
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   defaultDate?: Date | null,
@@ -113,24 +110,13 @@ const useCalendarData = (
     () => (selectedAdDate ? ad2Bs(selectedAdDate) : null),
     [selectedAdDate],
   );
-  const selectedBs = useMemo(() => {
-    if (!selectedBsDate) return NO_SELECTION;
-    const { year, month, day } = dateString2Obj(selectedBsDate);
-    return { year, month, date: day };
-  }, [selectedBsDate]);
-
-  const adDates = useMemo(() => {
-    const sel = selected ?? NO_SELECTION;
-    return getRawAdDates(adYear, adMonth, sel.date, sel);
-  }, [adYear, adMonth, selected]);
-
-  const bsDates = useMemo(() => {
-    const sel = selected ?? NO_SELECTION;
-    return getRawBsDates(bsAnchor, adYear, adMonth, sel.date, sel, selectedBs);
-  }, [bsAnchor, adYear, adMonth, selected, selectedBs]);
+  const dates = useMemo(
+    () => getMonthGrid(calendarType, viewAnchor, selectedAdDate),
+    [calendarType, viewAnchor, selectedAdDate],
+  );
 
   return {
-    dates: calendarType === ICalendar.CalendarTypeEnum.AD ? adDates : bsDates,
+    dates,
     adDate: selectedAdDate,
     bsDate: selectedBsDate,
     header: getHeaderMonths(
