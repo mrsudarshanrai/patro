@@ -91,4 +91,25 @@ const getMonthGrid = (
   return chunk(cells, weeksDaysCount);
 };
 
-export { getMonthGrid, monthBounds };
+// First and last AD dates of a month given in either calendar; null for BS years outside the table.
+const monthSpan = (calendarType: ICalendar.calendarType, year: number, month: number) => {
+  if (calendarType === ICalendar.CalendarTypeEnum.AD) {
+    return [createDateString(year, month, 1), createDateString(year, month, getDates(month, year))];
+  }
+  if (!bsTable[year]) return null;
+  return [
+    bs2Ad(createDateString(year, month, 1)),
+    bs2Ad(createDateString(year, month, bsTable[year][month])),
+  ];
+};
+
+const yearSpan = (calendarType: ICalendar.calendarType, year: number) => {
+  const first = monthSpan(calendarType, year, 1);
+  const last = monthSpan(calendarType, year, 12);
+  return first && last ? [first[0], last[1]] : null;
+};
+
+const overlaps = (span: string[] | null, min: string, max: string) =>
+  !!span && span[1] >= min && span[0] <= max;
+
+export { getMonthGrid, monthBounds, monthSpan, yearSpan, overlaps };

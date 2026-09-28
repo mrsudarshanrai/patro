@@ -62,6 +62,10 @@ const [value, setValue] = useState<Date | null>(null);
 }
 ```
 
+## Quick month and year navigation
+
+Click the month title to switch to a month grid, and again for a 12-year grid, in whichever calendar is displayed. Picking a year shows its months; picking a month shows its days. Escape goes back to the days.
+
 ## Keyboard
 
 The day grid is a single Tab stop with a visible focus ring.
@@ -105,6 +109,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `weekendDays`       | `number[]`                                                       | `[]`                | Weekdays to colour as weekends (0 = Sunday), e.g. `[6]` for Saturday as Nepali calendars do. Colour: `--patro-weekend`. |
 | `dayClassName`      | `(date: PatroDate) => string \| undefined`                       | -                   | Extra class names for a day, e.g. `({ bs }) => holidays.has(bs) ? 'holiday' : undefined`.                               |
 | `onMonthChange`     | `({ start, end }: { start: PatroDate; end: PatroDate }) => void` | -                   | Called when the displayed month changes.                                                                                |
+| `showTodayButton`   | `boolean`                                                        | `false`             | Show a "Today" button that jumps to and selects today.                                                                  |
 | `className`         | `string`                                                         | -                   | Added to the root element.                                                                                              |
 | `style`             | `CSSProperties`                                                  | -                   | Inline styles on the root, including `--patro-*` token overrides.                                                       |
 | `theme`             | `'light' \| 'dark'`                                              | -                   | Sets `data-theme` on the component root. See [Theming](#theming).                                                       |

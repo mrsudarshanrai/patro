@@ -163,6 +163,7 @@ const toPatroDate = (adDate: string): PatroDate => ({
 });
 
 export {
+  partsIn as datePartsIn,
   toPatroDate,
   otherSystem,
   languageOf,

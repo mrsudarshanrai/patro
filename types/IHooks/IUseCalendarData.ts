@@ -7,6 +7,7 @@ export namespace IUseCalendarData {
     lastAdDate: string;
     nextMonth: () => void;
     prevMonth: () => void;
+    goToMonth: (year: number, month: number) => void;
     canNextMonth: boolean;
     canPrevMonth: boolean;
     minAdDate: string;

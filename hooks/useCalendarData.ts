@@ -10,6 +10,8 @@ import {
   getToday,
   isSupportedAdDate,
   monthBounds,
+  monthSpan,
+  overlaps,
   switchYear,
   toAdDateString,
   toPatroDate,
@@ -148,6 +150,14 @@ const useCalendarData = (
     setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, -1, bounds));
   }, [calendarType, bounds]);
 
+  const goToMonth = useCallback(
+    (year: number, month: number) => {
+      const span = monthSpan(calendarType, year, month);
+      if (span && overlaps(span, bounds.min, bounds.max)) setViewAnchor(span[0]);
+    },
+    [calendarType, bounds],
+  );
+
   const isDayDisabled = useCallback(
     (adDate: string) =>
       adDate < minAdDate ||
@@ -188,6 +198,7 @@ const useCalendarData = (
     lastAdDate,
     nextMonth,
     prevMonth,
+    goToMonth,
     canNextMonth: canStep(viewAnchor, calendarType, 1, bounds),
     canPrevMonth: canStep(viewAnchor, calendarType, -1, bounds),
     minAdDate,

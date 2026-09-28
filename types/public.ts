@@ -44,6 +44,8 @@ export interface CalendarProps {
   dayClassName?: (date: PatroDate) => string | undefined;
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
+  /** Show a "Today" button that jumps to and selects today. */
+  showTodayButton?: boolean;
   /** Added to the root element. */
   className?: string;
   /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */

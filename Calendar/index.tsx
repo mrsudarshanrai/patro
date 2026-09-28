@@ -5,16 +5,31 @@ import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
+import { CalendarPicker, PickerView } from './components/CalendarPicker';
 import {
   addDays,
   clampAdDate,
   createDateString,
+  datePartsIn,
   DisplayOptions,
+  formatNumber,
   getToday,
+  isSupportedAdDate,
+  languageOf,
+  monthName,
   monthRange,
+  monthSpan,
   monthTitle,
+  overlaps,
   toPatroDate,
+  yearSpan,
 } from '../utils';
+
+const TEXT = {
+  en: { month: 'choose month', year: 'choose year', today: 'Today' },
+  ne: { month: 'महिना छान्नुहोस्', year: 'वर्ष छान्नुहोस्', today: 'आज' },
+};
+const YEARS_PER_PAGE = 12;
 
 const DAY_STEPS: Record<string, number> = {
   ArrowLeft: -1,
@@ -41,6 +56,7 @@ const Calendar = (props: CalendarProps) => {
     weekendDays,
     dayClassName,
     onMonthChange,
+    showTodayButton = false,
     className,
     style,
   } = props;
@@ -50,6 +66,8 @@ const Calendar = (props: CalendarProps) => {
   );
   const selectedDate = isControlled ? value : uncontrolledValue;
   const [focusedAdDate, setFocusedAdDate] = useState<string>();
+  const [view, setView] = useState<PickerView>('days');
+  const [pickerYear, setPickerYear] = useState(0);
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
   const idPrefix = useId();
@@ -61,6 +79,7 @@ const Calendar = (props: CalendarProps) => {
     lastAdDate,
     nextMonth,
     prevMonth,
+    goToMonth,
     canNextMonth,
     canPrevMonth,
     minAdDate,
@@ -90,9 +109,27 @@ const Calendar = (props: CalendarProps) => {
     });
   }, [firstAdDate, lastAdDate]);
 
+  useEffect(() => setView('days'), [calendar]);
+
   const display: DisplayOptions = { locale, numerals };
-  const title = monthTitle(firstAdDate, calendar, display);
-  const subtitle = monthRange(firstAdDate, lastAdDate, calendar, display);
+  const text = TEXT[languageOf(calendar, display)];
+  const [viewYear, viewMonth] = datePartsIn(firstAdDate, calendar);
+  const num = (value: number) => formatNumber(value, calendar, display);
+  const yearAvailable = (year: number) => overlaps(yearSpan(calendar, year), minAdDate, maxAdDate);
+  const pageStart = pickerYear - (pickerYear % YEARS_PER_PAGE);
+  const pageYears = Array.from({ length: YEARS_PER_PAGE }, (_, i) => pageStart + i);
+  const pageAvailable = (start: number) =>
+    Array.from({ length: YEARS_PER_PAGE }, (_, i) => start + i).some(yearAvailable);
+  const pickerYearSpan = yearSpan(calendar, pickerYear);
+  const pageFirst = yearSpan(calendar, pageStart);
+  const pageLast = yearSpan(calendar, pageStart + YEARS_PER_PAGE - 1);
+  const pageSpan = pageFirst && pageLast ? [pageFirst[0], pageLast[1]] : null;
+
+  const todayAdDate = (() => {
+    const { year, month, date } = getToday();
+    return createDateString(year, month, date);
+  })();
+  const todayAllowed = isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
 
   const ownDays = dates.flat().filter((cell) => !cell.offset);
   const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
@@ -115,6 +152,83 @@ const Calendar = (props: CalendarProps) => {
     if (!isControlled) setUncontrolledValue(selected.date);
     setFocusedAdDate(adDate);
     onChange?.(selected);
+  };
+
+  const goToToday = () => {
+    const [year, month] = datePartsIn(todayAdDate, calendar);
+    goToMonth(year, month);
+    setView('days');
+    onSelect(todayAdDate);
+  };
+
+  const header =
+    view === 'days'
+      ? {
+          title: monthTitle(firstAdDate, calendar, display),
+          subtitle: monthRange(firstAdDate, lastAdDate, calendar, display),
+          onTitleClick: () => {
+            setPickerYear(viewYear);
+            setView('months');
+          },
+          titleActionLabel: text.month,
+          prev: prevMonth,
+          next: nextMonth,
+          canPrev: canPrevMonth,
+          canNext: canNextMonth,
+          prevLabel: 'Previous month',
+          nextLabel: 'Next month',
+        }
+      : view === 'months'
+        ? {
+            title: num(pickerYear),
+            subtitle: pickerYearSpan
+              ? monthRange(pickerYearSpan[0], pickerYearSpan[1], calendar, display)
+              : '',
+            onTitleClick: () => setView('years'),
+            titleActionLabel: text.year,
+            prev: () => setPickerYear(pickerYear - 1),
+            next: () => setPickerYear(pickerYear + 1),
+            canPrev: yearAvailable(pickerYear - 1),
+            canNext: yearAvailable(pickerYear + 1),
+            prevLabel: 'Previous year',
+            nextLabel: 'Next year',
+          }
+        : {
+            title: `${num(pageStart)} – ${num(pageStart + YEARS_PER_PAGE - 1)}`,
+            subtitle: pageSpan ? monthRange(pageSpan[0], pageSpan[1], calendar, display) : '',
+            onTitleClick: undefined,
+            titleActionLabel: undefined,
+            prev: () => setPickerYear(pageStart - YEARS_PER_PAGE),
+            next: () => setPickerYear(pageStart + YEARS_PER_PAGE),
+            canPrev: pageAvailable(pageStart - YEARS_PER_PAGE),
+            canNext: pageAvailable(pageStart + YEARS_PER_PAGE),
+            prevLabel: `Previous ${YEARS_PER_PAGE} years`,
+            nextLabel: `Next ${YEARS_PER_PAGE} years`,
+          };
+
+  const pickerItems =
+    view === 'months'
+      ? Array.from({ length: 12 }, (_, i) => ({
+          value: i + 1,
+          label: monthName(calendar, i + 1, display),
+          disabled: !overlaps(monthSpan(calendar, pickerYear, i + 1), minAdDate, maxAdDate),
+          current: pickerYear === viewYear && i + 1 === viewMonth,
+        }))
+      : pageYears.map((year) => ({
+          value: year,
+          label: num(year),
+          disabled: !yearAvailable(year),
+          current: year === viewYear,
+        }));
+
+  const onPick = (value: number) => {
+    if (view === 'months') {
+      goToMonth(pickerYear, value);
+      setView('days');
+    } else {
+      setPickerYear(value);
+      setView('months');
+    }
   };
 
   const onGridKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -147,47 +261,72 @@ const Calendar = (props: CalendarProps) => {
       style={style}
       data-calendar-type={calendar}
       data-theme={theme}
+      onKeyDown={(event) => {
+        if (view === 'days' || event.key !== 'Escape') return;
+        event.stopPropagation();
+        setView('days');
+      }}
     >
       <CalendarHeader
-        nextMonth={nextMonth}
-        prevMonth={prevMonth}
-        canNextMonth={canNextMonth}
-        canPrevMonth={canPrevMonth}
-        title={title}
-        subtitle={subtitle}
+        nextMonth={header.next}
+        prevMonth={header.prev}
+        canNextMonth={header.canNext}
+        canPrevMonth={header.canPrev}
+        title={header.title}
+        subtitle={header.subtitle}
+        onTitleClick={header.onTitleClick}
+        titleActionLabel={header.titleActionLabel}
+        prevLabel={header.prevLabel}
+        nextLabel={header.nextLabel}
       />
-      <div
-        className='_patro_grid'
-        role='grid'
-        tabIndex={0}
-        aria-label={title}
-        aria-activedescendant={cellId(idPrefix, activeAdDate)}
-        onKeyDown={onGridKeyDown}
-        onMouseDown={() => (pointerDown.current = true)}
-        // Ring only for keyboard focus, like :focus-visible.
-        onFocus={() => setShowFocusRing(!pointerDown.current)}
-        onBlur={() => {
-          pointerDown.current = false;
-          setShowFocusRing(false);
-        }}
-      >
-        <CalendarDays
-          calendar={calendar}
-          display={display}
-          weekStartsOn={weekStartsOn}
-          weekendDays={weekendDays}
-        />
-        <CalendarGrid
-          dates={dates}
-          calendar={calendar}
-          display={display}
-          onSelect={onSelect}
-          showSecondaryDate={showSecondaryDate}
-          idPrefix={idPrefix}
-          dayClassName={dayClassName}
-          focusedAdDate={showFocusRing ? activeAdDate : undefined}
-        />
-      </div>
+      {view === 'days' ? (
+        <div
+          className='_patro_grid'
+          role='grid'
+          tabIndex={0}
+          aria-label={header.title}
+          aria-activedescendant={cellId(idPrefix, activeAdDate)}
+          onKeyDown={onGridKeyDown}
+          onMouseDown={() => (pointerDown.current = true)}
+          // Ring only for keyboard focus, like :focus-visible.
+          onFocus={() => setShowFocusRing(!pointerDown.current)}
+          onBlur={() => {
+            pointerDown.current = false;
+            setShowFocusRing(false);
+          }}
+        >
+          <CalendarDays
+            calendar={calendar}
+            display={display}
+            weekStartsOn={weekStartsOn}
+            weekendDays={weekendDays}
+          />
+          <CalendarGrid
+            dates={dates}
+            calendar={calendar}
+            display={display}
+            onSelect={onSelect}
+            showSecondaryDate={showSecondaryDate}
+            idPrefix={idPrefix}
+            dayClassName={dayClassName}
+            focusedAdDate={showFocusRing ? activeAdDate : undefined}
+          />
+        </div>
+      ) : (
+        <CalendarPicker items={pickerItems} label={header.title} onPick={onPick} />
+      )}
+      {showTodayButton && (
+        <div className='_patro_footer'>
+          <button
+            type='button'
+            className='_patro_footer_today'
+            disabled={!todayAllowed}
+            onClick={goToToday}
+          >
+            {text.today}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

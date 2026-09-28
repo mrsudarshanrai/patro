@@ -23,6 +23,10 @@ export namespace ICalendar {
   export type CalendarHeaderProps = {
     title: string;
     subtitle: string;
+    onTitleClick?: () => void;
+    titleActionLabel?: string;
+    prevLabel?: string;
+    nextLabel?: string;
     nextMonth: () => void;
     prevMonth: () => void;
     canNextMonth: boolean;

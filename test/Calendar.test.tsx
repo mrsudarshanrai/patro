@@ -142,6 +142,7 @@ describe('keyboard navigation', () => {
     await user.tab();
     await user.tab();
     await user.tab();
+    await user.tab();
 
     expect(grid).toHaveFocus();
     expect(focused(container)).toBe('2026-10-29');
@@ -463,4 +464,88 @@ test('className and style go on the root, e.g. to override theme tokens', () => 
   const root = container.firstElementChild as HTMLElement;
   expect(root).toHaveClass('_patro_container', 'my-calendar');
   expect(root.style.getPropertyValue('--patro-accent')).toBe('teal');
+});
+
+describe('month and year quick navigation', () => {
+  const titleButton = () =>
+    screen.getByRole('button', { name: /choose (month|year)|(महिना|वर्ष) छान्नुहोस्/ });
+
+  test('title opens a month grid, and picking a month shows its days', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await user.click(titleButton());
+    expect(title(container)).toBe('2026');
+    expect(screen.getByRole('button', { name: 'October' })).toHaveAttribute('aria-current', 'true');
+
+    await user.click(screen.getByRole('button', { name: 'March' }));
+    expect(title(container)).toBe('March 2026');
+  });
+
+  test('a birthdate decades back is a few clicks away', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await user.click(titleButton());
+    await user.click(titleButton());
+    expect(title(container)).toBe('2016 – 2027');
+
+    for (let i = 0; i < 3; i++) await user.click(screen.getByLabelText('Previous 12 years'));
+    expect(title(container)).toBe('1980 – 1991');
+    await user.click(screen.getByRole('button', { name: '1990' }));
+    await user.click(screen.getByRole('button', { name: 'June' }));
+    expect(title(container)).toBe('June 1990');
+  });
+
+  test('works in BS with BS months and years', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
+    await user.click(titleButton());
+    expect(title(container)).toBe('२०८३');
+    await user.click(screen.getByRole('button', { name: 'बैशाख' }));
+    expect(title(container)).toBe('बैशाख २०८३');
+  });
+
+  test('months and years outside the bounds are disabled', async () => {
+    const user = userEvent.setup();
+    render(<Calendar defaultValue={TODAY} minDate={new Date(2026, 9, 10)} />);
+    await user.click(titleButton());
+    expect(screen.getByRole('button', { name: 'September' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'October' })).toBeEnabled();
+    expect(screen.getByLabelText('Previous year')).toBeDisabled();
+  });
+
+  test('Escape goes back to the days', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await user.click(titleButton());
+    await user.keyboard('{Escape}');
+    expect(title(container)).toBe('October 2026');
+  });
+
+  test('Today button jumps to and selects today', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar defaultValue={new Date(2026, 0, 5)} showTodayButton onChange={onChange} />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Today' }));
+    expect(title(container)).toBe('October 2026');
+    expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-29' }));
+  });
+
+  test('Today button is disabled when today is not allowed', () => {
+    render(<Calendar showTodayButton maxDate={new Date(2026, 0, 1)} locale='ne' />);
+    expect(screen.getByRole('button', { name: 'आज' })).toBeDisabled();
+  });
+});
+
+test('the year page subtitle shows the span in the other calendar', async () => {
+  const user = userEvent.setup();
+  const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
+  const titleButton = () => screen.getByRole('button', { name: /छान्नुहोस्/ });
+  await user.click(titleButton());
+  await user.click(titleButton());
+  expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
+    'Apr 2019 – Apr 2031',
+  );
 });
