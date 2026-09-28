@@ -1,4 +1,6 @@
 export type CalendarSystem = 'AD' | 'BS';
+export type Locale = 'en' | 'ne';
+export type Numerals = 'latin' | 'devanagari';
 
 export interface PatroDate {
   /** Local midnight of the selected day. */

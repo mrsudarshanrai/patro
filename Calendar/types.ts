@@ -1,5 +1,6 @@
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { CalendarSystem } from '../types/public';
+import { DisplayOptions } from '../utils/formatUtils';
 
 export namespace ICalendar {
   export enum CalendarTypeEnum {
@@ -9,6 +10,8 @@ export namespace ICalendar {
   export type calendarType = CalendarSystem;
 
   export type CalendarGridProps = {
+    calendar: CalendarSystem;
+    display: DisplayOptions;
     showSecondaryDate: boolean;
     dates: IUseCalendarData.IDates[][];
     onSelect: (adDate: string) => void;
@@ -17,10 +20,8 @@ export namespace ICalendar {
   };
 
   export type CalendarHeaderProps = {
-    month: string;
-    year: string;
-    oMonth: string;
-    oYear: string;
+    title: string;
+    subtitle: string;
     nextMonth: () => void;
     prevMonth: () => void;
     canNextMonth: boolean;
@@ -28,6 +29,7 @@ export namespace ICalendar {
   };
 
   export type CalendarDaysProps = {
-    calendarType: calendarType;
+    calendar: CalendarSystem;
+    display: DisplayOptions;
   };
 }

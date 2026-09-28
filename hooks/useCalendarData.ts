@@ -6,7 +6,6 @@ import {
   clampAdDate,
   createDateString,
   dateString2Obj,
-  getHeaderMonths,
   getMonthGrid,
   getToday,
   isSupportedAdDate,
@@ -19,7 +18,7 @@ import {
 } from '../utils';
 import { ICalendar } from '../Calendar/types';
 import { PatroDate } from '../types/public';
-import { MAX_AD_DATE, MIN_BS_YEAR, START_ENGLISH_DATE } from '../constants/dateConstants';
+import { MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
 
 /**
  * AD date (pinned to day 1 of whichever calendar system is displayed) to
@@ -133,16 +132,10 @@ const useCalendarData = (
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
   }, [selectedTime, cleared, calendarType, selected, bounds]);
 
-  const { year: adYear, month: adMonth } = useMemo(() => dateString2Obj(viewAnchor), [viewAnchor]);
-  // Only AD April 1921 starts before the table; its 1st falls in BS 1977 Chaitra.
-  const bsAnchor = useMemo(
-    () =>
-      viewAnchor < START_ENGLISH_DATE
-        ? createDateString(MIN_BS_YEAR - 1, 12, 1)
-        : ad2Bs(viewAnchor),
-    [viewAnchor],
+  const [firstAdDate, lastAdDate] = useMemo(
+    () => monthBounds(calendarType, viewAnchor),
+    [calendarType, viewAnchor],
   );
-  const { year: bsYear } = useMemo(() => dateString2Obj(bsAnchor), [bsAnchor]);
 
   const nextMonth = useCallback(() => {
     setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, 1, bounds));
@@ -177,13 +170,8 @@ const useCalendarData = (
     dates,
     adDate: selectedAdDate,
     bsDate: selectedBsDate,
-    header: getHeaderMonths(
-      calendarType,
-      bsAnchor.split('-')[1],
-      adMonth,
-      String(bsYear),
-      String(adYear),
-    ),
+    firstAdDate,
+    lastAdDate,
     nextMonth,
     prevMonth,
     canNextMonth: canStep(viewAnchor, calendarType, 1, bounds),

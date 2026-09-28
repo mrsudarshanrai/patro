@@ -71,7 +71,7 @@ test('picking a day updates the input, closes the popover and calls onChange', a
   await user.click(screen.getByTitle('2026-10-05'));
   expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-05' }));
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  expect(input).toHaveTextContent('05 October 2026');
+  expect(input).toHaveTextContent('5 October 2026');
 
   await user.click(input);
   expect(screen.getByTitle('2026-10-05')).toHaveClass('_patro_dates_current_date');
@@ -115,7 +115,7 @@ describe('empty state (defaultValue={null})', () => {
     expect(screen.getByTitle('2026-10-29')).toHaveClass('_patro_dates_today');
 
     await user.click(screen.getByTitle('2026-10-05'));
-    expect(input).toHaveTextContent('05 October 2026');
+    expect(input).toHaveTextContent('5 October 2026');
   });
 
   test('uses a Nepali placeholder in BS mode and accepts a custom one', () => {

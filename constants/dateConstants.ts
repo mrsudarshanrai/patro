@@ -1,75 +1,10 @@
-import { Constant } from './types';
-
 // AD date of BS MIN_BS_YEAR-01-01, the anchor every conversion counts from.
 const START_ENGLISH_DATE = '1921-04-13';
 const MONTHS_IN_YEAR = 12;
 
-const config: Constant.Config = {
-  en: {
-    months: {
-      January: 'Jan',
-      February: 'Feb',
-      March: 'Mar',
-      April: 'Apr',
-      May: 'May',
-      June: 'Jun',
-      July: 'Jul',
-      August: 'Aug',
-      September: 'Sep',
-      October: 'Oct',
-      November: 'Nov',
-      December: 'Dec',
-    },
-    days: {
-      Sunday: 'Su',
-      Monday: 'Mo',
-      Tuesday: 'Tu',
-      Wednesday: 'We',
-      Thursday: 'Th',
-      Friday: 'Fr',
-      Saturday: 'Sa',
-    },
-  },
-  np: {
-    months: {
-      बैशाख: 'बै',
-      जेष्ठ: 'जे',
-      आषाढ: 'आषा',
-      श्रावण: 'श्रा',
-      भाद्र: 'भा',
-      आश्विन: 'आश',
-      कार्तिक: 'का',
-      मंसिर: 'मं',
-      पौष: 'पौ',
-      माघ: 'मा',
-      फाल्गुन: 'फा',
-      चैत्र: 'चै',
-    },
-    days: {
-      आइतवार: 'आइत',
-      सोमवार: 'सोम',
-      मंगलवार: 'मङ्गल',
-      बुधवार: 'बुध',
-      बिहिवार: 'बिही',
-      शुक्रवार: 'शुक्र',
-      शनिवार: 'शनि',
-    },
-    numbers: {
-      0: '०',
-      1: '१',
-      2: '२',
-      3: '३',
-      4: '४',
-      5: '५',
-      6: '६',
-      7: '७',
-      8: '८',
-      9: '९',
-    },
-  },
-};
+const DEVANAGARI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
 
-const weeksDaysCount = Object.values(config.en.days).length;
+const weeksDaysCount = 7;
 
 type Dates = { [year: number]: number[] };
 
@@ -224,7 +159,7 @@ const MAX_AD_DATE = new Date(
 
 export {
   weeksDaysCount,
-  config,
+  DEVANAGARI_DIGITS,
   dates,
   bsYearStartDays,
   MONTHS_IN_YEAR,

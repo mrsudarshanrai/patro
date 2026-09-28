@@ -4,7 +4,9 @@ import {
   bs2Ad,
   getMonthFirstDay,
   en2NpNumber,
-  formatDisplayDate,
+  formatDate,
+  monthRange,
+  monthTitle,
   getToday,
   getMonthGrid,
 } from '../utils';
@@ -68,7 +70,7 @@ test('AD grid leading cells show the correct BS date across a January year bound
   expect(leadingCells.length).toBeGreaterThan(0);
   leadingCells.forEach((cell) => {
     expect(cell.adDate.startsWith('2023-12')).toBe(true);
-    expect(cell.extraDate).toBe(en2NpNumber(ad2Bs(cell.adDate).split('-')[2]));
+    expect(cell.secondaryDay).toBe(Number(ad2Bs(cell.adDate).split('-')[2]));
   });
 });
 
@@ -94,8 +96,23 @@ test('BS grid highlights the selected day, and only that day', () => {
   expect(grid.find((cell) => cell.adDate === '2022-10-23')?.isSelected).toBe(false);
 });
 
-test('formatDisplayDate formats a date in the given calendar system', () => {
-  const date = new Date(2022, 9, 24); // October 24, 2022
-  expect(formatDisplayDate(date, 'AD')).toBe('24 October 2022');
-  expect(formatDisplayDate(date, 'BS')).toBe('०७ कार्तिक २०७९');
+test('formatDate writes a date in either calendar, language and numerals', () => {
+  expect(formatDate('2022-10-24', 'AD')).toBe('24 October 2022');
+  expect(formatDate('2022-10-24', 'BS')).toBe('७ कार्तिक २०७९');
+  expect(formatDate('2022-10-24', 'BS', { locale: 'en', numerals: 'latin' })).toBe('7 Kartik 2079');
+  expect(formatDate('2022-10-24', 'AD', { locale: 'ne', numerals: 'devanagari' })).toBe(
+    '२४ अक्टोबर २०२२',
+  );
+  expect(formatDate('2022-10-24', 'AD', {}, { short: true })).toBe('24 Oct 2022');
+  expect(formatDate('2022-10-24', 'BS', {}, { withYear: false })).toBe('७ कार्तिक');
+});
+
+test('month titles and ranges name both years when a month spans two', () => {
+  expect(monthTitle('2026-12-16', 'BS')).toBe('पौष २०८३');
+  expect(monthRange('2026-12-16', '2027-01-14', 'BS')).toBe('Dec 2026 – Jan 2027');
+  expect(monthRange('2026-04-01', '2026-04-30', 'AD')).toBe('चैत्र २०८२ – बैशाख २०८३');
+});
+
+test('en2NpNumber converts only digits', () => {
+  expect(en2NpNumber('2083-07 12')).toBe('२०८३-०७ १२');
 });

@@ -1,10 +1,6 @@
-import { config, MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
-import { Constant } from '../constants/types';
-const { en, np }: Constant.Config = config;
+import { DEVANAGARI_DIGITS, MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
 
 const getDates = (month: number, year: number) => new Date(year, month, 0).getDate();
-
-const getMonth = (month: number) => Object.keys(en.months)[month - 1];
 
 const getMonthFirstDay = (month: number, year: number) => new Date(year, month - 1, 1).getDay();
 
@@ -67,10 +63,7 @@ const adDateToLocalDate = (adDate: string) => {
 };
 
 const en2NpNumber = (value: string) =>
-  value
-    .split('')
-    .map((item: unknown) => np.numbers[item as keyof Constant.NPNumbers])
-    .join('');
+  value.replace(/[0-9]/g, (digit) => DEVANAGARI_DIGITS[Number(digit)]);
 
 const remove1stZero = (value: string) => value.replace(/^0+/, '');
 
@@ -80,7 +73,6 @@ export {
   addDays,
   getDates,
   getMonthFirstDay,
-  getMonth,
   switchYear,
   getToday,
   isTodayAdDate,

@@ -5,7 +5,15 @@ import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
-import { addDays, createDateString, getToday, toPatroDate } from '../utils';
+import {
+  addDays,
+  createDateString,
+  DisplayOptions,
+  getToday,
+  monthRange,
+  monthTitle,
+  toPatroDate,
+} from '../utils';
 
 const DAY_STEPS: Record<string, number> = {
   ArrowLeft: -1,
@@ -39,7 +47,8 @@ const Calendar = (props: CalendarProps) => {
   const {
     dates,
     adDate: selectedAdDate,
-    header: { month, oMonth, oYear, year },
+    firstAdDate,
+    lastAdDate,
     nextMonth,
     prevMonth,
     canNextMonth,
@@ -48,6 +57,10 @@ const Calendar = (props: CalendarProps) => {
     maxAdDate,
     isDayDisabled,
   } = useCalendarData(calendar, selectedDate, { minDate, maxDate, isDateDisabled });
+
+  const display: DisplayOptions = {};
+  const title = monthTitle(firstAdDate, calendar, display);
+  const subtitle = monthRange(firstAdDate, lastAdDate, calendar, display);
 
   const ownDays = dates.flat().filter((cell) => !cell.offset);
   const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
@@ -103,16 +116,14 @@ const Calendar = (props: CalendarProps) => {
         prevMonth={prevMonth}
         canNextMonth={canNextMonth}
         canPrevMonth={canPrevMonth}
-        month={month}
-        year={year}
-        oMonth={oMonth}
-        oYear={oYear}
+        title={title}
+        subtitle={subtitle}
       />
       <div
         className='_patro_grid'
         role='grid'
         tabIndex={0}
-        aria-label={`${month} ${year}`}
+        aria-label={title}
         aria-activedescendant={cellId(idPrefix, activeAdDate)}
         onKeyDown={onGridKeyDown}
         onMouseDown={() => (pointerDown.current = true)}
@@ -123,9 +134,11 @@ const Calendar = (props: CalendarProps) => {
           setShowFocusRing(false);
         }}
       >
-        <CalendarDays calendarType={calendar} />
+        <CalendarDays calendar={calendar} display={display} />
         <CalendarGrid
           dates={dates}
+          calendar={calendar}
+          display={display}
           onSelect={onSelect}
           showSecondaryDate={showSecondaryDate}
           idPrefix={idPrefix}

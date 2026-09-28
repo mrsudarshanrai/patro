@@ -1,5 +1,6 @@
 import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
-import { adDateToLocalDate, formatDisplayDate } from '../../utils';
+import { DisplayOptions, formatDate, formatNumber, otherSystem } from '../../utils';
+import { CalendarSystem } from '../../types/public';
 import { ICalendar } from '../types';
 
 const cellClassName = (
@@ -19,37 +20,43 @@ const cellClassName = (
     .filter(Boolean)
     .join(' ');
 
-const cellLabel = ({ adDate, isDisabled }: IUseCalendarData.IDates) => {
-  const date = adDateToLocalDate(adDate);
-  if (isDisabled) return formatDisplayDate(date, 'AD');
-  return `${formatDisplayDate(date, 'AD')}, ${formatDisplayDate(date, 'BS')}`;
+const cellLabel = ({ adDate, secondaryDay }: IUseCalendarData.IDates, display: DisplayOptions) => {
+  const ad = formatDate(adDate, 'AD', display);
+  return secondaryDay === null ? ad : `${ad}, ${formatDate(adDate, 'BS', display)}`;
 };
+
+const number = (value: number | null, system: CalendarSystem, display: DisplayOptions) =>
+  value === null ? '' : formatNumber(value, system, display);
 
 const cellId = (idPrefix: string, adDate: string) => `${idPrefix}-${adDate}`;
 
 const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
-  const { dates, showSecondaryDate, onSelect, idPrefix, focusedAdDate } = props;
+  const { dates, calendar, display, showSecondaryDate, onSelect, idPrefix, focusedAdDate } = props;
   return (
     <>
       {dates.map((days: IUseCalendarData.IDates[], i: number) => {
         return (
           <div key={i} className='_patro_dates' role='row'>
             {days.map((date: IUseCalendarData.IDates, index: number) => {
-              const { adDate, dayOfMonth, extraDate } = date;
+              const { adDate, day, secondaryDay } = date;
               return (
                 <p
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
                   aria-selected={date.isSelected}
                   aria-disabled={date.isDisabled || undefined}
-                  aria-label={cellLabel(date)}
+                  aria-label={cellLabel(date, display)}
                   title={adDate}
                   onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
                   key={i + index}
                   className={cellClassName(date, adDate === focusedAdDate)}
                 >
-                  <span className='_patro_dates_date_primary'>{dayOfMonth}</span>
-                  {showSecondaryDate && <sub>{extraDate}</sub>}
+                  <span className='_patro_dates_date_primary'>
+                    {number(day, calendar, display)}
+                  </span>
+                  {showSecondaryDate && (
+                    <sub>{number(secondaryDay, otherSystem(calendar), display)}</sub>
+                  )}
                 </p>
               );
             })}

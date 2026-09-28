@@ -3,12 +3,8 @@ export namespace IUseCalendarData {
     dates: IDates[][];
     adDate: string | null;
     bsDate: string | null;
-    header: {
-      month: string;
-      oMonth: string;
-      oYear: string;
-      year: string;
-    };
+    firstAdDate: string;
+    lastAdDate: string;
     nextMonth: () => void;
     prevMonth: () => void;
     canNextMonth: boolean;
@@ -24,11 +20,13 @@ export namespace IUseCalendarData {
     date: number;
   }
   export interface IDates {
-    dayOfMonth: number | string;
+    /** Day in the displayed calendar; null for days outside the BS table. */
+    day: number | null;
+    /** Same day in the other calendar; null for days outside the BS table. */
+    secondaryDay: number | null;
     year: number;
     month: number;
     adDate: string;
-    extraDate: string;
     isToday: boolean;
     isSelected: boolean;
     isDisabled?: boolean;

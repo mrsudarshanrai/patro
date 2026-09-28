@@ -5,7 +5,6 @@ import {
   addDays,
   createDateString,
   dateString2Obj,
-  en2NpNumber,
   getDates,
   isSupportedAdDate,
   isTodayAdDate,
@@ -55,11 +54,11 @@ const getMonthGrid = (
     const [adYear, adMonth, adDay] = ad.split('-');
     if (!isSupportedAdDate(ad)) {
       cells.push({
-        dayOfMonth: isAdView ? Number(adDay) : '',
+        day: isAdView ? Number(adDay) : null,
+        secondaryDay: null,
         year: isAdView ? Number(adYear) : 0,
         month: isAdView ? Number(adMonth) : 0,
         adDate: ad,
-        extraDate: '',
         isToday: false,
         isSelected: false,
         isDisabled: true,
@@ -69,11 +68,11 @@ const getMonthGrid = (
     }
     const [bsYear, bsMonth, bsDay] = ad2Bs(ad).split('-');
     cells.push({
-      dayOfMonth: isAdView ? Number(adDay) : en2NpNumber(String(Number(bsDay))),
+      day: Number(isAdView ? adDay : bsDay),
+      secondaryDay: Number(isAdView ? bsDay : adDay),
       year: Number(isAdView ? adYear : bsYear),
       month: Number(isAdView ? adMonth : bsMonth),
       adDate: ad,
-      extraDate: isAdView ? en2NpNumber(bsDay) : adDay,
       isToday: isTodayAdDate(ad),
       isSelected: !offset && ad === selectedAdDate,
       ...(isDayDisabled?.(ad) && { isDisabled: true }),

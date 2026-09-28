@@ -2,7 +2,7 @@ import { icons } from '../../Datepicker/icons';
 import { ICalendar } from '../types';
 
 const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
-  const { month, year, oMonth, oYear, nextMonth, prevMonth, canNextMonth, canPrevMonth } = props;
+  const { title, subtitle, nextMonth, prevMonth, canNextMonth, canPrevMonth } = props;
   return (
     <header className='_patro_header'>
       <button
@@ -14,12 +14,8 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
         {icons['prevIcon']}
       </button>
       <h3 className='_patro_header_info'>
-        <p className='_patro_header_title'>
-          {month} {year}
-        </p>
-        <p className='_patro_header_subtitle'>
-          {oMonth} {oYear}
-        </p>
+        <p className='_patro_header_title'>{title}</p>
+        <p className='_patro_header_subtitle'>{subtitle}</p>
       </h3>
       <button
         className='_patro_header_actionBtn'

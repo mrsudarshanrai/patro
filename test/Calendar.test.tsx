@@ -37,17 +37,17 @@ test('AD header subtitle names the two BS months the AD month spans', () => {
     render(<Calendar defaultValue={date} />).container.querySelector('._patro_header_subtitle')
       ?.textContent;
 
-  expect(subtitle(new Date(2026, 8, 15))).toBe('भाद्र/आश्विन - 2083');
-  expect(subtitle(new Date(2027, 2, 15))).toBe('फाल्गुन/चैत्र - 2083');
-  expect(subtitle(new Date(2026, 3, 15))).toBe('चैत्र/बैशाख - 2082');
+  expect(subtitle(new Date(2026, 8, 15))).toBe('भाद्र – आश्विन २०८३');
+  expect(subtitle(new Date(2027, 2, 15))).toBe('फाल्गुन – चैत्र २०८३');
+  expect(subtitle(new Date(2026, 3, 15))).toBe('चैत्र २०८२ – बैशाख २०८३');
 });
 
 test('BS calendar shows the BS month containing defaultValue', () => {
   const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} showSecondaryDate />);
 
   expect(container.firstElementChild).toHaveAttribute('data-calendar-type', 'BS');
-  expect(title(container)).toBe('कार्तिक 2083');
-  expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe('Oct/Nov - 2026');
+  expect(title(container)).toBe('कार्तिक २०८३');
+  expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe('Oct – Nov 2026');
   expect(cell(container, '2026-10-18').textContent).toBe('१18');
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
@@ -101,10 +101,10 @@ test('month navigation steps by one month in the displayed calendar', async () =
   const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
 
   await user.click(screen.getByLabelText('Next month'));
-  expect(title(container)).toBe('मंसिर 2083');
+  expect(title(container)).toBe('मंसिर २०८३');
   await user.click(screen.getByLabelText('Previous month'));
   await user.click(screen.getByLabelText('Previous month'));
-  expect(title(container)).toBe('आश्विन 2083');
+  expect(title(container)).toBe('आश्विन २०८३');
 });
 
 test('switching AD to BS keeps the selected date in view', () => {
@@ -112,7 +112,7 @@ test('switching AD to BS keeps the selected date in view', () => {
   expect(title(container)).toBe('October 2026');
 
   rerender(<Calendar calendar='BS' defaultValue={TODAY} />);
-  expect(title(container)).toBe('कार्तिक 2083');
+  expect(title(container)).toBe('कार्तिक २०८३');
 });
 
 test('clicking a day selects it and calls onChange with its AD date', async () => {
@@ -177,7 +177,7 @@ describe('keyboard navigation', () => {
 
     await user.keyboard('{ArrowDown}');
     expect(focused(container)).toBe('2026-11-19');
-    expect(title(container)).toBe('मंसिर 2083');
+    expect(title(container)).toBe('मंसिर २०८३');
   });
 
   test('PageDown and PageUp change month and keep a visible day focused', async () => {
@@ -224,14 +224,14 @@ describe('supported range edges', () => {
     const { container } = render(
       <Calendar calendar='BS' defaultValue={new Date(2043, 3, 1)} showSecondaryDate />,
     );
-    expect(title(container)).toBe('चैत्र 2099');
+    expect(title(container)).toBe('चैत्र २०९९');
 
     const next = screen.getByLabelText('Next month');
     expect(next).toBeDisabled();
     await user.click(next);
     screen.getByRole('grid').focus();
     await user.keyboard('{PageDown}{ArrowDown}{ArrowDown}{ArrowDown}');
-    expect(title(container)).toBe('चैत्र 2099');
+    expect(title(container)).toBe('चैत्र २०९९');
 
     const beyond = cell(container, '2043-04-15');
     expect(beyond).toHaveClass('_patro_dates_disabled');
@@ -247,14 +247,14 @@ describe('supported range edges', () => {
     );
     expect(title(container)).toBe('April 1921');
     expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
-      'चैत्र/बैशाख - 1977',
+      'चैत्र १९७७ – बैशाख १९७८',
     );
     expect(screen.getByLabelText('Previous month')).toBeDisabled();
 
     const before = cell(container, '1921-04-12');
     expect(before).toHaveClass('_patro_dates_disabled');
     expect(before.textContent).toBe('12');
-    expect(cell(container, '1921-04-13').textContent).toBe('13०१');
+    expect(cell(container, '1921-04-13').textContent).toBe('13१');
 
     await user.click(before);
     expect(onChange).not.toHaveBeenCalled();
@@ -267,7 +267,7 @@ describe('supported range edges', () => {
 
   test('first BS month (1978 Baisakh) cannot go back', () => {
     const { container } = render(<Calendar calendar='BS' defaultValue={new Date(1921, 3, 20)} />);
-    expect(title(container)).toBe('बैशाख 1978');
+    expect(title(container)).toBe('बैशाख १९७८');
     expect(screen.getByLabelText('Previous month')).toBeDisabled();
     expect(screen.getByLabelText('Next month')).toBeEnabled();
   });
@@ -320,7 +320,7 @@ describe('minDate / maxDate / isDateDisabled', () => {
     const { container } = render(
       <Calendar calendar='BS' defaultValue={TODAY} maxDate={new Date(2026, 10, 1)} />,
     );
-    expect(title(container)).toBe('कार्तिक 2083');
+    expect(title(container)).toBe('कार्तिक २०८३');
     expect(screen.getByLabelText('Next month')).toBeDisabled();
     expect(cell(container, '2026-11-02')).toHaveClass('_patro_dates_disabled');
   });

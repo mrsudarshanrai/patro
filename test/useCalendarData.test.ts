@@ -12,13 +12,19 @@ const firstRender = (calendarType: ICalendar.calendarType, selectedDate?: Date) 
   };
   renderToString(createElement(Probe));
   if (!result) throw new Error('hook did not render');
-  return { month: result.header.month, selected: result.adDate };
+  return { firstDay: result.firstAdDate, selected: result.adDate };
 };
 
 test('first render already shows the selected month and day', () => {
   const selectedDate = new Date(2026, 9, 29);
-  expect(firstRender('BS', selectedDate)).toEqual({ month: 'कार्तिक', selected: '2026-10-29' });
-  expect(firstRender('AD', selectedDate)).toEqual({ month: 'October', selected: '2026-10-29' });
+  expect(firstRender('BS', selectedDate)).toEqual({
+    firstDay: '2026-10-18',
+    selected: '2026-10-29',
+  });
+  expect(firstRender('AD', selectedDate)).toEqual({
+    firstDay: '2026-10-01',
+    selected: '2026-10-29',
+  });
 });
 
 test('stepViewAnchor advances one AD month without an invalid date at a month-length boundary', () => {

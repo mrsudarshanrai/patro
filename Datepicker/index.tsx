@@ -3,18 +3,10 @@ import { Calendar } from '../Calendar';
 import { createPopper } from '@popperjs/core';
 import { ICalendar } from '../Calendar/types';
 import { DatepickerProps, PatroDate } from '../types/public';
-import {
-  createDateString,
-  formatDisplayDate,
-  formatSecondaryDate,
-  isSupportedAdDate,
-} from '../utils';
+import { formatDate, isSupportedAdDate, languageOf, otherSystem, toAdDateString } from '../utils';
 import { icons } from './icons';
 
-const DEFAULT_PLACEHOLDER: Record<ICalendar.calendarType, string> = {
-  AD: 'Select a date',
-  BS: 'मिति छान्नुहोस्',
-};
+const DEFAULT_PLACEHOLDER = { en: 'Select a date', ne: 'मिति छान्नुहोस्' };
 
 const Datepicker = (props: DatepickerProps) => {
   const {
@@ -36,17 +28,11 @@ const Datepicker = (props: DatepickerProps) => {
   const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
   const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
-  const shownDate =
-    selectedDate &&
-    isSupportedAdDate(
-      createDateString(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth() + 1,
-        selectedDate.getDate(),
-      ),
-    )
-      ? selectedDate
+  const shownAdDate =
+    selectedDate && isSupportedAdDate(toAdDateString(selectedDate))
+      ? toAdDateString(selectedDate)
       : null;
+  const display = {};
 
   const togglePopper = () => setIsPopperVisible((visible) => !visible);
   const closePopper = () => setIsPopperVisible(false);
@@ -113,18 +99,20 @@ const Datepicker = (props: DatepickerProps) => {
         onClick={togglePopper}
         onKeyDown={onInputKeyDown}
       >
-        {shownDate ? (
+        {shownAdDate ? (
           <>
             <span className='_patro_datepicker_input_primary'>
-              {formatDisplayDate(shownDate, calendar)}
+              {formatDate(shownAdDate, calendar, display)}
             </span>
             <span className='_patro_datepicker_input_secondary'>
-              {formatSecondaryDate(shownDate, calendar)}
+              {calendar === 'AD'
+                ? formatDate(shownAdDate, 'BS', display, { withYear: false })
+                : formatDate(shownAdDate, otherSystem(calendar), display, { short: true })}
             </span>
           </>
         ) : (
           <span className='_patro_datepicker_input_placeholder'>
-            {placeholder ?? DEFAULT_PLACEHOLDER[calendar]}
+            {placeholder ?? DEFAULT_PLACEHOLDER[languageOf(calendar, display)]}
           </span>
         )}
         <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
