@@ -3,7 +3,14 @@ import { Calendar } from '../Calendar';
 import { createPopper } from '@popperjs/core';
 import { ICalendar } from '../Calendar/types';
 import { DatepickerProps, PatroDate } from '../types/public';
-import { formatDate, isSupportedAdDate, languageOf, otherSystem, toAdDateString } from '../utils';
+import {
+  formatDate,
+  isSupportedAdDate,
+  languageOf,
+  otherSystem,
+  toAdDateString,
+  toPatroDate,
+} from '../utils';
 import { icons } from './icons';
 
 const DEFAULT_PLACEHOLDER = { en: 'Select a date', ne: 'मिति छान्नुहोस्' };
@@ -19,6 +26,7 @@ const Datepicker = (props: DatepickerProps) => {
     theme,
     locale,
     numerals,
+    formatValue,
     ...calendarProps
   } = props;
   const [isPopperVisible, setIsPopperVisible] = useState(false);
@@ -101,7 +109,11 @@ const Datepicker = (props: DatepickerProps) => {
         onClick={togglePopper}
         onKeyDown={onInputKeyDown}
       >
-        {shownAdDate ? (
+        {shownAdDate && formatValue ? (
+          <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
+            {formatValue(toPatroDate(shownAdDate))}
+          </span>
+        ) : shownAdDate ? (
           <>
             <span className='_patro_datepicker_input_primary'>
               {formatDate(shownAdDate, calendar, display)}

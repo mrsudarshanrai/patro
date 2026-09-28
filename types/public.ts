@@ -46,4 +46,6 @@ export interface DatepickerProps extends CalendarProps {
   label?: string;
   /** Shown when there's no value. Defaults to 'Select a date' / 'मिति छान्नुहोस्'. */
   placeholder?: string;
+  /** Custom input text for the selected date, replacing the default two-calendar text. */
+  formatValue?: (value: PatroDate) => string;
 }

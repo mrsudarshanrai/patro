@@ -169,3 +169,9 @@ test('locale and numerals apply to the input text and placeholder', () => {
   const { input: empty } = setup({ calendar: 'BS', locale: 'en', defaultValue: null });
   expect(empty).toHaveTextContent('Select a date');
 });
+
+test('formatValue replaces the input text', () => {
+  const { input } = setup({ formatValue: ({ bs, ad }) => `${bs} (${ad})` });
+  expect(input).toHaveTextContent('2083-07-12 (2026-10-29)');
+  expect(input.querySelector('._patro_datepicker_input_secondary')).toBeNull();
+});

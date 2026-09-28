@@ -86,7 +86,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label` and `placeholder`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`, `Locale`, `Numerals`.
+`Calendar` and `Datepicker` accept the same props (`Datepicker` also takes `label`, `placeholder` and `formatValue`). Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`, `Locale`, `Numerals`.
 
 | Prop                | Type                                       | Default                                 | Description                                                                                                             |
 | ------------------- | ------------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -107,6 +107,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `isDateDisabled`    | `(date: PatroDate) => boolean`             | -                                       | Disable individual days, e.g. `({ date }) => date.getDay() === 6` for Saturdays.                                        |
 | `label`             | `string`                                   | -                                       | `Datepicker` only. Text shown above the input.                                                                          |
 | `placeholder`       | `string`                                   | `'Select a date'` / `'मिति छान्नुहोस्'` | `Datepicker` only. Shown when there's no value.                                                                         |
+| `formatValue`       | `(value: PatroDate) => string`             | -                                       | `Datepicker` only. Custom input text, e.g. `({ bs }) => bs` for `2083-07-12`.                                           |
 
 ## Utilities
 
