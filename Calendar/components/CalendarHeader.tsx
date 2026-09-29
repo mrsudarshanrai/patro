@@ -25,7 +25,8 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
       >
         {icons['prevIcon']}
       </button>
-      <h3 className='_patro_header_info'>
+      {/* Not a heading: a component can't know the host page's heading levels. */}
+      <div className='_patro_header_info'>
         {onTitleClick ? (
           <button
             type='button'
@@ -39,7 +40,7 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
           <p className='_patro_header_title'>{title}</p>
         )}
         <p className='_patro_header_subtitle'>{subtitle}</p>
-      </h3>
+      </div>
       <button
         type='button'
         className='_patro_header_actionBtn'

@@ -228,9 +228,12 @@
 
   &_disabled,
   &_disabled:hover {
-    color: var(--patro-faint);
+    color: var(--patro-disabled);
     background-color: transparent;
     cursor: default;
+    sub {
+      color: var(--patro-disabled);
+    }
   }
 
   &_focused {
@@ -285,7 +288,7 @@
     }
     &:disabled {
       background: transparent;
-      color: var(--patro-faint);
+      color: var(--patro-disabled);
       cursor: default;
     }
   }
@@ -309,7 +312,7 @@
     font-family: inherit;
     font-size: 13px;
     font-weight: 500;
-    color: var(--patro-accent);
+    color: var(--patro-today);
     cursor: pointer;
     &:hover,
     &:focus-visible {
@@ -317,7 +320,7 @@
       outline: none;
     }
     &:disabled {
-      color: var(--patro-faint);
+      color: var(--patro-disabled);
       background: transparent;
       cursor: default;
     }
