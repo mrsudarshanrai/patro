@@ -93,10 +93,16 @@ The day grid is a single Tab stop with a visible focus ring.
 | Key                                               | Action                                               |
 | ------------------------------------------------- | ---------------------------------------------------- |
 | Arrow keys                                        | Move by one day / one week, changing month as needed |
-| PageUp / PageDown                                 | Previous / next month                                |
+| PageUp / PageDown                                 | Same day in the previous / next month                |
+| Shift + PageUp / PageDown                         | Same day in the previous / next year                 |
+| Home / End                                        | First / last day of the week                         |
 | Enter / Space                                     | Select the focused day                               |
 | Escape                                            | Close the Datepicker popover                         |
-| Enter / Space / ArrowDown on the Datepicker input | Open the popover                                     |
+| Enter / Space / ArrowDown on the Datepicker input | Open the popover and focus the day grid              |
+
+The month and year grids are also one Tab stop each: arrow keys, Home and End move, Enter picks.
+
+The Datepicker input is a WAI-ARIA select-only combobox (so `required`, `readOnly` and `invalid` are announced). Tabbing out of an open popover closes it. Default colours meet WCAG AA contrast, and Windows high-contrast mode (`forced-colors`) is supported.
 
 ## Theming
 
@@ -109,11 +115,13 @@ Colors, radii, and fonts are CSS custom properties scoped to `._patro`, not the 
 <Calendar style={{ '--patro-accent': 'teal' } as React.CSSProperties} />
 ```
 
+Text colour tokens (`--patro-muted`, `--patro-faint` for other months' days, …) meet 4.5:1 on `--patro-surface`; `--patro-disabled` colours days you can't pick.
+
 For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari) yourself — it isn't bundled or auto-injected. It falls back to your system sans-serif otherwise.
 
 ## Props
 
-`Calendar` and `Datepicker` share these props. Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `CalendarSystem`, `Locale`, `Numerals`.
+`Calendar` and `Datepicker` share these props. Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `PatroLabels`, `CalendarSystem`, `Locale`, `Numerals`.
 
 | Prop                | Type                                                             | Default             | Description                                                                                                                                               |
 | ------------------- | ---------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -133,6 +141,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `showTodayButton`   | `boolean`                                                        | `false`             | Show a "Today" button that jumps to and selects today.                                                                                                    |
 | `today`             | `Date`                                                           | visitor's clock     | The current date. See [Server rendering](#server-rendering-nextjs-remix).                                                                                 |
 | `labels`            | `Partial<PatroLabels>`                                           | display language    | Override accessible names and button text (`previousMonth`, `nextMonth`, `today`, `chooseDate`, `clear`, …). Defaults follow `locale`: English or Nepali. |
+| `autoFocus`         | `boolean`                                                        | `false`             | Focus the day grid on mount. On `Datepicker` it focuses the input instead.                                                                                |
 | `className`         | `string`                                                         | -                   | Added to the root element.                                                                                                                                |
 | `style`             | `CSSProperties`                                                  | -                   | Inline styles on the root, including `--patro-*` token overrides.                                                                                         |
 | `theme`             | `'light' \| 'dark'`                                              | -                   | Sets `data-theme` on the component root. See [Theming](#theming).                                                                                         |
