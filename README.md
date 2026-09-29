@@ -40,6 +40,20 @@ function App() {
 
 `Datepicker` renders an input that opens `Calendar` in a popover; picking a day closes it and updates the input.
 
+### Date ranges
+
+Set `mode='range'`. The first pick sets the start and the second the end; picking before the start, or after a complete range, starts over. While only the start is picked, hovering shows a preview.
+
+```tsx
+<Datepicker
+  mode='range'
+  label='Stay'
+  onChange={({ start, end }) => console.log(start?.ad, end?.ad)}
+/>
+```
+
+In range mode `value`/`defaultValue` are `{ start: Date | null; end: Date | null }` and `onChange` receives `{ start: PatroDate | null; end: PatroDate | null }` on every pick. The `Datepicker` closes once the end is picked, and `name='stay'` submits `stay[start]` and `stay[end]`. Band colour: `--patro-range-bg`.
+
 ### Controlled vs uncontrolled
 
 Pass `defaultValue` (or nothing, meaning today) and the component keeps track of the selection itself. Pass `value` to control it from your state:
@@ -93,11 +107,12 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` share these props. Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `CalendarSystem`, `Locale`, `Numerals`.
+`Calendar` and `Datepicker` share these props. Types are exported: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `CalendarSystem`, `Locale`, `Numerals`.
 
 | Prop                | Type                                                             | Default             | Description                                                                                                             |
 | ------------------- | ---------------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `calendar`          | `'AD' \| 'BS'`                                                   | `'AD'`              | Which calendar system to display.                                                                                       |
+| `mode`              | `'single' \| 'range'`                                            | `'single'`          | Pick one day, or a start and an end. See [Date ranges](#date-ranges).                                                   |
 | `value`             | `Date \| null`                                                   | -                   | Controlled selection. `null` = nothing selected.                                                                        |
 | `defaultValue`      | `Date \| null`                                                   | today               | Starting selection when uncontrolled. `null` = nothing selected.                                                        |
 | `onChange`          | `(value: PatroDate \| null) => void`                             | -                   | Called when a day is picked.                                                                                            |

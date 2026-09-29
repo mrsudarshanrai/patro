@@ -1,12 +1,20 @@
-import { KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
+import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
-import { CalendarProps } from '../types/public';
+import {
+  CalendarProps,
+  CalendarRangeProps,
+  CalendarSingleProps,
+  DateRange,
+  RangeSelection,
+  SingleSelection,
+} from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 import { CalendarPicker, PickerView } from './components/CalendarPicker';
 import {
+  adDateToLocalDate,
   addDays,
   clampAdDate,
   createDateString,
@@ -21,9 +29,15 @@ import {
   monthSpan,
   monthTitle,
   overlaps,
+  toAdDateString,
   toPatroDate,
   yearSpan,
 } from '../utils';
+
+const EMPTY_RANGE: DateRange = { start: null, end: null };
+
+const supportedAd = (date: Date | null | undefined) =>
+  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
 
 const TEXT = {
   en: { month: 'choose month', year: 'choose year', today: 'Today' },
@@ -38,7 +52,7 @@ const DAY_STEPS: Record<string, number> = {
   ArrowDown: 7,
 };
 
-const Calendar = (props: CalendarProps) => {
+const CalendarComponent = (props: CalendarProps) => {
   const {
     value,
     defaultValue,
@@ -60,11 +74,20 @@ const Calendar = (props: CalendarProps) => {
     className,
     style,
   } = props;
+  const isRange = props.mode === 'range';
   const isControlled = value !== undefined;
-  const [uncontrolledValue, setUncontrolledValue] = useState<Date | null>(
-    defaultValue === undefined ? new Date() : defaultValue,
+  const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
+    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : new Date(),
   );
-  const selectedDate = isControlled ? value : uncontrolledValue;
+  const currentValue = isControlled ? value : uncontrolledValue;
+  const currentRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
+  const range = currentRange && {
+    start: supportedAd(currentRange.start),
+    end: supportedAd(currentRange.end),
+  };
+  // In range mode the start anchors the view, like a single selection would.
+  const selectedDate = currentRange ? currentRange.start : (currentValue as Date | null);
+  const [hoverAdDate, setHoverAdDate] = useState<string>();
   const [focusedAdDate, setFocusedAdDate] = useState<string>();
   const [view, setView] = useState<PickerView>('days');
   const [pickerYear, setPickerYear] = useState(0);
@@ -148,10 +171,35 @@ const Calendar = (props: CalendarProps) => {
     ].find(inView) ?? monthStart;
 
   const onSelect = (adDate: string) => {
+    setFocusedAdDate(adDate);
+    if (range) {
+      const restart = !range.start || !!range.end || adDate < range.start;
+      const start = restart ? adDate : (range.start as string);
+      const end = restart ? null : adDate;
+      if (!isControlled) {
+        setUncontrolledValue({
+          start: adDateToLocalDate(start),
+          end: end ? adDateToLocalDate(end) : null,
+        });
+      }
+      (onChange as RangeSelection['onChange'])?.({
+        start: toPatroDate(start),
+        end: end ? toPatroDate(end) : null,
+      });
+      return;
+    }
     const selected = toPatroDate(adDate);
     if (!isControlled) setUncontrolledValue(selected.date);
-    setFocusedAdDate(adDate);
-    onChange?.(selected);
+    (onChange as SingleSelection['onChange'])?.(selected);
+  };
+
+  const previewEnd =
+    range?.start && !range.end
+      ? (hoverAdDate ?? (showFocusRing ? activeAdDate : undefined))
+      : undefined;
+  const gridRange = range && {
+    ...range,
+    preview: previewEnd && range.start && previewEnd >= range.start ? previewEnd : undefined,
   };
 
   const goToToday = () => {
@@ -288,6 +336,7 @@ const Calendar = (props: CalendarProps) => {
           aria-activedescendant={cellId(idPrefix, activeAdDate)}
           onKeyDown={onGridKeyDown}
           onMouseDown={() => (pointerDown.current = true)}
+          onMouseLeave={() => setHoverAdDate(undefined)}
           // Ring only for keyboard focus, like :focus-visible.
           onFocus={() => setShowFocusRing(!pointerDown.current)}
           onBlur={() => {
@@ -310,6 +359,8 @@ const Calendar = (props: CalendarProps) => {
             idPrefix={idPrefix}
             dayClassName={dayClassName}
             focusedAdDate={showFocusRing ? activeAdDate : undefined}
+            range={gridRange ?? undefined}
+            onHoverDay={isRange ? setHoverAdDate : undefined}
           />
         </div>
       ) : (
@@ -330,5 +381,14 @@ const Calendar = (props: CalendarProps) => {
     </div>
   );
 };
+
+// Overloads so `onChange` etc. are typed from `mode` even without strictNullChecks.
+type CalendarOverloads = {
+  (props: CalendarRangeProps): ReactElement;
+  (props: CalendarSingleProps): ReactElement;
+  (props: CalendarProps): ReactElement;
+};
+
+const Calendar = CalendarComponent as CalendarOverloads;
 
 export { Calendar };

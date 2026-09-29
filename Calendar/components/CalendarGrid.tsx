@@ -3,9 +3,27 @@ import { DisplayOptions, formatDate, formatNumber, otherSystem, toPatroDate } fr
 import { CalendarSystem } from '../../types/public';
 import { ICalendar } from '../types';
 
+type Range = NonNullable<ICalendar.CalendarGridProps['range']>;
+
+// Where a day sits in the selected (or previewed) range.
+const rangeState = (adDate: string, range?: Range) => {
+  if (!range?.start) return undefined;
+  const last = range.end ?? range.preview;
+  const hasBand = !!last && last !== range.start;
+  return {
+    selected: adDate === range.start || adDate === range.end,
+    ariaSelected: adDate >= range.start && adDate <= (range.end ?? range.start),
+    start: hasBand && adDate === range.start,
+    end: hasBand && adDate === last,
+    inside: !!last && adDate > range.start && adDate < last,
+    preview: !range.end && !!range.preview,
+  };
+};
+
 const cellClassName = (
   { isToday, isSelected, isDisabled, isWeekend, offset }: IUseCalendarData.IDates,
   isFocused: boolean,
+  inRange?: ReturnType<typeof rangeState>,
 ) =>
   [
     '_patro_dates_date',
@@ -13,7 +31,11 @@ const cellClassName = (
     isWeekend && '_patro_dates_weekend',
     offset && '_patro_dates_date_offset',
     offset && `_patro_dates_${offset}_month_date_offset`,
-    isSelected && '_patro_dates_current_date',
+    (inRange ? inRange.selected : isSelected) && '_patro_dates_current_date',
+    inRange?.start && '_patro_dates_range_start',
+    inRange?.end && '_patro_dates_range_end',
+    inRange?.inside && '_patro_dates_in_range',
+    inRange?.preview && (inRange.inside || inRange.end) && '_patro_dates_range_preview',
     isToday && '_patro_dates_today',
     isDisabled && '_patro_dates_disabled',
     isFocused && '_patro_dates_focused',
@@ -41,6 +63,8 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
     idPrefix,
     focusedAdDate,
     dayClassName,
+    range,
+    onHoverDay,
   } = props;
   return (
     <>
@@ -49,18 +73,22 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
           <div key={i} className='_patro_dates' role='row'>
             {days.map((date: IUseCalendarData.IDates, index: number) => {
               const { adDate, day, secondaryDay } = date;
+              const inRange = range && rangeState(adDate, range);
               return (
                 <p
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
-                  aria-selected={date.isSelected}
+                  aria-selected={inRange ? inRange.ariaSelected : date.isSelected}
                   aria-disabled={date.isDisabled || undefined}
                   aria-label={cellLabel(date, display)}
                   title={adDate}
                   onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
+                  onMouseEnter={
+                    onHoverDay && !date.isDisabled ? () => onHoverDay(adDate) : undefined
+                  }
                   key={i + index}
                   className={[
-                    cellClassName(date, adDate === focusedAdDate),
+                    cellClassName(date, adDate === focusedAdDate, inRange),
                     secondaryDay !== null && dayClassName?.(toPatroDate(adDate)),
                   ]
                     .filter(Boolean)

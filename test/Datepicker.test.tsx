@@ -4,6 +4,7 @@ import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Datepicker } from '../Datepicker';
+import type { DatepickerBaseProps, PatroDate, SingleSelection } from '../types/public';
 
 const TODAY = new Date(2026, 9, 29);
 
@@ -15,7 +16,11 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const setup = (props: Partial<Parameters<typeof Datepicker>[0]> = {}) => {
+type SingleProps = Partial<
+  DatepickerBaseProps & SingleSelection & { formatValue?: (value: PatroDate) => string }
+>;
+
+const setup = (props: SingleProps = {}) => {
   const user = userEvent.setup();
   const utils = render(<Datepicker defaultValue={TODAY} {...props} />);
   const input = utils.container.querySelector('[aria-haspopup="dialog"]') as HTMLElement;
@@ -318,4 +323,72 @@ test('className and style go on the Datepicker root only', async () => {
 
   await user.click(input);
   expect(container.querySelector('._patro_container')).not.toHaveClass('my-picker');
+});
+
+describe('range mode', () => {
+  const setupRange = (props: Record<string, unknown> = {}) => {
+    const user = userEvent.setup();
+    const utils = render(<Datepicker mode='range' {...props} />);
+    const input = utils.container.querySelector('[aria-haspopup="dialog"]') as HTMLElement;
+    return { user, input, ...utils };
+  };
+
+  test('shows the range, and closes only once the end is picked', async () => {
+    const { user, input } = setupRange();
+    expect(input).toHaveTextContent('Select dates');
+    await user.click(input);
+    await user.click(screen.getByTitle('2026-10-05'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(input).toHaveTextContent('5 October 2026 – …');
+
+    await user.click(screen.getByTitle('2026-10-09'));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(input).toHaveTextContent('5 Oct – 9 Oct 2026');
+  });
+
+  test('writes the year on both ends when they differ, and works in BS', () => {
+    const { input, unmount } = setupRange({
+      defaultValue: { start: new Date(2026, 11, 28), end: new Date(2027, 0, 3) },
+    });
+    expect(input).toHaveTextContent('28 Dec 2026 – 3 Jan 2027');
+    unmount();
+
+    const { input: bs } = setupRange({
+      calendar: 'BS',
+      defaultValue: { start: new Date(2026, 9, 21), end: new Date(2026, 9, 25) },
+    });
+    expect(bs).toHaveTextContent('४ कार्तिक – ८ कार्तिक २०८३');
+  });
+
+  test('submits both ends with a form, and clearing resets both', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <form>
+        <Datepicker
+          mode='range'
+          name='stay'
+          clearable
+          defaultValue={{ start: new Date(2026, 9, 5), end: new Date(2026, 9, 9) }}
+          onChange={onChange}
+        />
+      </form>,
+    );
+    const form = () => new FormData(container.querySelector('form') as HTMLFormElement);
+    expect(form().get('stay[start]')).toBe('2026-10-05');
+    expect(form().get('stay[end]')).toBe('2026-10-09');
+
+    await user.click(screen.getByLabelText('Clear date'));
+    expect(onChange).toHaveBeenCalledWith({ start: null, end: null });
+    expect(form().get('stay[start]')).toBe('');
+  });
+
+  test('formatValue receives the range', () => {
+    const { input } = setupRange({
+      defaultValue: { start: new Date(2026, 9, 5), end: new Date(2026, 9, 9) },
+      formatValue: ({ start, end }: { start: { bs: string }; end: { bs: string } }) =>
+        `${start.bs} → ${end.bs}`,
+    });
+    expect(input).toHaveTextContent('2083-06-19 → 2083-06-23');
+  });
 });

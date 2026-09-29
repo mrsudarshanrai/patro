@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
+import type { CalendarBaseProps, SingleSelection } from '../types/public';
 
 const TODAY = new Date(2026, 9, 29);
 
@@ -130,7 +131,7 @@ describe('keyboard navigation', () => {
   const focused = (container: HTMLElement) =>
     container.querySelector('._patro_dates_focused')?.getAttribute('title');
 
-  const setup = (props: Partial<Parameters<typeof Calendar>[0]> = {}) => {
+  const setup = (props: Partial<CalendarBaseProps & SingleSelection> = {}) => {
     const user = userEvent.setup();
     const utils = render(<Calendar defaultValue={TODAY} {...props} />);
     const grid = screen.getByRole('grid');
@@ -548,4 +549,109 @@ test('the year page subtitle shows the span in the other calendar', async () => 
   expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
     'Apr 2019 – Apr 2031',
   );
+});
+
+describe('range mode', () => {
+  const classesOf = (container: HTMLElement, adDate: string) => cell(container, adDate).className;
+
+  test('first click sets the start, second the end', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(<Calendar mode='range' onChange={onChange} />);
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+
+    await user.click(cell(container, '2026-10-05'));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-05' }),
+      end: null,
+    });
+    await user.click(cell(container, '2026-10-09'));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-05' }),
+      end: expect.objectContaining({ ad: '2026-10-09', bs: '2083-06-23' }),
+    });
+
+    expect(classesOf(container, '2026-10-05')).toMatch(/_current_date.*_range_start/);
+    expect(classesOf(container, '2026-10-07')).toContain('_patro_dates_in_range');
+    expect(classesOf(container, '2026-10-09')).toMatch(/_current_date.*_range_end/);
+    expect(classesOf(container, '2026-10-10')).not.toContain('_patro_dates_in_range');
+    const selected = container.querySelectorAll('[aria-selected="true"]');
+    expect(Array.from(selected, (el) => el.getAttribute('title'))).toEqual([
+      '2026-10-05',
+      '2026-10-06',
+      '2026-10-07',
+      '2026-10-08',
+      '2026-10-09',
+    ]);
+  });
+
+  test('hovering previews the range until the end is picked', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar mode='range' />);
+    await user.click(cell(container, '2026-10-05'));
+    await user.hover(cell(container, '2026-10-08'));
+    expect(classesOf(container, '2026-10-06')).toMatch(/_in_range.*_range_preview/);
+    expect(classesOf(container, '2026-10-08')).toMatch(/_range_end.*_range_preview/);
+    expect(cell(container, '2026-10-06')).toHaveAttribute('aria-selected', 'false');
+
+    await user.hover(cell(container, '2026-10-02'));
+    expect(container.querySelector('._patro_dates_in_range')).toBeNull();
+  });
+
+  test('a click before the start, or after a full range, starts over', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(<Calendar mode='range' onChange={onChange} />);
+    await user.click(cell(container, '2026-10-10'));
+    await user.click(cell(container, '2026-10-04'));
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ start: expect.objectContaining({ ad: '2026-10-04' }), end: null }),
+    );
+    await user.click(cell(container, '2026-10-06'));
+    await user.click(cell(container, '2026-10-20'));
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ start: expect.objectContaining({ ad: '2026-10-20' }), end: null }),
+    );
+  });
+
+  test('a one-day range is allowed', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(<Calendar mode='range' onChange={onChange} />);
+    await user.click(cell(container, '2026-10-05'));
+    await user.click(cell(container, '2026-10-05'));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-05' }),
+      end: expect.objectContaining({ ad: '2026-10-05' }),
+    });
+  });
+
+  test('ranges can span months, and the keyboard picks both ends', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar mode='range' defaultValue={{ start: null, end: null }} onChange={onChange} />,
+    );
+    screen.getByRole('grid').focus();
+    await user.keyboard('{Enter}{ArrowDown}');
+    expect(container.querySelector('._patro_dates_range_preview')).not.toBeNull();
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(title(container)).toBe('November 2026');
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-29' }),
+      end: expect.objectContaining({ ad: '2026-11-12' }),
+    });
+    expect(classesOf(container, '2026-11-01')).toContain('_patro_dates_in_range');
+  });
+
+  test('controlled range follows value', () => {
+    const { container } = render(
+      <Calendar
+        mode='range'
+        value={{ start: new Date(2026, 9, 5), end: new Date(2026, 9, 7) }}
+        onChange={() => undefined}
+      />,
+    );
+    expect(classesOf(container, '2026-10-06')).toContain('_patro_dates_in_range');
+  });
 });

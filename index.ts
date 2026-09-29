@@ -3,8 +3,14 @@ export * from './Datepicker';
 export { ad2Bs, bs2Ad } from './utils';
 export type {
   CalendarProps,
+  CalendarRangeProps,
+  CalendarSingleProps,
   CalendarSystem,
+  DateRange,
+  PatroDateRange,
   DatepickerProps,
+  DatepickerRangeProps,
+  DatepickerSingleProps,
   Locale,
   Numerals,
   PatroDate,

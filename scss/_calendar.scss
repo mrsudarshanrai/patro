@@ -1,4 +1,5 @@
 ._patro_container {
+  box-sizing: border-box;
   width: 288px;
   height: fit-content;
   padding: 8px 8px 10px;
@@ -195,6 +196,19 @@
       border-radius: 1px;
       background: var(--patro-accent);
     }
+  }
+
+  &_in_range {
+    background-color: var(--patro-range-bg);
+  }
+
+  &_range_preview {
+    background-color: color-mix(in srgb, var(--patro-range-bg) 55%, transparent);
+  }
+
+  &_range_end#{&}_range_preview {
+    outline: 1px dashed var(--patro-accent);
+    outline-offset: -1px;
   }
 
   &_current_date {
