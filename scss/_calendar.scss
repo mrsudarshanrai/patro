@@ -426,7 +426,7 @@
   height: 28px;
   flex: none;
 }
+// Empty but still a gridcell, so rows keep their cells for assistive tech.
 ._patro_dates_hidden {
-  visibility: hidden;
   pointer-events: none;
 }
