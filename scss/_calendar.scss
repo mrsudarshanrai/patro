@@ -406,3 +406,27 @@
   line-height: 1;
   pointer-events: none;
 }
+
+// numberOfMonths: months side by side, wrapping on narrow screens.
+._patro_container_multi {
+  width: max-content;
+  max-width: 100%;
+}
+._patro_months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+._patro_month {
+  width: 272px;
+  min-width: 0;
+}
+._patro_header_spacer {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+._patro_dates_hidden {
+  visibility: hidden;
+  pointer-events: none;
+}

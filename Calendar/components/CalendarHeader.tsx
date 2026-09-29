@@ -13,18 +13,24 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
     prevMonth,
     canNextMonth,
     canPrevMonth,
+    showPrev = true,
+    showNext = true,
   } = props;
   return (
     <header className='_patro_header'>
-      <button
-        type='button'
-        className='_patro_header_actionBtn'
-        aria-label={prevLabel}
-        disabled={!canPrevMonth}
-        onClick={() => prevMonth()}
-      >
-        {icons['prevIcon']}
-      </button>
+      {showPrev ? (
+        <button
+          type='button'
+          className='_patro_header_actionBtn'
+          aria-label={prevLabel}
+          disabled={!canPrevMonth}
+          onClick={() => prevMonth()}
+        >
+          {icons['prevIcon']}
+        </button>
+      ) : (
+        <span className='_patro_header_spacer' />
+      )}
       {/* Not a heading: a component can't know the host page's heading levels. */}
       <div className='_patro_header_info'>
         {onTitleClick ? (
@@ -41,15 +47,19 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
         )}
         <p className='_patro_header_subtitle'>{subtitle}</p>
       </div>
-      <button
-        type='button'
-        className='_patro_header_actionBtn'
-        aria-label={nextLabel}
-        disabled={!canNextMonth}
-        onClick={() => nextMonth()}
-      >
-        {icons['nextIcon']}
-      </button>
+      {showNext ? (
+        <button
+          type='button'
+          className='_patro_header_actionBtn'
+          aria-label={nextLabel}
+          disabled={!canNextMonth}
+          onClick={() => nextMonth()}
+        >
+          {icons['nextIcon']}
+        </button>
+      ) : (
+        <span className='_patro_header_spacer' />
+      )}
     </header>
   );
 };

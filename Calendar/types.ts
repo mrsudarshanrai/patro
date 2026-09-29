@@ -20,6 +20,8 @@ export namespace ICalendar {
     focusedAdDate?: string;
     dayClassName?: (date: PatroDate) => string | undefined;
     dayContent?: (date: PatroDate) => ReactNode;
+    /** Blank out other months' days, e.g. when several months are shown. */
+    hideOutsideDays?: boolean;
     dayLabel?: (date: PatroDate) => string | undefined;
     range?: { start: string | null; end: string | null; preview?: string };
     onHoverDay?: (adDate?: string) => void;
@@ -30,6 +32,8 @@ export namespace ICalendar {
     subtitle: string;
     onTitleClick?: () => void;
     titleActionLabel?: string;
+    showPrev?: boolean;
+    showNext?: boolean;
     prevLabel: string;
     nextLabel: string;
     nextMonth: () => void;

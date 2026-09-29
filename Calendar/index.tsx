@@ -1,5 +1,5 @@
 import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
-import { useCalendarData } from '../hooks/useCalendarData';
+import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
 import { useToday } from '../hooks/useToday';
 import {
   CalendarProps,
@@ -21,6 +21,7 @@ import {
   datePartsIn,
   DisplayOptions,
   formatNumber,
+  getMonthGrid,
   isSupportedAdDate,
   labelsFor,
   monthName,
@@ -73,6 +74,7 @@ const CalendarComponent = (props: CalendarProps) => {
     today,
     labels,
     autoFocus = false,
+    numberOfMonths = 1,
     className,
     style,
   } = props;
@@ -95,7 +97,7 @@ const CalendarComponent = (props: CalendarProps) => {
   const [pickerYear, setPickerYear] = useState(0);
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const gridRefs = useRef<(HTMLDivElement | null)[]>([]);
   const idPrefix = useId();
   const todayAdDate = useToday(today);
 
@@ -148,11 +150,6 @@ const CalendarComponent = (props: CalendarProps) => {
 
   useEffect(() => setView('days'), [calendar]);
 
-  // preventScroll: a popover may not be positioned yet on its first frame.
-  useEffect(() => {
-    if (autoFocus) gridRef.current?.focus({ preventScroll: true });
-  }, [autoFocus]);
-
   const display: DisplayOptions = { locale, numerals };
   const text = labelsFor(calendar, display, labels);
   const [viewYear, viewMonth] = datePartsIn(firstAdDate, calendar);
@@ -170,7 +167,27 @@ const CalendarComponent = (props: CalendarProps) => {
   const todayAllowed =
     !!todayAdDate && isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
 
-  const ownDays = dates.flat().filter((cell) => !cell.offset);
+  // The first month comes from the hook; with numberOfMonths, the next ones follow it.
+  const monthCount = Math.max(1, Math.floor(numberOfMonths));
+  const multi = monthCount > 1;
+  const months = [{ first: firstAdDate, last: lastAdDate, dates }];
+  for (let i = 1; i < monthCount; i++) {
+    const anchor = stepViewAnchor(months[i - 1].first, calendar, 1);
+    // No months past the end of the BS table.
+    if (anchor === months[i - 1].first) break;
+    const [first, last] = monthBounds(calendar, anchor);
+    const grid = getMonthGrid(calendar, anchor, selectedAdDate, isDayDisabled, {
+      weekStartsOn,
+      fixedWeeks,
+      weekendDays,
+      today: todayAdDate,
+    });
+    months.push({ first, last, dates: grid });
+  }
+  const visibleStart = months[0].first;
+  const visibleEnd = months[months.length - 1].last;
+
+  const ownDays = months.flatMap((month) => month.dates.flat().filter((cell) => !cell.offset));
   const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
   const monthCells = enabledDays.length ? enabledDays : ownDays;
   const monthStart = monthCells[0].adDate;
@@ -181,6 +198,27 @@ const CalendarComponent = (props: CalendarProps) => {
   const activeAdDate =
     [focusedAdDate, selectedAdDate ?? undefined, todayAdDate ?? undefined].find(inView) ??
     monthStart;
+
+  const activeMonth = Math.max(
+    0,
+    months.findIndex((month) => activeAdDate >= month.first && activeAdDate <= month.last),
+  );
+
+  // preventScroll: a popover may not be positioned yet on its first frame.
+  useEffect(() => {
+    if (autoFocus) gridRefs.current[activeMonth]?.focus({ preventScroll: true });
+    // Only on mount / when autoFocus turns on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFocus]);
+
+  // Keyboard focus moving into another visible month moves DOM focus to that month's grid.
+  useEffect(() => {
+    const grids = gridRefs.current;
+    const focusedGrid = grids.find((grid) => grid && grid === document.activeElement);
+    if (focusedGrid && focusedGrid !== grids[activeMonth]) {
+      grids[activeMonth]?.focus({ preventScroll: true });
+    }
+  }, [activeMonth]);
 
   const isValidEnd = (start: string, end: string) => {
     if (end < start) return false;
@@ -349,11 +387,16 @@ const CalendarComponent = (props: CalendarProps) => {
     return target > span[1] ? span[1] : target;
   };
 
+  // Scroll only when the day is outside the visible months: onto the first, or the last.
   const moveFocus = (adDate: string | null) => {
     setShowFocusRing(true);
     if (!adDate || adDate < minAdDate || adDate > maxAdDate) return;
     const [year, month] = datePartsIn(adDate, calendar);
-    goToMonth(year, month);
+    if (adDate < visibleStart) goToMonth(year, month);
+    else if (adDate > visibleEnd) {
+      const index = year * 12 + month - 1 - (months.length - 1);
+      goToMonth(Math.floor(index / 12), (index % 12) + 1);
+    }
     setFocusedAdDate(adDate);
   };
 
@@ -388,7 +431,9 @@ const CalendarComponent = (props: CalendarProps) => {
 
   return (
     <div
-      className={['_patro_container _patro', className].filter(Boolean).join(' ')}
+      className={['_patro_container _patro', multi && '_patro_container_multi', className]
+        .filter(Boolean)
+        .join(' ')}
       style={style}
       data-calendar-type={calendar}
       data-theme={theme}
@@ -400,60 +445,82 @@ const CalendarComponent = (props: CalendarProps) => {
         setView('days');
       }}
     >
-      <CalendarHeader
-        nextMonth={header.next}
-        prevMonth={header.prev}
-        canNextMonth={header.canNext}
-        canPrevMonth={header.canPrev}
-        title={header.title}
-        subtitle={header.subtitle}
-        onTitleClick={header.onTitleClick}
-        titleActionLabel={header.titleActionLabel}
-        prevLabel={header.prevLabel}
-        nextLabel={header.nextLabel}
-      />
-      {view === 'days' ? (
-        <div
-          ref={gridRef}
-          className='_patro_grid'
-          role='grid'
-          tabIndex={0}
-          aria-label={header.title}
-          aria-activedescendant={cellId(idPrefix, activeAdDate)}
-          onKeyDown={onGridKeyDown}
-          onMouseDown={() => (pointerDown.current = true)}
-          onMouseLeave={() => setHoverAdDate(undefined)}
-          // Ring only for keyboard focus, like :focus-visible.
-          onFocus={() => setShowFocusRing(!pointerDown.current)}
-          onBlur={() => {
-            pointerDown.current = false;
-            setShowFocusRing(false);
-          }}
-        >
-          <CalendarDays
-            calendar={calendar}
-            display={display}
-            weekStartsOn={weekStartsOn}
-            weekendDays={weekendDays}
-          />
-          <CalendarGrid
-            dates={dates}
-            calendar={calendar}
-            display={display}
-            onSelect={onSelect}
-            showSecondaryDate={showSecondaryDate}
-            idPrefix={idPrefix}
-            dayClassName={dayClassName}
-            dayContent={dayContent}
-            dayLabel={dayLabel}
-            focusedAdDate={showFocusRing ? activeAdDate : undefined}
-            range={gridRange ?? undefined}
-            onHoverDay={isRange ? setHoverAdDate : undefined}
-          />
-        </div>
-      ) : (
-        <CalendarPicker items={pickerItems} label={header.title} onPick={onPick} />
-      )}
+      <div className='_patro_months'>
+        {months.map((month, index) => {
+          const isFirst = index === 0;
+          const isLast = index === months.length - 1;
+          const title = isFirst ? header.title : monthTitle(month.first, calendar, display);
+          const hasActive = index === activeMonth;
+          return (
+            // Keyed by position: a month change must not remount the focused grid.
+            <div className='_patro_month' key={index}>
+              <CalendarHeader
+                nextMonth={header.next}
+                prevMonth={header.prev}
+                canNextMonth={header.canNext}
+                canPrevMonth={header.canPrev}
+                // Arrows on the outer months only; the first month's title opens the pickers.
+                showPrev={isFirst}
+                showNext={view === 'days' ? isLast : isFirst}
+                title={title}
+                subtitle={
+                  isFirst ? header.subtitle : monthRange(month.first, month.last, calendar, display)
+                }
+                onTitleClick={isFirst ? header.onTitleClick : undefined}
+                titleActionLabel={isFirst ? header.titleActionLabel : undefined}
+                prevLabel={header.prevLabel}
+                nextLabel={header.nextLabel}
+              />
+              {isFirst && view !== 'days' ? (
+                <CalendarPicker items={pickerItems} label={header.title} onPick={onPick} />
+              ) : (
+                <div
+                  ref={(node) => {
+                    gridRefs.current[index] = node;
+                  }}
+                  className='_patro_grid'
+                  role='grid'
+                  // One Tab stop across all months: the grid holding the active day.
+                  tabIndex={hasActive ? 0 : -1}
+                  aria-label={title}
+                  aria-activedescendant={hasActive ? cellId(idPrefix, activeAdDate) : undefined}
+                  onKeyDown={onGridKeyDown}
+                  onMouseDown={() => (pointerDown.current = true)}
+                  onMouseLeave={() => setHoverAdDate(undefined)}
+                  // Ring only for keyboard focus, like :focus-visible.
+                  onFocus={() => setShowFocusRing(!pointerDown.current)}
+                  onBlur={() => {
+                    pointerDown.current = false;
+                    setShowFocusRing(false);
+                  }}
+                >
+                  <CalendarDays
+                    calendar={calendar}
+                    display={display}
+                    weekStartsOn={weekStartsOn}
+                    weekendDays={weekendDays}
+                  />
+                  <CalendarGrid
+                    dates={month.dates}
+                    calendar={calendar}
+                    display={display}
+                    onSelect={onSelect}
+                    showSecondaryDate={showSecondaryDate}
+                    idPrefix={idPrefix}
+                    dayClassName={dayClassName}
+                    dayContent={dayContent}
+                    dayLabel={dayLabel}
+                    focusedAdDate={showFocusRing ? activeAdDate : undefined}
+                    range={gridRange ?? undefined}
+                    onHoverDay={isRange ? setHoverAdDate : undefined}
+                    hideOutsideDays={multi}
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
       {presets.length > 0 && (
         <div className='_patro_presets' role='group' aria-label={text.presets}>
           {presets.map((preset) => (

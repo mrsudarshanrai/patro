@@ -126,6 +126,8 @@ export interface CalendarBaseProps {
   today?: Date;
   /** Override accessible names and button text, e.g. for a language other than English or Nepali. */
   labels?: Partial<PatroLabels>;
+  /** Months shown side by side, e.g. 2 for picking a stay. Other months' days are hidden then. */
+  numberOfMonths?: number;
   /** Focus the day grid on mount, e.g. when the calendar opens in a dialog. */
   autoFocus?: boolean;
   /** Added to the root element. */

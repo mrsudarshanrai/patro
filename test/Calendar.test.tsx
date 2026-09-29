@@ -579,6 +579,69 @@ test('onMonthChange reports the new month, not the initial one', async () => {
   });
 });
 
+describe('numberOfMonths', () => {
+  const titles = (container: HTMLElement) =>
+    Array.from(container.querySelectorAll('._patro_header_title'), (el) => el.textContent);
+
+  test('shows consecutive months, hiding other months’ days so none repeats', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);
+    expect(titles(container)).toEqual(['October 2026', 'November 2026']);
+    expect(container.querySelectorAll('[title="2026-11-01"]')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Previous month')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Next month')).toHaveLength(1);
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(titles(container)).toEqual(['November 2026', 'December 2026']);
+  });
+
+  test('one Tab stop; arrow keys cross into the next month without scrolling', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);
+    const grids = screen.getAllByRole('grid');
+    expect(grids.map((grid) => grid.tabIndex)).toEqual([0, -1]);
+
+    // Previous month, the title, then the first grid (the first month has no Next arrow).
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    expect(grids[0]).toHaveFocus();
+    await user.keyboard('{ArrowDown}');
+    expect(grids[1]).toHaveFocus();
+    expect(grids[1]).toHaveAttribute('aria-activedescendant', expect.stringMatching(/2026-11-05$/));
+    expect(titles(container)).toEqual(['October 2026', 'November 2026']);
+
+    await user.keyboard('{PageDown}');
+    expect(titles(container)).toEqual(['November 2026', 'December 2026']);
+    expect(grids[1]).toHaveFocus();
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-12-05');
+
+    await user.keyboard('{Shift>}{PageUp}{/Shift}');
+    expect(titles(container)).toEqual(['December 2025', 'January 2026']);
+    expect(grids[0]).toHaveFocus();
+  });
+
+  test('a range can start in one month and end in the next', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(<Calendar mode='range' numberOfMonths={2} onChange={onChange} />);
+    await user.click(cell(container, '2026-10-28'));
+    await user.click(cell(container, '2026-11-03'));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-28' }),
+      end: expect.objectContaining({ ad: '2026-11-03' }),
+    });
+    expect(cell(container, '2026-11-01')).toHaveClass('_patro_dates_in_range');
+  });
+
+  test('BS months follow BS month boundaries', () => {
+    const { container } = render(
+      <Calendar calendar='BS' defaultValue={TODAY} numberOfMonths={2} />,
+    );
+    expect(titles(container)).toEqual(['कार्तिक २०८३', 'मंसिर २०८३']);
+  });
+});
+
 describe('presets', () => {
   const addDays = (date: Date, days: number) =>
     new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);

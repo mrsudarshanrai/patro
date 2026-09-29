@@ -65,6 +65,7 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
     dayClassName,
     dayContent,
     dayLabel,
+    hideOutsideDays,
     range,
     onHoverDay,
   } = props;
@@ -75,6 +76,15 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
           <div key={i} className='_patro_dates' role='row'>
             {days.map((date: IUseCalendarData.IDates, index: number) => {
               const { adDate, day, secondaryDay } = date;
+              if (hideOutsideDays && date.offset) {
+                return (
+                  <p
+                    key={i + index}
+                    role='gridcell'
+                    className='_patro_dates_date _patro_dates_hidden'
+                  />
+                );
+              }
               const inRange = range && rangeState(adDate, range);
               // Days outside the BS table have no PatroDate.
               const patroDate = secondaryDay !== null ? toPatroDate(adDate) : null;
