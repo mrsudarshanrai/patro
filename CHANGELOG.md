@@ -16,7 +16,7 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - Date-range selection: `mode="range"` on both components.
 - `minDate`, `maxDate`, `isDateDisabled` for disabling individual days or ranges.
 - `locale` and `numerals` — display month/weekday names and digits in English/Nepali independent of the calendar system.
-- `weekStartsOn`, `fixedWeeks`, `weekendDays`, `dayClassName` for holidays/events.
+- `weekStartsOn`, `fixedWeeks`, `weekendDays`; `dayClassName`, `dayContent` and `dayLabel` for holidays/events.
 - `defaultMonth` (month shown with no selection) and a controlled `month`.
 - Click-to-navigate month and year pickers, plus a `showTodayButton`.
 - Full keyboard support following the WAI-ARIA date picker pattern: arrows, PageUp/PageDown by month, Shift+PageUp/PageDown by year, Home/End, Enter/Escape, arrow keys in the month/year grids, and a visible focus ring. A keyboard-opened `Datepicker` focuses the grid and closes when focus leaves.

@@ -63,6 +63,8 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
     idPrefix,
     focusedAdDate,
     dayClassName,
+    dayContent,
+    dayLabel,
     range,
     onHoverDay,
   } = props;
@@ -74,13 +76,17 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
             {days.map((date: IUseCalendarData.IDates, index: number) => {
               const { adDate, day, secondaryDay } = date;
               const inRange = range && rangeState(adDate, range);
+              // Days outside the BS table have no PatroDate.
+              const patroDate = secondaryDay !== null ? toPatroDate(adDate) : null;
+              const extraLabel = patroDate && dayLabel?.(patroDate);
+              const content = patroDate && dayContent?.(patroDate);
               return (
                 <p
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
                   aria-selected={inRange ? inRange.ariaSelected : date.isSelected}
                   aria-disabled={date.isDisabled || undefined}
-                  aria-label={cellLabel(date, display)}
+                  aria-label={[cellLabel(date, display), extraLabel].filter(Boolean).join(', ')}
                   title={adDate}
                   onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
                   onMouseEnter={
@@ -89,7 +95,7 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                   key={i + index}
                   className={[
                     cellClassName(date, adDate === focusedAdDate, inRange),
-                    secondaryDay !== null && dayClassName?.(toPatroDate(adDate)),
+                    patroDate && dayClassName?.(patroDate),
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -99,6 +105,9 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
                   </span>
                   {showSecondaryDate && (
                     <sub>{number(secondaryDay, otherSystem(calendar), display)}</sub>
+                  )}
+                  {content != null && content !== false && (
+                    <span className='_patro_dates_content'>{content}</span>
                   )}
                 </p>
               );

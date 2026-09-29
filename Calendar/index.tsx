@@ -63,6 +63,8 @@ const CalendarComponent = (props: CalendarProps) => {
     fixedWeeks = true,
     weekendDays,
     dayClassName,
+    dayContent,
+    dayLabel,
     onMonthChange,
     month,
     defaultMonth,
@@ -393,6 +395,8 @@ const CalendarComponent = (props: CalendarProps) => {
             showSecondaryDate={showSecondaryDate}
             idPrefix={idPrefix}
             dayClassName={dayClassName}
+            dayContent={dayContent}
+            dayLabel={dayLabel}
             focusedAdDate={showFocusRing ? activeAdDate : undefined}
             range={gridRange ?? undefined}
             onHoverDay={isRange ? setHoverAdDate : undefined}

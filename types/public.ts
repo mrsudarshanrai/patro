@@ -1,4 +1,4 @@
-import type { CSSProperties, FocusEvent } from 'react';
+import type { CSSProperties, FocusEvent, ReactNode } from 'react';
 
 export type CalendarSystem = 'AD' | 'BS';
 export type Locale = 'en' | 'ne';
@@ -85,6 +85,10 @@ export interface CalendarBaseProps {
   weekendDays?: number[];
   /** Extra class names for a day, e.g. to mark holidays or events. */
   dayClassName?: (date: PatroDate) => string | undefined;
+  /** Extra content inside a day, e.g. an event dot; shown in its top-left corner. Visual only: pair it with `dayLabel`. */
+  dayContent?: (date: PatroDate) => ReactNode;
+  /** Extra text for a day's accessible name, e.g. a holiday: "12 October 2026, …, Dashain". */
+  dayLabel?: (date: PatroDate) => string | undefined;
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
   /** Month to show when nothing is selected, e.g. decades back for a date of birth. Defaults to today's. */

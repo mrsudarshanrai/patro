@@ -547,6 +547,23 @@ test('dayClassName adds your own classes, e.g. for holidays', () => {
   expect(cell(container, '2026-10-22')).not.toHaveClass('holiday');
 });
 
+test('dayContent adds content to a day and dayLabel extends its accessible name', () => {
+  const holidays: Record<string, string> = { '2083-06-26': 'Dashain' };
+  const { container } = render(
+    <Calendar
+      defaultValue={TODAY}
+      dayContent={({ bs }) => holidays[bs] && <i className='dot' />}
+      dayLabel={({ bs }) => holidays[bs]}
+    />,
+  );
+  // 2026-10-12 = BS 2083-06-26.
+  const holiday = cell(container, '2026-10-12');
+  expect(holiday.querySelector('._patro_dates_content .dot')).not.toBeNull();
+  expect(holiday).toHaveAccessibleName('12 October 2026, २६ आश्विन २०८३, Dashain');
+  expect(cell(container, '2026-10-13').querySelector('._patro_dates_content')).toBeNull();
+  expect(cell(container, '2026-10-13')).toHaveAccessibleName('13 October 2026, २७ आश्विन २०८३');
+});
+
 test('onMonthChange reports the new month, not the initial one', async () => {
   const user = userEvent.setup();
   const onMonthChange = jest.fn();

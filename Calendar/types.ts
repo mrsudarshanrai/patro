@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { CalendarSystem, PatroDate } from '../types/public';
 import { DisplayOptions } from '../utils/formatUtils';
@@ -18,6 +19,8 @@ export namespace ICalendar {
     idPrefix: string;
     focusedAdDate?: string;
     dayClassName?: (date: PatroDate) => string | undefined;
+    dayContent?: (date: PatroDate) => ReactNode;
+    dayLabel?: (date: PatroDate) => string | undefined;
     range?: { start: string | null; end: string | null; preview?: string };
     onHoverDay?: (adDate?: string) => void;
   };
