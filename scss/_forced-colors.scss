@@ -1,0 +1,89 @@
+// Windows high contrast replaces colours and drops box-shadows, which carry most states here.
+// Redraw them with outlines and system colours.
+@media (forced-colors: active) {
+  ._patro_container {
+    outline: 1px solid CanvasText;
+  }
+
+  ._patro button:focus-visible,
+  ._patro_header_titleBtn:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  ._patro_picker_item[aria-current='true'] {
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
+  }
+
+  ._patro_dates_date {
+    &._patro_dates_in_range {
+      outline: 1px dashed CanvasText;
+      outline-offset: -3px;
+    }
+
+    &._patro_dates_current_date {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      color: HighlightText;
+      sub {
+        color: HighlightText;
+      }
+    }
+
+    &._patro_dates_today::after {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+
+    &._patro_dates_current_date._patro_dates_today::after {
+      background: HighlightText;
+    }
+
+    &._patro_dates_disabled,
+    &._patro_dates_disabled sub {
+      color: GrayText;
+    }
+
+    &._patro_dates_focused {
+      outline: 2px solid CanvasText;
+      outline-offset: -2px;
+    }
+
+    &._patro_dates_current_date._patro_dates_focused {
+      outline-color: HighlightText;
+      outline-offset: -4px;
+    }
+  }
+
+  ._patro_footer_today {
+    outline: 1px solid ButtonText;
+    outline-offset: -1px;
+  }
+
+  ._patro_datepicker_input {
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
+
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    // No system colour means "error", so a heavier double line marks it.
+    &._patro_datepicker_input_invalid {
+      outline: 3px double CanvasText;
+      outline-offset: -3px;
+    }
+
+    &[aria-disabled='true'] {
+      outline-color: GrayText;
+      color: GrayText;
+    }
+  }
+
+  ._patro_datepicker_popper {
+    outline: 1px solid CanvasText;
+  }
+}
