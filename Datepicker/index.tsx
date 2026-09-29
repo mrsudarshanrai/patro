@@ -52,6 +52,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
       value,
       defaultValue,
       onChange,
+      presets,
       calendar = ICalendar.CalendarTypeEnum.AD,
       label,
       placeholder,
@@ -247,9 +248,9 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
 
     const calendarSelection = (
       shownRange
-        ? { mode: 'range', value: selectedRange, onChange: onSelectRange }
-        : { value: selectedDate, onChange: onSelect }
-    ) as Pick<CalendarProps, 'mode' | 'value' | 'onChange'>;
+        ? { mode: 'range', value: selectedRange, onChange: onSelectRange, presets }
+        : { value: selectedDate, onChange: onSelect, presets }
+    ) as Pick<CalendarProps, 'mode' | 'value' | 'onChange' | 'presets'>;
 
     const popover = isOpen && (
       <div

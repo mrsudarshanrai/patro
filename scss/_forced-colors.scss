@@ -56,6 +56,16 @@
     }
   }
 
+  ._patro_presets_item {
+    outline: 1px solid ButtonText;
+    outline-offset: -1px;
+    &[aria-pressed='true'] {
+      forced-color-adjust: none;
+      background-color: Highlight;
+      color: HighlightText;
+    }
+  }
+
   ._patro_footer_today {
     outline: 1px solid ButtonText;
     outline-offset: -1px;

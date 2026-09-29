@@ -15,4 +15,5 @@ export type {
   Numerals,
   PatroDate,
   PatroLabels,
+  Preset,
 } from './types/public';

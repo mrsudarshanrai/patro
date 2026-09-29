@@ -24,6 +24,8 @@ export interface PatroLabels {
   chooseMonth: string;
   chooseYear: string;
   today: string;
+  /** Group of `presets` buttons. */
+  presets: string;
   /** Datepicker popover. */
   chooseDate: string;
   /** Datepicker clear button. */
@@ -40,6 +42,12 @@ export interface PatroDateRange {
   end: PatroDate | null;
 }
 
+/** A quick pick shown under the grid. A function value is read when clicked, e.g. for "Next 7 days". */
+export interface Preset<T> {
+  label: string;
+  value: T | (() => T);
+}
+
 export interface SingleSelection {
   /** Pick one day. The default. */
   mode?: 'single';
@@ -48,6 +56,8 @@ export interface SingleSelection {
   /** Initial selection when uncontrolled. Defaults to nothing selected. */
   defaultValue?: Date | null;
   onChange?: (value: PatroDate | null) => void;
+  /** Quick picks under the grid, e.g. `[{ label: 'Today', value: () => new Date() }]`. */
+  presets?: Preset<Date>[];
 }
 
 export interface RangeSelection {
@@ -65,6 +75,8 @@ export interface RangeSelection {
   maxDays?: number;
   /** Ranges can't contain disabled days; picking an end past one starts a new range there. */
   excludeDisabled?: boolean;
+  /** Quick picks under the grid, e.g. "This week" or "Next 7 days". */
+  presets?: Preset<DateRange>[];
 }
 
 export interface CalendarBaseProps {

@@ -29,6 +29,7 @@ import {
   monthSpan,
   monthTitle,
   overlaps,
+  supportedAdDate,
   supportedAdRange,
   toPatroDate,
   weekday,
@@ -190,27 +191,64 @@ const CalendarComponent = (props: CalendarProps) => {
     return true;
   };
 
-  const onSelect = (adDate: string) => {
-    setFocusedAdDate(adDate);
-    if (range) {
-      const restart = !range.start || !!range.end || !isValidEnd(range.start, adDate);
-      const start = restart ? adDate : (range.start as string);
-      const end = restart ? null : adDate;
-      if (!isControlled) {
-        setUncontrolledValue({
-          start: adDateToLocalDate(start),
-          end: end ? adDateToLocalDate(end) : null,
-        });
-      }
-      (onChange as RangeSelection['onChange'])?.({
-        start: toPatroDate(start),
-        end: end ? toPatroDate(end) : null,
+  const commitRange = (start: string, end: string | null) => {
+    if (!isControlled) {
+      setUncontrolledValue({
+        start: adDateToLocalDate(start),
+        end: end ? adDateToLocalDate(end) : null,
       });
-      return;
     }
+    (onChange as RangeSelection['onChange'])?.({
+      start: toPatroDate(start),
+      end: end ? toPatroDate(end) : null,
+    });
+  };
+
+  const commitDay = (adDate: string) => {
     const selected = toPatroDate(adDate);
     if (!isControlled) setUncontrolledValue(selected.date);
     (onChange as SingleSelection['onChange'])?.(selected);
+  };
+
+  const onSelect = (adDate: string) => {
+    setFocusedAdDate(adDate);
+    if (!range) return commitDay(adDate);
+    const restart = !range.start || !!range.end || !isValidEnd(range.start, adDate);
+    commitRange(restart ? adDate : (range.start as string), restart ? null : adDate);
+  };
+
+  // Presets resolve on every render so "Today"-style ones stay current and can be disabled.
+  const presets = (props.presets ?? []).map(({ label, value }) => {
+    const resolved = typeof value === 'function' ? value() : value;
+    if (range) {
+      const { start, end } = supportedAdRange(resolved as DateRange);
+      const valid =
+        !!start && !!end && !isDayDisabled(start) && !isDayDisabled(end) && isValidEnd(start, end);
+      return {
+        label,
+        disabled: !valid,
+        pressed: !!start && start === range.start && end === range.end,
+        pick: () => start && commitRange(start, end),
+        first: start,
+      };
+    }
+    const adDate = supportedAdDate(resolved as Date);
+    return {
+      label,
+      disabled: !adDate || isDayDisabled(adDate),
+      pressed: !!adDate && adDate === selectedAdDate,
+      pick: () => adDate && commitDay(adDate),
+      first: adDate,
+    };
+  });
+
+  const pickPreset = (preset: (typeof presets)[number]) => {
+    if (preset.disabled || !preset.first) return;
+    const [year, month] = datePartsIn(preset.first, calendar);
+    goToMonth(year, month);
+    setView('days');
+    setFocusedAdDate(preset.first);
+    preset.pick();
   };
 
   const previewEnd =
@@ -415,6 +453,22 @@ const CalendarComponent = (props: CalendarProps) => {
         </div>
       ) : (
         <CalendarPicker items={pickerItems} label={header.title} onPick={onPick} />
+      )}
+      {presets.length > 0 && (
+        <div className='_patro_presets' role='group' aria-label={text.presets}>
+          {presets.map((preset) => (
+            <button
+              key={preset.label}
+              type='button'
+              className='_patro_presets_item'
+              aria-pressed={preset.pressed}
+              disabled={preset.disabled}
+              onClick={() => pickPreset(preset)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
       )}
       {showTodayButton && (
         <div className='_patro_footer'>

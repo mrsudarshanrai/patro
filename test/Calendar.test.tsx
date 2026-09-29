@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
+import { Datepicker } from '../Datepicker';
 import type { CalendarBaseProps, PatroDate, SingleSelection } from '../types/public';
 import { bs2Ad } from '../utils';
 
@@ -575,6 +576,87 @@ test('onMonthChange reports the new month, not the initial one', async () => {
   expect(onMonthChange).toHaveBeenCalledWith({
     start: expect.objectContaining({ ad: '2026-11-01' }),
     end: expect.objectContaining({ ad: '2026-11-30' }),
+  });
+});
+
+describe('presets', () => {
+  const addDays = (date: Date, days: number) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+
+  test('single presets select a day, move to its month and mark the active one', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar
+        defaultValue={null}
+        onChange={onChange}
+        presets={[
+          { label: 'Today', value: () => new Date() },
+          { label: 'In a month', value: () => addDays(new Date(), 30) },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('group', { name: 'Quick picks' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'In a month' }));
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ ad: '2026-11-28' }));
+    expect(title(container)).toBe('November 2026');
+    expect(screen.getByRole('button', { name: 'In a month' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('range presets set both ends; presets breaking the rules are disabled', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    render(
+      <Calendar
+        mode='range'
+        maxDays={7}
+        maxDate={new Date(2026, 11, 31)}
+        onChange={onChange}
+        presets={[
+          {
+            label: 'Next 7 days',
+            value: () => ({ start: new Date(), end: addDays(new Date(), 6) }),
+          },
+          {
+            label: 'Next 30 days',
+            value: () => ({ start: new Date(), end: addDays(new Date(), 29) }),
+          },
+          { label: 'Next year', value: { start: new Date(2027, 0, 1), end: new Date(2027, 0, 2) } },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Next 30 days' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next year' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Next 7 days' }));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-29' }),
+      end: expect.objectContaining({ ad: '2026-11-04' }),
+    });
+  });
+
+  test('picking a range preset closes the Datepicker', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Datepicker
+        mode='range'
+        defaultOpen
+        presets={[
+          {
+            label: 'This week',
+            value: { start: new Date(2026, 9, 25), end: new Date(2026, 9, 31) },
+          },
+        ]}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'This week' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(container.querySelector('._patro_datepicker_input')).toHaveTextContent(
+      '25 Oct – 31 Oct 2026',
+    );
   });
 });
 

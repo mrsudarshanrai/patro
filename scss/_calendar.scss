@@ -299,6 +299,45 @@
   font-size: 14px;
 }
 
+._patro_presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 2px 0;
+
+  &_item {
+    padding: 3px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--patro-border);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--patro-text);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      outline: none;
+    }
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--patro-accent);
+    }
+    &[aria-pressed='true'] {
+      background-color: var(--patro-sel-bg);
+      box-shadow: inset 0 0 0 1px var(--patro-accent);
+      color: var(--patro-sel-text);
+    }
+    &:disabled {
+      background: transparent;
+      color: var(--patro-disabled);
+      cursor: default;
+    }
+  }
+}
+
 ._patro_footer {
   display: flex;
   justify-content: center;

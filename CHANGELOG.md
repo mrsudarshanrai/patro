@@ -19,6 +19,7 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - `weekStartsOn`, `fixedWeeks`, `weekendDays`; `dayClassName`, `dayContent` and `dayLabel` for holidays/events.
 - `defaultMonth` (month shown with no selection) and a controlled `month`.
 - Click-to-navigate month and year pickers, plus a `showTodayButton`.
+- `presets`: quick-pick buttons ("Today", "Next 7 days", …) for single dates and ranges.
 - Full keyboard support following the WAI-ARIA date picker pattern: arrows, PageUp/PageDown by month, Shift+PageUp/PageDown by year, Home/End, Enter/Escape, arrow keys in the month/year grids, and a visible focus ring. A keyboard-opened `Datepicker` focuses the grid and closes when focus leaves.
 - Accessibility: localized accessible names (`labels` to override), the input is a select-only combobox, WCAG AA text contrast, and Windows high-contrast (`forced-colors`) styles. Checked with axe.
 - `Datepicker` form integration: `name`, `valueFormat`, `required`, `disabled`, `readOnly`, `invalid`, `clearable`, controlled `open`/`onOpenChange`, `placement`, `portal`, a forwarded `ref`.
