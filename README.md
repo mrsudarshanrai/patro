@@ -13,7 +13,7 @@ Requires React 18 or 19.
 Import the stylesheet once, wherever your app already loads global CSS:
 
 ```js
-import 'patro/dist/css/style.css';
+import 'patro/style.css';
 ```
 
 ## Usage
@@ -177,6 +177,8 @@ bs2Ad('२०७९-०७-०७'); // '2022-10-24'
 
 isValidBsDate('2080-01-32'); // false
 ```
+
+They're also available from `patro/utils`, which, unlike the main entry, isn't marked `'use client'`, so React Server Components and other server code can call them.
 
 Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad` throw a `RangeError` for a malformed, impossible (e.g. `'2026-02-30'`) or unsupported date, and a `TypeError` for a non-string; `isValidAdDate`/`isValidBsDate` return a boolean instead, e.g. for form validation.
 
