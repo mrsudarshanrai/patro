@@ -4,7 +4,7 @@ import {
   MIN_BS_YEAR,
   START_ENGLISH_DATE,
 } from '../constants/dateConstants';
-import { CalendarSystem, Locale, Numerals, PatroDate } from '../types/public';
+import { CalendarSystem, Locale, Numerals, PatroDate, PatroLabels } from '../types/public';
 import { adDateToLocalDate, en2NpNumber } from './dateUtils';
 import { ad2Bs } from './ad_utils/ad2bs';
 
@@ -162,8 +162,44 @@ const toPatroDate = (adDate: string): PatroDate => ({
   bs: ad2Bs(adDate),
 });
 
+const LABELS: Record<Locale, PatroLabels> = {
+  en: {
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    previousYear: 'Previous year',
+    nextYear: 'Next year',
+    previousYears: 'Previous 12 years',
+    nextYears: 'Next 12 years',
+    chooseMonth: 'choose month',
+    chooseYear: 'choose year',
+    today: 'Today',
+    chooseDate: 'Choose a date',
+    clear: 'Clear date',
+  },
+  ne: {
+    previousMonth: 'अघिल्लो महिना',
+    nextMonth: 'अर्को महिना',
+    previousYear: 'अघिल्लो वर्ष',
+    nextYear: 'अर्को वर्ष',
+    previousYears: 'अघिल्लो १२ वर्ष',
+    nextYears: 'अर्को १२ वर्ष',
+    chooseMonth: 'महिना छान्नुहोस्',
+    chooseYear: 'वर्ष छान्नुहोस्',
+    today: 'आज',
+    chooseDate: 'मिति छान्नुहोस्',
+    clear: 'मिति हटाउनुहोस्',
+  },
+};
+
+const labelsFor = (
+  system: CalendarSystem,
+  options: DisplayOptions,
+  overrides?: Partial<PatroLabels>,
+): PatroLabels => ({ ...LABELS[languageOf(system, options)], ...overrides });
+
 export {
   partsIn as datePartsIn,
+  labelsFor,
   toPatroDate,
   otherSystem,
   languageOf,

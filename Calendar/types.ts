@@ -27,8 +27,8 @@ export namespace ICalendar {
     subtitle: string;
     onTitleClick?: () => void;
     titleActionLabel?: string;
-    prevLabel?: string;
-    nextLabel?: string;
+    prevLabel: string;
+    nextLabel: string;
     nextMonth: () => void;
     prevMonth: () => void;
     canNextMonth: boolean;

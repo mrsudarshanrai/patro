@@ -14,4 +14,5 @@ export type {
   Locale,
   Numerals,
   PatroDate,
+  PatroLabels,
 } from './types/public';

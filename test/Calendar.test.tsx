@@ -97,14 +97,32 @@ test('uncontrolled: defaultValue is only the starting value', async () => {
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
 
+describe('labels', () => {
+  test('follow the display language', () => {
+    const { rerender } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
+    expect(screen.getByLabelText('अर्को महिना')).toBeInTheDocument();
+    rerender(<Calendar calendar='BS' locale='en' defaultValue={TODAY} />);
+    expect(screen.getByLabelText('Next month')).toBeInTheDocument();
+  });
+
+  test('can be overridden one at a time', () => {
+    render(
+      <Calendar defaultValue={TODAY} showTodayButton labels={{ nextMonth: 'Mois suivant' }} />,
+    );
+    expect(screen.getByLabelText('Mois suivant')).toBeInTheDocument();
+    expect(screen.getByLabelText('Previous month')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument();
+  });
+});
+
 test('month navigation steps by one month in the displayed calendar', async () => {
   const user = userEvent.setup();
   const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
 
-  await user.click(screen.getByLabelText('Next month'));
+  await user.click(screen.getByLabelText('अर्को महिना'));
   expect(title(container)).toBe('मंसिर २०८३');
-  await user.click(screen.getByLabelText('Previous month'));
-  await user.click(screen.getByLabelText('Previous month'));
+  await user.click(screen.getByLabelText('अघिल्लो महिना'));
+  await user.click(screen.getByLabelText('अघिल्लो महिना'));
   expect(title(container)).toBe('आश्विन २०८३');
 });
 
@@ -228,7 +246,7 @@ describe('supported range edges', () => {
     );
     expect(title(container)).toBe('चैत्र २०९९');
 
-    const next = screen.getByLabelText('Next month');
+    const next = screen.getByLabelText('अर्को महिना');
     expect(next).toBeDisabled();
     await user.click(next);
     screen.getByRole('grid').focus();
@@ -270,8 +288,8 @@ describe('supported range edges', () => {
   test('first BS month (1978 Baisakh) cannot go back', () => {
     const { container } = render(<Calendar calendar='BS' defaultValue={new Date(1921, 3, 20)} />);
     expect(title(container)).toBe('बैशाख १९७८');
-    expect(screen.getByLabelText('Previous month')).toBeDisabled();
-    expect(screen.getByLabelText('Next month')).toBeEnabled();
+    expect(screen.getByLabelText('अघिल्लो महिना')).toBeDisabled();
+    expect(screen.getByLabelText('अर्को महिना')).toBeEnabled();
   });
 
   test('an out-of-range defaultValue shows the nearest month with nothing selected', () => {
@@ -323,7 +341,7 @@ describe('minDate / maxDate / isDateDisabled', () => {
       <Calendar calendar='BS' defaultValue={TODAY} maxDate={new Date(2026, 10, 1)} />,
     );
     expect(title(container)).toBe('कार्तिक २०८३');
-    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    expect(screen.getByLabelText('अर्को महिना')).toBeDisabled();
     expect(cell(container, '2026-11-02')).toHaveClass('_patro_dates_disabled');
   });
 

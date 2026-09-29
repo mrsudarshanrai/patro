@@ -13,6 +13,23 @@ export interface PatroDate {
   bs: string;
 }
 
+/** Accessible names and button text; each defaults to the display language's. */
+export interface PatroLabels {
+  previousMonth: string;
+  nextMonth: string;
+  previousYear: string;
+  nextYear: string;
+  previousYears: string;
+  nextYears: string;
+  chooseMonth: string;
+  chooseYear: string;
+  today: string;
+  /** Datepicker popover. */
+  chooseDate: string;
+  /** Datepicker clear button. */
+  clear: string;
+}
+
 export interface DateRange {
   start: Date | null;
   end: Date | null;
@@ -78,6 +95,8 @@ export interface CalendarBaseProps {
    * without a value to render the month on the server too, or to pin it in tests.
    */
   today?: Date;
+  /** Override accessible names and button text, e.g. for a language other than English or Nepali. */
+  labels?: Partial<PatroLabels>;
   /** Added to the root element. */
   className?: string;
   /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */

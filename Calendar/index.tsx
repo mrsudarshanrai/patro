@@ -22,7 +22,7 @@ import {
   DisplayOptions,
   formatNumber,
   isSupportedAdDate,
-  languageOf,
+  labelsFor,
   monthName,
   monthRange,
   monthSpan,
@@ -38,10 +38,6 @@ const EMPTY_RANGE: DateRange = { start: null, end: null };
 const supportedAd = (date: Date | null | undefined) =>
   date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
 
-const TEXT = {
-  en: { month: 'choose month', year: 'choose year', today: 'Today' },
-  ne: { month: 'महिना छान्नुहोस्', year: 'वर्ष छान्नुहोस्', today: 'आज' },
-};
 const YEARS_PER_PAGE = 12;
 
 const DAY_STEPS: Record<string, number> = {
@@ -71,6 +67,7 @@ const CalendarComponent = (props: CalendarProps) => {
     onMonthChange,
     showTodayButton = false,
     today,
+    labels,
     className,
     style,
   } = props;
@@ -138,7 +135,7 @@ const CalendarComponent = (props: CalendarProps) => {
   useEffect(() => setView('days'), [calendar]);
 
   const display: DisplayOptions = { locale, numerals };
-  const text = TEXT[languageOf(calendar, display)];
+  const text = labelsFor(calendar, display, labels);
   const [viewYear, viewMonth] = datePartsIn(firstAdDate, calendar);
   const num = (value: number) => formatNumber(value, calendar, display);
   const yearAvailable = (year: number) => overlaps(yearSpan(calendar, year), minAdDate, maxAdDate);
@@ -215,13 +212,13 @@ const CalendarComponent = (props: CalendarProps) => {
             setPickerYear(viewYear);
             setView('months');
           },
-          titleActionLabel: text.month,
+          titleActionLabel: text.chooseMonth,
           prev: prevMonth,
           next: nextMonth,
           canPrev: canPrevMonth,
           canNext: canNextMonth,
-          prevLabel: 'Previous month',
-          nextLabel: 'Next month',
+          prevLabel: text.previousMonth,
+          nextLabel: text.nextMonth,
         }
       : view === 'months'
         ? {
@@ -230,13 +227,13 @@ const CalendarComponent = (props: CalendarProps) => {
               ? monthRange(pickerYearSpan[0], pickerYearSpan[1], calendar, display)
               : '',
             onTitleClick: () => setView('years'),
-            titleActionLabel: text.year,
+            titleActionLabel: text.chooseYear,
             prev: () => setPickerYear(pickerYear - 1),
             next: () => setPickerYear(pickerYear + 1),
             canPrev: yearAvailable(pickerYear - 1),
             canNext: yearAvailable(pickerYear + 1),
-            prevLabel: 'Previous year',
-            nextLabel: 'Next year',
+            prevLabel: text.previousYear,
+            nextLabel: text.nextYear,
           }
         : {
             title: `${num(pageStart)} – ${num(pageStart + YEARS_PER_PAGE - 1)}`,
@@ -247,8 +244,8 @@ const CalendarComponent = (props: CalendarProps) => {
             next: () => setPickerYear(pageStart + YEARS_PER_PAGE),
             canPrev: pageAvailable(pageStart - YEARS_PER_PAGE),
             canNext: pageAvailable(pageStart + YEARS_PER_PAGE),
-            prevLabel: `Previous ${YEARS_PER_PAGE} years`,
-            nextLabel: `Next ${YEARS_PER_PAGE} years`,
+            prevLabel: text.previousYears,
+            nextLabel: text.nextYears,
           };
 
   const pickerItems =

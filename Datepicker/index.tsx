@@ -27,6 +27,7 @@ import {
   ad2Bs,
   formatDate,
   isSupportedAdDate,
+  labelsFor,
   languageOf,
   otherSystem,
   datePartsIn,
@@ -82,6 +83,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
       style,
       ...calendarProps
     } = props;
+    const text = labelsFor(calendar, { locale, numerals }, props.labels);
     const generatedId = useId();
     const isClient = useIsClient();
     const inputId = id ?? generatedId;
@@ -237,7 +239,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
       <div
         ref={setPopperRef}
         role='dialog'
-        aria-label='Choose a date'
+        aria-label={text.chooseDate}
         className='_patro_datepicker_popper'
         onKeyDown={onPopperKeyDown}
       >
@@ -327,7 +329,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
             <button
               type='button'
               className='_patro_datepicker_clear'
-              aria-label='Clear date'
+              aria-label={text.clear}
               onClick={onClear}
             >
               {icons.clearIcon}

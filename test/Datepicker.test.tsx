@@ -392,3 +392,10 @@ describe('range mode', () => {
     expect(input).toHaveTextContent('2083-06-19 → 2083-06-23');
   });
 });
+
+test('popover and clear button names follow the display language', async () => {
+  const { user, input } = setup({ calendar: 'BS', clearable: true });
+  expect(screen.getByLabelText('मिति हटाउनुहोस्')).toBeInTheDocument();
+  await user.click(input);
+  expect(screen.getByRole('dialog', { name: 'मिति छान्नुहोस्' })).toBeInTheDocument();
+});
