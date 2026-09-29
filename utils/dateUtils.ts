@@ -56,6 +56,16 @@ const clampAdDate = (adDate: string, min = START_ENGLISH_DATE, max = MAX_AD_DATE
 const toAdDateString = (date: Date) =>
   createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
+const supportedAdDate = (date: Date | null | undefined) =>
+  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
+
+// A range given end-first is treated as the same range, start-first.
+const supportedAdRange = (range: { start: Date | null; end: Date | null }) => {
+  const start = supportedAdDate(range.start);
+  const end = supportedAdDate(range.end);
+  return start && end && end < start ? { start: end, end: start } : { start, end };
+};
+
 // `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
   const { year, month, day } = dateString2Obj(adDate);
@@ -81,6 +91,8 @@ export {
   isSupportedAdDate,
   clampAdDate,
   toAdDateString,
+  supportedAdDate,
+  supportedAdRange,
   en2NpNumber,
   remove1stZero,
 };

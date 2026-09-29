@@ -26,12 +26,12 @@ import {
 import {
   ad2Bs,
   formatDate,
-  isSupportedAdDate,
   labelsFor,
   languageOf,
   otherSystem,
   datePartsIn,
-  toAdDateString,
+  supportedAdDate,
+  supportedAdRange,
   toPatroDate,
 } from '../utils';
 import { icons } from './icons';
@@ -42,9 +42,6 @@ const DEFAULT_PLACEHOLDER = {
   range: { en: 'Select dates', ne: 'मितिहरू छान्नुहोस्' },
 };
 const EMPTY_RANGE: DateRange = { start: null, end: null };
-
-const supportedAd = (date: Date | null | undefined) =>
-  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
 
 const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -105,11 +102,8 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
     const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
     const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
 
-    const shownAdDate = supportedAd(selectedDate);
-    const shownRange = selectedRange && {
-      start: supportedAd(selectedRange.start),
-      end: supportedAd(selectedRange.end),
-    };
+    const shownAdDate = supportedAdDate(selectedDate);
+    const shownRange = selectedRange && supportedAdRange(selectedRange);
     const display = { locale, numerals };
 
     const setInputNode = useCallback(

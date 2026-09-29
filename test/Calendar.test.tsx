@@ -350,6 +350,26 @@ describe('minDate / maxDate / isDateDisabled', () => {
     expect(title(container)).toBe('January 2027');
   });
 
+  test('minDate after maxDate disables every day instead of crashing', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar
+        minDate={new Date(2026, 9, 20)}
+        maxDate={new Date(2026, 9, 10)}
+        onChange={onChange}
+      />,
+    );
+    expect(
+      container.querySelectorAll('._patro_dates_date:not(._patro_dates_disabled)'),
+    ).toHaveLength(0);
+    expect(screen.getByLabelText('Previous month')).toBeDisabled();
+    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    await user.click(screen.getByRole('grid'));
+    await user.keyboard('{ArrowRight}{PageUp}{Enter}');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('bounds apply in BS mode too', () => {
     const { container } = render(
       <Calendar calendar='BS' defaultValue={TODAY} maxDate={new Date(2026, 10, 1)} />,
@@ -584,6 +604,18 @@ test('the year page subtitle shows the span in the other calendar', async () => 
 });
 
 describe('range mode', () => {
+  test('a range given end-first is drawn start-first', () => {
+    const { container } = render(
+      <Calendar
+        mode='range'
+        value={{ start: new Date(2026, 9, 20), end: new Date(2026, 9, 10) }}
+      />,
+    );
+    expect(cell(container, '2026-10-10')).toHaveClass('_patro_dates_range_start');
+    expect(cell(container, '2026-10-15')).toHaveClass('_patro_dates_in_range');
+    expect(cell(container, '2026-10-20')).toHaveClass('_patro_dates_range_end');
+  });
+
   const classesOf = (container: HTMLElement, adDate: string) => cell(container, adDate).className;
 
   test('first click sets the start, second the end', async () => {

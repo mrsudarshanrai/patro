@@ -360,6 +360,13 @@ describe('range mode', () => {
     expect(bs).toHaveTextContent('४ कार्तिक – ८ कार्तिक २०८३');
   });
 
+  test('a range given end-first is shown start-first', () => {
+    const { input } = setupRange({
+      defaultValue: { start: new Date(2026, 9, 20), end: new Date(2026, 9, 10) },
+    });
+    expect(input).toHaveTextContent('10 Oct – 20 Oct 2026');
+  });
+
   test('submits both ends with a form, and clearing resets both', async () => {
     const user = userEvent.setup();
     const onChange = jest.fn();

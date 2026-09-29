@@ -28,15 +28,12 @@ import {
   monthSpan,
   monthTitle,
   overlaps,
-  toAdDateString,
+  supportedAdRange,
   toPatroDate,
   yearSpan,
 } from '../utils';
 
 const EMPTY_RANGE: DateRange = { start: null, end: null };
-
-const supportedAd = (date: Date | null | undefined) =>
-  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
 
 const YEARS_PER_PAGE = 12;
 
@@ -78,12 +75,11 @@ const CalendarComponent = (props: CalendarProps) => {
   );
   const currentValue = isControlled ? value : uncontrolledValue;
   const currentRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
-  const range = currentRange && {
-    start: supportedAd(currentRange.start),
-    end: supportedAd(currentRange.end),
-  };
+  const range = currentRange && supportedAdRange(currentRange);
   // In range mode the start anchors the view, like a single selection would.
-  const selectedDate = currentRange ? currentRange.start : (currentValue as Date | null);
+  const selectedDate = range
+    ? range.start && adDateToLocalDate(range.start)
+    : (currentValue as Date | null);
   const [hoverAdDate, setHoverAdDate] = useState<string>();
   const [focusedAdDate, setFocusedAdDate] = useState<string>();
   const [view, setView] = useState<PickerView>('days');
