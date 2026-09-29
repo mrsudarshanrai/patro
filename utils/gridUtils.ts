@@ -117,4 +117,4 @@ const yearSpan = (calendarType: ICalendar.calendarType, year: number) => {
 const overlaps = (span: string[] | null, min: string, max: string) =>
   !!span && span[1] >= min && span[0] <= max;
 
-export { getMonthGrid, monthBounds, monthSpan, yearSpan, overlaps };
+export { getMonthGrid, monthBounds, monthSpan, yearSpan, overlaps, weekday };

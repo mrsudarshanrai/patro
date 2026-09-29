@@ -3,7 +3,8 @@ import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
-import type { CalendarBaseProps, SingleSelection } from '../types/public';
+import type { CalendarBaseProps, PatroDate, SingleSelection } from '../types/public';
+import { bs2Ad } from '../utils';
 
 const TODAY = new Date(2026, 9, 29);
 
@@ -214,15 +215,68 @@ describe('keyboard navigation', () => {
     expect(title(container)).toBe('मंसिर २०८३');
   });
 
-  test('PageDown and PageUp change month and keep a visible day focused', async () => {
+  test('PageDown and PageUp move the focused day by a month', async () => {
     const { user, container, grid } = setup();
     grid.focus();
 
     await user.keyboard('{PageDown}');
     expect(title(container)).toBe('November 2026');
-    expect(focused(container)).toBe('2026-11-01');
+    expect(focused(container)).toBe('2026-11-29');
     await user.keyboard('{PageUp}');
     expect(focused(container)).toBe('2026-10-29');
+  });
+
+  test('a month move clamps to the shorter month', async () => {
+    const { user, container, grid } = setup({ defaultValue: new Date(2027, 0, 31) });
+    grid.focus();
+
+    await user.keyboard('{PageDown}');
+    expect(focused(container)).toBe('2027-02-28');
+  });
+
+  test('Shift+PageUp / Shift+PageDown move by a year', async () => {
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{Shift>}{PageUp}{/Shift}');
+    expect(title(container)).toBe('October 2025');
+    expect(focused(container)).toBe('2025-10-29');
+    await user.keyboard('{Shift>}{PageDown}{PageDown}{/Shift}');
+    expect(focused(container)).toBe('2027-10-29');
+  });
+
+  test('month moves follow BS months in BS mode', async () => {
+    // 2026-10-29 = BS 2083-07-12; a BS month later is 2083-08-12.
+    const { user, container, grid } = setup({ calendar: 'BS' });
+    grid.focus();
+
+    await user.keyboard('{PageDown}');
+    expect(title(container)).toBe('मंसिर २०८३');
+    expect(focused(container)).toBe(bs2Ad('2083-08-12'));
+  });
+
+  test('Home and End go to the start and end of the week', async () => {
+    // 2026-10-29 is a Thursday.
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{Home}');
+    expect(focused(container)).toBe('2026-10-25');
+    await user.keyboard('{End}');
+    expect(focused(container)).toBe('2026-10-31');
+  });
+
+  test('Home and End respect weekStartsOn and skip disabled days', async () => {
+    const { user, container, grid } = setup({
+      weekStartsOn: 1,
+      isDateDisabled: ({ date }: PatroDate) => date.getDay() === 0,
+    });
+    grid.focus();
+
+    await user.keyboard('{Home}');
+    expect(focused(container)).toBe('2026-10-26');
+    await user.keyboard('{End}');
+    expect(focused(container)).toBe('2026-10-31');
   });
 
   test('Enter selects the focused day', async () => {
@@ -564,6 +618,34 @@ describe('month and year quick navigation', () => {
     expect(screen.getByRole('button', { name: 'September' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'October' })).toBeEnabled();
     expect(screen.getByLabelText('Previous year')).toBeDisabled();
+  });
+
+  test('the month grid is one Tab stop, and arrow keys move within it', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} minDate={new Date(2026, 1, 1)} />);
+    await user.click(titleButton());
+    const october = screen.getByRole('button', { name: 'October' });
+    expect(
+      [...container.querySelectorAll('._patro_picker_item')].filter(
+        (item) => item.getAttribute('tabindex') === '0',
+      ),
+    ).toEqual([october]);
+
+    // Title button, then Next year, then the grid.
+    await user.tab();
+    await user.tab();
+    expect(october).toHaveFocus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'November' })).toHaveFocus();
+    await user.keyboard('{ArrowUp}{ArrowUp}{ArrowUp}');
+    // November, August, May, February; January is disabled, so Left stays put.
+    expect(screen.getByRole('button', { name: 'February' })).toHaveFocus();
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: 'February' })).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(screen.getByRole('button', { name: 'December' })).toHaveFocus();
+    await user.keyboard('{Home}{Enter}');
+    expect(title(container)).toBe('February 2026');
   });
 
   test('Escape goes back to the days', async () => {

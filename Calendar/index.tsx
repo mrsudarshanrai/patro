@@ -30,6 +30,7 @@ import {
   overlaps,
   supportedAdRange,
   toPatroDate,
+  weekday,
   yearSpan,
 } from '../utils';
 
@@ -269,6 +270,24 @@ const CalendarComponent = (props: CalendarProps) => {
     }
   };
 
+  // Same day `months` away in the displayed calendar, clamped to that month's length.
+  const shiftMonths = (adDate: string, months: number) => {
+    const [year, month, day] = datePartsIn(adDate, calendar);
+    const index = year * 12 + month - 1 + months;
+    const span = monthSpan(calendar, Math.floor(index / 12), (index % 12) + 1);
+    if (!span) return null;
+    const target = addDays(span[0], day - 1);
+    return target > span[1] ? span[1] : target;
+  };
+
+  const moveFocus = (adDate: string | null) => {
+    setShowFocusRing(true);
+    if (!adDate || adDate < minAdDate || adDate > maxAdDate) return;
+    const [year, month] = datePartsIn(adDate, calendar);
+    goToMonth(year, month);
+    setFocusedAdDate(adDate);
+  };
+
   const onGridKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const step = DAY_STEPS[event.key];
     if (step !== undefined) {
@@ -277,16 +296,21 @@ const CalendarComponent = (props: CalendarProps) => {
       while (next >= minAdDate && next <= maxAdDate && isDayDisabled(next)) {
         next = addDays(next, step);
       }
-      if (next < minAdDate || next > maxAdDate) return;
-      if (next < monthStart) prevMonth();
-      if (next > monthEnd) nextMonth();
-      setFocusedAdDate(next);
-      setShowFocusRing(true);
+      moveFocus(next);
     } else if (event.key === 'PageUp' || event.key === 'PageDown') {
+      // Shift pages by year, as in the WAI-ARIA date picker pattern.
       event.preventDefault();
-      if (event.key === 'PageUp') prevMonth();
-      else nextMonth();
-      setShowFocusRing(true);
+      const months = (event.key === 'PageUp' ? -1 : 1) * (event.shiftKey ? 12 : 1);
+      const next = shiftMonths(activeAdDate, months);
+      moveFocus(next && (next < minAdDate ? minAdDate : next > maxAdDate ? maxAdDate : next));
+    } else if (event.key === 'Home' || event.key === 'End') {
+      event.preventDefault();
+      const column = (weekday(activeAdDate) - weekStartsOn + 7) % 7;
+      const back = event.key === 'Home' ? -1 : 1;
+      let next = addDays(activeAdDate, back < 0 ? -column : 6 - column);
+      // Nearest enabled day of the week, towards the focused one.
+      while (next !== activeAdDate && isDayDisabled(next)) next = addDays(next, -back);
+      moveFocus(next);
     } else if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (!isDayDisabled(activeAdDate)) onSelect(activeAdDate);
