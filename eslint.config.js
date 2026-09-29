@@ -7,7 +7,7 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage', 'storybook-static'] },
+  { ignores: ['dist', 'node_modules', 'coverage', 'storybook-static', 'docs'] },
   js.configs.recommended,
   react.configs.flat.recommended,
   ...tseslint.configs.recommended,
