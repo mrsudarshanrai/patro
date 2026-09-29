@@ -8,6 +8,11 @@ const preview: Preview = {
         color: /(background|color)$/i,
       },
     },
+    options: {
+      storySort: {
+        order: ['Introduction', 'Calendar', 'Datepicker', 'Templates', 'Utilities'],
+      },
+    },
   },
 };
 
