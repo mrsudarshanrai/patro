@@ -406,3 +406,51 @@ test('popover and clear button names follow the display language', async () => {
   await user.click(input);
   expect(screen.getByRole('dialog', { name: 'मिति छान्नुहोस्' })).toBeInTheDocument();
 });
+
+describe('focus management', () => {
+  test('opening with the keyboard moves focus into the day grid', async () => {
+    const { user, input } = setup();
+    input.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('grid')).toHaveFocus();
+    expect(input).toHaveAttribute('aria-controls', screen.getByRole('dialog').id);
+
+    await user.keyboard('{ArrowRight}{Enter}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(input).toHaveFocus();
+    expect(input).toHaveTextContent('30 October 2026');
+  });
+
+  test('opening with the mouse keeps focus on the input', async () => {
+    const { user, input } = setup();
+    await user.click(input);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(input).toHaveFocus();
+  });
+
+  test('tabbing out of the popover closes it', async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Datepicker defaultValue={TODAY} />
+        <button type='button'>after</button>
+      </>,
+    );
+    const input = screen.getByRole('button', { name: /October 2026/ });
+    input.focus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('grid')).toHaveFocus();
+    await user.tab();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'after' })).toHaveFocus();
+  });
+
+  test('moving focus within the popover keeps it open', async () => {
+    const { user, input } = setup();
+    input.focus();
+    await user.keyboard('{Enter}');
+    await user.tab({ shift: true });
+    expect(screen.getByLabelText('Next month')).toHaveFocus();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});

@@ -97,6 +97,8 @@ export interface CalendarBaseProps {
   today?: Date;
   /** Override accessible names and button text, e.g. for a language other than English or Nepali. */
   labels?: Partial<PatroLabels>;
+  /** Focus the day grid on mount, e.g. when the calendar opens in a dialog. */
+  autoFocus?: boolean;
   /** Added to the root element. */
   className?: string;
   /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */

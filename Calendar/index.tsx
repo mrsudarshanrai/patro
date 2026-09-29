@@ -66,6 +66,7 @@ const CalendarComponent = (props: CalendarProps) => {
     showTodayButton = false,
     today,
     labels,
+    autoFocus = false,
     className,
     style,
   } = props;
@@ -87,6 +88,7 @@ const CalendarComponent = (props: CalendarProps) => {
   const [pickerYear, setPickerYear] = useState(0);
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
+  const gridRef = useRef<HTMLDivElement>(null);
   const idPrefix = useId();
   const todayAdDate = useToday(today);
 
@@ -130,6 +132,11 @@ const CalendarComponent = (props: CalendarProps) => {
   }, [firstAdDate, lastAdDate]);
 
   useEffect(() => setView('days'), [calendar]);
+
+  // preventScroll: a popover may not be positioned yet on its first frame.
+  useEffect(() => {
+    if (autoFocus) gridRef.current?.focus({ preventScroll: true });
+  }, [autoFocus]);
 
   const display: DisplayOptions = { locale, numerals };
   const text = labelsFor(calendar, display, labels);
@@ -345,6 +352,7 @@ const CalendarComponent = (props: CalendarProps) => {
       />
       {view === 'days' ? (
         <div
+          ref={gridRef}
           className='_patro_grid'
           role='grid'
           tabIndex={0}

@@ -1,4 +1,5 @@
 import {
+  FocusEvent,
   forwardRef,
   KeyboardEvent,
   ReactElement,
@@ -6,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -85,6 +87,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
     const isClient = useIsClient();
     const inputId = id ?? generatedId;
     const labelId = `${inputId}-label`;
+    const popoverId = `${inputId}-popover`;
 
     const isRange = mode === 'range';
     const isControlled = value !== undefined;
@@ -101,6 +104,9 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
 
     const [inputRef, setInputRef] = useState<HTMLDivElement | null>(null);
     const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
+    const rootRef = useRef<HTMLDivElement>(null);
+    // Keyboard users land in the day grid; mouse users keep focus where they clicked.
+    const [focusGrid, setFocusGrid] = useState(false);
 
     const shownAdDate = supportedAdDate(selectedDate);
     const shownRange = selectedRange && supportedAdRange(selectedRange);
@@ -186,12 +192,28 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
       if (event.key === 'Escape') setOpen(false);
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
+        setFocusGrid(!isOpen);
         setOpen(!isOpen);
       }
       if (event.key === 'ArrowDown') {
         event.preventDefault();
+        setFocusGrid(true);
         setOpen(true);
       }
+    };
+
+    const onInputClick = () => {
+      setFocusGrid(false);
+      setOpen(!isOpen);
+    };
+
+    // Tabbing out of the picker closes it; focus lost to nowhere (e.g. switching windows) doesn't.
+    // React bubbles blur out of a portal, so this also sees the portalled popover.
+    const onFocusLeave = (event: FocusEvent<HTMLDivElement>) => {
+      const next = event.relatedTarget as Node | null;
+      if (!isOpen || !next) return;
+      if (rootRef.current?.contains(next) || popperRef?.contains(next)) return;
+      setOpen(false);
     };
 
     const onPopperKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -232,6 +254,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
     const popover = isOpen && (
       <div
         ref={setPopperRef}
+        id={popoverId}
         role='dialog'
         aria-label={text.chooseDate}
         className='_patro_datepicker_popper'
@@ -244,12 +267,15 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
           locale={locale}
           numerals={numerals}
           theme={theme}
+          autoFocus={focusGrid}
         />
       </div>
     );
 
     return (
       <div
+        ref={rootRef}
+        onBlur={onFocusLeave}
         className={['_patro_datepicker _patro', className].filter(Boolean).join(' ')}
         style={style}
         data-calendar-type={calendar}
@@ -275,6 +301,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
             tabIndex={disabled ? -1 : 0}
             aria-haspopup='dialog'
             aria-expanded={isOpen}
+            aria-controls={isOpen ? popoverId : undefined}
             aria-disabled={disabled || undefined}
             aria-readonly={readOnly || undefined}
             aria-invalid={invalid || undefined}
@@ -282,7 +309,7 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
             aria-label={ariaLabel}
             aria-labelledby={!ariaLabel && label ? `${labelId} ${inputId}` : undefined}
             aria-describedby={ariaDescribedBy}
-            onClick={() => setOpen(!isOpen)}
+            onClick={onInputClick}
             onKeyDown={onInputKeyDown}
             onFocus={onFocus}
             onBlur={onBlur}
