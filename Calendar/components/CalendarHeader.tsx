@@ -17,6 +17,7 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
   return (
     <header className='_patro_header'>
       <button
+        type='button'
         className='_patro_header_actionBtn'
         aria-label={prevLabel}
         disabled={!canPrevMonth}
@@ -40,6 +41,7 @@ const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
         <p className='_patro_header_subtitle'>{subtitle}</p>
       </h3>
       <button
+        type='button'
         className='_patro_header_actionBtn'
         aria-label={nextLabel}
         disabled={!canNextMonth}

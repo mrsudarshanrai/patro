@@ -97,6 +97,20 @@ test('uncontrolled: defaultValue is only the starting value', async () => {
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
 
+test('header buttons never submit a surrounding form', async () => {
+  const user = userEvent.setup();
+  const onSubmit = jest.fn((event: { preventDefault: () => void }) => event.preventDefault());
+  render(
+    <form onSubmit={onSubmit}>
+      <Calendar defaultValue={TODAY} />
+    </form>,
+  );
+  await user.click(screen.getByLabelText('Next month'));
+  await user.click(screen.getByLabelText('November 2026, choose month'));
+  await user.click(screen.getByLabelText('Next year'));
+  expect(onSubmit).not.toHaveBeenCalled();
+});
+
 describe('labels', () => {
   test('follow the display language', () => {
     const { rerender } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
