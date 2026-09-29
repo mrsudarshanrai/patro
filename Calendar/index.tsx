@@ -24,6 +24,7 @@ import {
   isSupportedAdDate,
   labelsFor,
   monthName,
+  monthBounds,
   monthRange,
   monthSpan,
   monthTitle,
@@ -63,6 +64,8 @@ const CalendarComponent = (props: CalendarProps) => {
     weekendDays,
     dayClassName,
     onMonthChange,
+    month,
+    defaultMonth,
     showTodayButton = false,
     today,
     labels,
@@ -92,6 +95,17 @@ const CalendarComponent = (props: CalendarProps) => {
   const idPrefix = useId();
   const todayAdDate = useToday(today);
 
+  // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
+  const onMonthChangeRef = useRef(onMonthChange);
+  useEffect(() => {
+    onMonthChangeRef.current = onMonthChange;
+  });
+  const reportMonth = (first: string, last: string) =>
+    onMonthChangeRef.current?.({
+      start: toPatroDate(clampAdDate(first)),
+      end: toPatroDate(clampAdDate(last)),
+    });
+
   const {
     dates,
     adDate: selectedAdDate,
@@ -114,22 +128,19 @@ const CalendarComponent = (props: CalendarProps) => {
     fixedWeeks,
     weekendDays,
     today: todayAdDate,
+    defaultMonth,
+    month,
+    onNavigate: (anchor) => reportMonth(...(monthBounds(calendar, anchor) as [string, string])),
   });
 
-  // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
-  const onMonthChangeRef = useRef(onMonthChange);
-  useEffect(() => {
-    onMonthChangeRef.current = onMonthChange;
-  });
+  // Uncontrolled: report every month the view moves to. Controlled: onNavigate reports requests.
+  const isMonthControlled = month !== undefined;
   const shownMonth = useRef(firstAdDate);
   useEffect(() => {
     if (shownMonth.current === firstAdDate) return;
     shownMonth.current = firstAdDate;
-    onMonthChangeRef.current?.({
-      start: toPatroDate(clampAdDate(firstAdDate)),
-      end: toPatroDate(clampAdDate(lastAdDate)),
-    });
-  }, [firstAdDate, lastAdDate]);
+    if (!isMonthControlled) reportMonth(firstAdDate, lastAdDate);
+  }, [firstAdDate, lastAdDate, isMonthControlled]);
 
   useEffect(() => setView('days'), [calendar]);
 

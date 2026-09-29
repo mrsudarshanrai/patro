@@ -87,6 +87,13 @@ export interface CalendarBaseProps {
   dayClassName?: (date: PatroDate) => string | undefined;
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
+  /** Month to show when nothing is selected, e.g. decades back for a date of birth. Defaults to today's. */
+  defaultMonth?: Date;
+  /**
+   * Controlled displayed month (any day in it). Navigation then only calls `onMonthChange`,
+   * e.g. `onMonthChange={({ start }) => setMonth(start.date)}`.
+   */
+  month?: Date;
   /** Show a "Today" button that jumps to and selects today. */
   showTodayButton?: boolean;
   /**

@@ -455,3 +455,15 @@ describe('focus management', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
+
+test('defaultMonth opens an empty picker on that month, e.g. for a date of birth', async () => {
+  const { user, input, container } = setup({
+    defaultValue: null,
+    defaultMonth: new Date(2000, 5, 1),
+  });
+  await user.click(input);
+  expect(container.querySelector('._patro_header_title')).toHaveTextContent('June 2000');
+  await user.click(screen.getByTitle('2000-06-15'));
+  await user.click(input);
+  expect(container.querySelector('._patro_header_title')).toHaveTextContent('June 2000');
+});

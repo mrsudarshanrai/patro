@@ -109,6 +109,11 @@ type Options = {
   weekendDays?: number[];
   /** Today's AD date; null while it isn't known yet (server rendering, hydration). */
   today?: string | null;
+  /** Month shown when nothing is selected, instead of today's. */
+  defaultMonth?: Date;
+  /** Controlled month: navigation calls `onNavigate` instead of moving the view. */
+  month?: Date;
+  onNavigate?: (anchor: string) => void;
 };
 
 // Placeholder month while neither a selection nor today is known; the calendar hides it.
@@ -131,6 +136,9 @@ const useCalendarData = (
     fixedWeeks,
     weekendDays,
     today = null,
+    defaultMonth,
+    month,
+    onNavigate,
   }: Options = {},
 ): IUseCalendarData.IReturn => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
@@ -143,11 +151,22 @@ const useCalendarData = (
   // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
   // null until there's a selection or a known today to anchor on.
   const [viewAnchor, setViewAnchor] = useState<string | null>(() => {
-    if (!selectedDate && !today) return null;
-    const { year, month, date } = selectedDate ? ymd(selectedDate) : todayParts(today);
+    const fallback = defaultMonth ? ymd(defaultMonth) : today && todayParts(today);
+    if (!selectedDate && !fallback) return null;
+    const { year, month, date } = selectedDate ? ymd(selectedDate) : fallback;
     return getViewAnchor(calendarType, year, month, date, bounds);
   });
+  const controlledAnchor = month
+    ? getViewAnchor(
+        calendarType,
+        month.getFullYear(),
+        month.getMonth() + 1,
+        month.getDate(),
+        bounds,
+      )
+    : null;
   const shownAnchor =
+    controlledAnchor ??
     viewAnchor ??
     getViewAnchor(
       calendarType,
@@ -164,34 +183,50 @@ const useCalendarData = (
   });
 
   const selectedTime = selectedDate?.getTime();
+  const defaultMonthTime = defaultMonth?.getTime();
   useEffect(() => {
     const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
     const next = requested ? toSelection(requested) : null;
     // Effects only run in the browser, so the clock here is the visitor's.
-    const { year, month, date } = requested ? ymd(requested) : todayParts(todayRef.current);
+    const fallback =
+      defaultMonthTime !== undefined
+        ? ymd(new Date(defaultMonthTime))
+        : todayParts(todayRef.current);
+    const { year, month, date } = requested ? ymd(requested) : fallback;
     setViewAnchor(getViewAnchor(calendarType, year, month, date, bounds));
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
-  }, [selectedTime, calendarType, bounds]);
+  }, [selectedTime, defaultMonthTime, calendarType, bounds]);
+
+  // Controlled: ask the owner to move; uncontrolled: move.
+  const navigate = useCallback(
+    (anchor: string) => {
+      if (!controlledAnchor) setViewAnchor(anchor);
+      else if (anchor !== controlledAnchor) onNavigate?.(anchor);
+    },
+    [controlledAnchor, onNavigate],
+  );
 
   const [firstAdDate, lastAdDate] = useMemo(
     () => monthBounds(calendarType, shownAnchor),
     [calendarType, shownAnchor],
   );
 
+  const pending = !controlledAnchor && !viewAnchor;
+
   const nextMonth = useCallback(() => {
-    setViewAnchor((anchor) => anchor && stepViewAnchor(anchor, calendarType, 1, bounds));
-  }, [calendarType, bounds]);
+    if (!pending) navigate(stepViewAnchor(shownAnchor, calendarType, 1, bounds));
+  }, [pending, navigate, shownAnchor, calendarType, bounds]);
 
   const prevMonth = useCallback(() => {
-    setViewAnchor((anchor) => anchor && stepViewAnchor(anchor, calendarType, -1, bounds));
-  }, [calendarType, bounds]);
+    if (!pending) navigate(stepViewAnchor(shownAnchor, calendarType, -1, bounds));
+  }, [pending, navigate, shownAnchor, calendarType, bounds]);
 
   const goToMonth = useCallback(
     (year: number, month: number) => {
       const span = monthSpan(calendarType, year, month);
-      if (span && overlaps(span, bounds.min, bounds.max)) setViewAnchor(span[0]);
+      if (span && overlaps(span, bounds.min, bounds.max)) navigate(span[0]);
     },
-    [calendarType, bounds],
+    [navigate, calendarType, bounds],
   );
 
   const isDayDisabled = useCallback(
@@ -245,9 +280,9 @@ const useCalendarData = (
     nextMonth,
     prevMonth,
     goToMonth,
-    canNextMonth: !!viewAnchor && canStep(viewAnchor, calendarType, 1, bounds),
-    canPrevMonth: !!viewAnchor && canStep(viewAnchor, calendarType, -1, bounds),
-    pending: !viewAnchor,
+    canNextMonth: !pending && canStep(shownAnchor, calendarType, 1, bounds),
+    canPrevMonth: !pending && canStep(shownAnchor, calendarType, -1, bounds),
+    pending,
     minAdDate,
     maxAdDate,
     isDayDisabled,

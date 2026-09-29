@@ -1,5 +1,6 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
@@ -557,6 +558,78 @@ test('onMonthChange reports the new month, not the initial one', async () => {
   expect(onMonthChange).toHaveBeenCalledWith({
     start: expect.objectContaining({ ad: '2026-11-01' }),
     end: expect.objectContaining({ ad: '2026-11-30' }),
+  });
+});
+
+describe('defaultMonth and month', () => {
+  test('defaultMonth is shown when nothing is selected', async () => {
+    const user = userEvent.setup();
+    const { container, rerender } = render(<Calendar defaultMonth={new Date(2000, 5, 10)} />);
+    expect(title(container)).toBe('June 2000');
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(title(container)).toBe('July 2000');
+
+    rerender(<Calendar defaultMonth={new Date(2000, 5, 10)} value={new Date(2026, 0, 5)} />);
+    expect(title(container)).toBe('January 2026');
+  });
+
+  test('a value wins over defaultMonth', () => {
+    const { container } = render(
+      <Calendar defaultMonth={new Date(2000, 5, 10)} defaultValue={new Date(2026, 0, 5)} />,
+    );
+    expect(title(container)).toBe('January 2026');
+  });
+
+  test('defaultMonth follows BS months in BS mode', () => {
+    // 2000-06-10 is BS 2057-02-28 (Jestha).
+    const { container } = render(<Calendar calendar='BS' defaultMonth={new Date(2000, 5, 10)} />);
+    expect(title(container)).toBe('जेष्ठ २०५७');
+  });
+
+  test('a controlled month only moves when the owner updates it', async () => {
+    const user = userEvent.setup();
+    const onMonthChange = jest.fn();
+    const { container, rerender } = render(
+      <Calendar month={new Date(2026, 2, 1)} onMonthChange={onMonthChange} />,
+    );
+    expect(title(container)).toBe('March 2026');
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(title(container)).toBe('March 2026');
+    expect(onMonthChange).toHaveBeenCalledWith({
+      start: expect.objectContaining({ ad: '2026-04-01' }),
+      end: expect.objectContaining({ ad: '2026-04-30' }),
+    });
+
+    rerender(<Calendar month={new Date(2026, 3, 1)} onMonthChange={onMonthChange} />);
+    expect(title(container)).toBe('April 2026');
+    // Updating the prop isn't reported back.
+    expect(onMonthChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('a controlled month works with state, the keyboard and the month picker', async () => {
+    const user = userEvent.setup();
+    const Controlled = () => {
+      const [month, setMonth] = useState(new Date(2026, 9, 1));
+      return (
+        <Calendar
+          defaultValue={TODAY}
+          month={month}
+          onMonthChange={({ start }) => setMonth(start.date)}
+        />
+      );
+    };
+    const { container } = render(<Controlled />);
+    screen.getByRole('grid').focus();
+    await user.keyboard('{PageDown}');
+    expect(title(container)).toBe('November 2026');
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-11-29');
+
+    await user.click(screen.getByRole('button', { name: /choose month/ }));
+    await user.click(screen.getByRole('button', { name: 'March' }));
+    expect(title(container)).toBe('March 2026');
   });
 });
 
