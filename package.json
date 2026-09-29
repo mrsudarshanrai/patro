@@ -90,7 +90,8 @@
     "vite": "^8.3.1"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -100,5 +101,6 @@
     "*.{json,css,scss,md,mjs}": [
       "prettier --write"
     ]
-  }
+  },
+  "sideEffects": false
 }
