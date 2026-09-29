@@ -1,6 +1,13 @@
-import { KeyboardEvent, useEffect, useId, useRef, useState } from 'react';
+import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
-import { CalendarProps, DateRange, RangeSelection, SingleSelection } from '../types/public';
+import {
+  CalendarProps,
+  CalendarRangeProps,
+  CalendarSingleProps,
+  DateRange,
+  RangeSelection,
+  SingleSelection,
+} from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
 import { ICalendar } from './types';
@@ -45,7 +52,7 @@ const DAY_STEPS: Record<string, number> = {
   ArrowDown: 7,
 };
 
-const Calendar = (props: CalendarProps) => {
+const CalendarComponent = (props: CalendarProps) => {
   const {
     value,
     defaultValue,
@@ -374,5 +381,14 @@ const Calendar = (props: CalendarProps) => {
     </div>
   );
 };
+
+// Overloads so `onChange` etc. are typed from `mode` even without strictNullChecks.
+type CalendarOverloads = {
+  (props: CalendarRangeProps): ReactElement;
+  (props: CalendarSingleProps): ReactElement;
+  (props: CalendarProps): ReactElement;
+};
+
+const Calendar = CalendarComponent as CalendarOverloads;
 
 export { Calendar };

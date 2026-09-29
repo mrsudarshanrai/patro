@@ -78,7 +78,9 @@ export interface CalendarBaseProps {
   style?: CSSProperties;
 }
 
-export type CalendarProps = CalendarBaseProps & (SingleSelection | RangeSelection);
+export type CalendarSingleProps = CalendarBaseProps & SingleSelection;
+export type CalendarRangeProps = CalendarBaseProps & RangeSelection;
+export type CalendarProps = CalendarSingleProps | CalendarRangeProps;
 
 export interface DatepickerBaseProps extends CalendarBaseProps {
   label?: string;
@@ -115,14 +117,14 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   portal?: boolean;
 }
 
-export type DatepickerProps = DatepickerBaseProps &
-  (
-    | (SingleSelection & {
-        /** Custom input text for the selected date, replacing the default two-calendar text. */
-        formatValue?: (value: PatroDate) => string;
-      })
-    | (RangeSelection & {
-        /** Custom input text for the selected range. */
-        formatValue?: (value: PatroDateRange) => string;
-      })
-  );
+export type DatepickerSingleProps = DatepickerBaseProps &
+  SingleSelection & {
+    /** Custom input text for the selected date, replacing the default two-calendar text. */
+    formatValue?: (value: PatroDate) => string;
+  };
+export type DatepickerRangeProps = DatepickerBaseProps &
+  RangeSelection & {
+    /** Custom input text for the selected range. */
+    formatValue?: (value: PatroDateRange) => string;
+  };
+export type DatepickerProps = DatepickerSingleProps | DatepickerRangeProps;
