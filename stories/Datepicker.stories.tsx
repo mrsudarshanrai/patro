@@ -9,7 +9,13 @@ const toDate = (value: unknown) =>
 const meta = {
   title: 'Example/Datepicker',
   component: DP,
-  argTypes: { value: { control: false } },
+  argTypes: {
+    value: { control: false },
+    defaultValue: { control: 'date' },
+    minDate: { control: 'date' },
+    maxDate: { control: 'date' },
+    showSecondaryDate: { control: 'boolean' },
+  },
   args: { onChange: fn(), onMonthChange: fn(), onOpenChange: fn(), onFocus: fn(), onBlur: fn() },
   // defaultValue is only read on mount, so remount when its control changes.
   render: (args) => {
