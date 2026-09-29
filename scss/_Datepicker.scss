@@ -164,8 +164,11 @@
     }
   }
 
+  // As wide as the input, even when a flex parent stretches the picker, so the clear button stays on it.
   &_control {
     position: relative;
+    width: max-content;
+    max-width: 100%;
   }
 
   &_clear {
