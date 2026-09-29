@@ -5,9 +5,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "outDir": "dist",
+    "rootDir": ".",
     /* Bundler mode */
     "esModuleInterop": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "emitDeclarationOnly": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,5 +25,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["."],
-  "exclude": ["dist", "build", "node_modules", "src/**/*.test.tsx", "src/**/*.stories.tsx"]
+  "exclude": ["dist", "node_modules", "storybook-static"]
 }

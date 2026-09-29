@@ -1,16 +1,30 @@
-import { config } from '../../constants/dateConstants';
+import { weekdayNames } from '../../utils';
 import { ICalendar } from '../types';
-const { en, np } = config;
 
-const days = (calendarType: ICalendar.calendarType) => {
-  return Object.values(calendarType === ICalendar.CalendarTypeEnum.AD ? en.days : np.days);
-};
+const rotate = <T,>(items: T[], by: number) => [...items.slice(by), ...items.slice(0, by)];
 
-const CalendarDays = ({ calendarType }: ICalendar.CalendarDaysProps) => {
+const CalendarDays = ({
+  calendar,
+  display,
+  weekStartsOn,
+  weekendDays = [],
+}: ICalendar.CalendarDaysProps) => {
+  const names = weekdayNames(calendar, display);
+  const long = rotate(names.long, weekStartsOn);
+  const short = rotate(names.short, weekStartsOn);
   return (
-    <div className='_patro_days'>
-      {days(calendarType).map((day: string) => (
-        <div className='_patro_days_day' key={day}>
+    <div className='_patro_days' role='row'>
+      {short.map((day, index) => (
+        <div
+          className={
+            weekendDays.includes((index + weekStartsOn) % 7)
+              ? '_patro_days_day _patro_days_day_weekend'
+              : '_patro_days_day'
+          }
+          key={long[index]}
+          role='columnheader'
+          aria-label={long[index]}
+        >
           {day}
         </div>
       ))}

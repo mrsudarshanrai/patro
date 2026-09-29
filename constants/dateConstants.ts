@@ -1,87 +1,19 @@
-import { Constant } from './types';
-
+// AD date of BS MIN_BS_YEAR-01-01, the anchor every conversion counts from.
 const START_ENGLISH_DATE = '1921-04-13';
 const MONTHS_IN_YEAR = 12;
-const MIN_BS_YEAR = 1978;
-const MAX_BS_YEAR = 2099;
 
-// Last AD date the `dates` table above can resolve to (the last day of
-// MAX_BS_YEAR, BS 2099-12-31). AD dates beyond this have no BS table entry.
-const MAX_AD_DATE = '2043-04-14';
+const DEVANAGARI_DIGITS = ['०', '१', '२', '३', '४', '५', '६', '७', '८', '९'];
 
-const currentYear = +new Date().getFullYear();
-const currentMonth = +new Date().getMonth() + 1;
-const currentDate = +new Date().getDate();
-
-const config: Constant.Config = {
-  en: {
-    months: {
-      January: 'Jan',
-      February: 'Feb',
-      March: 'Mar',
-      April: 'Apr',
-      May: 'May',
-      June: 'Jun',
-      July: 'Jul',
-      August: 'Aug',
-      September: 'Sep',
-      October: 'Oct',
-      November: 'Nov',
-      December: 'Dec',
-    },
-    days: {
-      Sunday: 'Sun',
-      Monday: 'Mon',
-      Tuesday: 'Tue',
-      Wednesday: 'Wed',
-      Thursday: 'Thu',
-      Friday: 'Fri',
-      Saturday: 'Sat',
-    },
-  },
-  np: {
-    months: {
-      बैशाख: 'बै',
-      जेष्ठ: 'जे',
-      आषाढ: 'आषा',
-      श्रावण: 'श्रा',
-      भाद्र: 'भा',
-      आश्विन: 'आश',
-      कार्तिक: 'का',
-      मंसिर: 'मं',
-      पौष: 'पौ',
-      माघ: 'मा',
-      फाल्गुन: 'फा',
-      चैत्र: 'चै',
-    },
-    days: {
-      आइतवार: 'आइ',
-      सोमवार: 'सोम',
-      मंगलवार: 'मंगल',
-      बुधवार: 'बुध',
-      बिहिवार: 'बिहि',
-      शुक्रवार: 'शुक्र',
-      शनिवार: 'शनि',
-    },
-    numbers: {
-      0: '०',
-      1: '१',
-      2: '२',
-      3: '३',
-      4: '४',
-      5: '५',
-      6: '६',
-      7: '७',
-      8: '८',
-      9: '९',
-    },
-  },
-};
-
-const weeksDaysCount = Object.values(config.en.days).length;
+const weeksDaysCount = 7;
 
 type Dates = { [year: number]: number[] };
 
+// BS month lengths: dates[year] = [year, Baisakh..Chaitra]. There's no formula -
+// they're set yearly from astronomical calculation. 2000-2098 matches the
+// `nepali-datetime` npm package, cross-checked against nepalipatro.com; years
+// more than a few ahead are published projections and sources disagree on
+// them. test/dateTable.test.ts pins verified real-world dates - update it
+// with evidence, not just to make it pass.
 const dates: Dates = [];
 dates[1978] = [1978, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[1979] = [1979, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
@@ -167,7 +99,7 @@ dates[2058] = [2058, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
 dates[2059] = [2059, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2060] = [2060, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
 dates[2061] = [2061, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
-dates[2062] = [2062, 31, 31, 31, 32, 31, 31, 29, 30, 29, 30, 29, 31];
+dates[2062] = [2062, 30, 32, 31, 32, 31, 31, 29, 30, 29, 30, 29, 31];
 dates[2063] = [2063, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2064] = [2064, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
 dates[2065] = [2065, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
@@ -186,33 +118,50 @@ dates[2077] = [2077, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
 dates[2078] = [2078, 31, 31, 31, 32, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2079] = [2079, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2080] = [2080, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 30];
-dates[2081] = [2081, 31, 31, 32, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2082] = [2082, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2083] = [2083, 31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2084] = [2084, 31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2085] = [2085, 31, 32, 31, 32, 30, 31, 30, 30, 29, 30, 30, 30];
-dates[2086] = [2086, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2087] = [2087, 31, 31, 32, 31, 31, 31, 30, 30, 29, 30, 30, 30];
-dates[2088] = [2088, 30, 31, 32, 32, 30, 31, 30, 30, 29, 30, 30, 30];
-dates[2089] = [2089, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2090] = [2090, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2091] = [2091, 31, 31, 32, 31, 31, 31, 30, 30, 29, 30, 30, 30];
-dates[2092] = [2092, 30, 31, 32, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2093] = [2093, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2094] = [2094, 31, 31, 32, 31, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2095] = [2095, 31, 31, 32, 31, 31, 31, 30, 29, 30, 30, 30, 30];
-dates[2096] = [2096, 30, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
-dates[2097] = [2097, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30];
-dates[2098] = [2098, 31, 31, 32, 31, 31, 31, 29, 30, 29, 30, 29, 31];
+dates[2081] = [2081, 31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
+dates[2082] = [2082, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
+dates[2083] = [2083, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
+dates[2084] = [2084, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
+dates[2085] = [2085, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
+dates[2086] = [2086, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
+dates[2087] = [2087, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
+dates[2088] = [2088, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
+dates[2089] = [2089, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 31];
+dates[2090] = [2090, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
+dates[2091] = [2091, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
+dates[2092] = [2092, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
+dates[2093] = [2093, 31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 29, 31];
+dates[2094] = [2094, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
+dates[2095] = [2095, 31, 31, 32, 32, 31, 30, 30, 29, 30, 29, 30, 30];
+dates[2096] = [2096, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
+dates[2097] = [2097, 31, 31, 31, 32, 31, 31, 29, 30, 30, 29, 30, 30];
+dates[2098] = [2098, 31, 31, 32, 31, 31, 31, 30, 29, 30, 29, 30, 30];
 dates[2099] = [2099, 31, 32, 31, 32, 31, 30, 30, 30, 29, 29, 30, 31];
 
+const bsYears = Object.keys(dates).map(Number);
+const MIN_BS_YEAR = Math.min(...bsYears);
+const MAX_BS_YEAR = Math.max(...bsYears);
+
+// Days from START_ENGLISH_DATE to the 1st of each BS year.
+const bsYearStartDays: Record<number, number> = {};
+let totalTableDays = 0;
+for (const year of bsYears) {
+  bsYearStartDays[year] = totalTableDays;
+  totalTableDays += dates[year].slice(1).reduce((a, b) => a + b, 0);
+}
+
+// Last AD date the table resolves to (the last day of MAX_BS_YEAR).
+const MAX_AD_DATE = new Date(
+  Date.parse(`${START_ENGLISH_DATE}T00:00:00Z`) + (totalTableDays - 1) * 86400000,
+)
+  .toISOString()
+  .slice(0, 10);
+
 export {
-  currentYear,
-  currentMonth,
-  currentDate,
   weeksDaysCount,
-  config,
+  DEVANAGARI_DIGITS,
   dates,
+  bsYearStartDays,
   MONTHS_IN_YEAR,
   START_ENGLISH_DATE,
   MIN_BS_YEAR,

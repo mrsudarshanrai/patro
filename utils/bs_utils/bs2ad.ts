@@ -1,8 +1,12 @@
-import { MAX_BS_YEAR, MIN_BS_YEAR, START_ENGLISH_DATE, dates } from '../../constants/dateConstants';
-import { createDateString } from '../dateUtils';
-import { dateString2Obj } from '../../utils';
+import {
+  MAX_BS_YEAR,
+  MIN_BS_YEAR,
+  START_ENGLISH_DATE,
+  bsYearStartDays,
+  dates,
+} from '../../constants/dateConstants';
+import { createDateString, dateString2Obj } from '../dateUtils';
 
-/** BS date sanitizer */
 const isBsYearValid = (year: number) => year < MIN_BS_YEAR || year > MAX_BS_YEAR;
 const isBsDayValid = (day: number, year: number, month: number) => {
   return day > dates[year][month];
@@ -18,31 +22,17 @@ const validateBsDate = (date: string) => {
 };
 
 const evaluateEnglishDate = (date: string, days: number) => {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  const year = result.getFullYear();
-  const month = result.getMonth() + 1;
-  const day = result.getDate();
-  return `${year}-${month > 9 ? month : '0' + month}-${day > 9 ? day : '0' + day}`;
+  const { year, month, day } = dateString2Obj(date);
+  const result = new Date(Date.UTC(year, month - 1, day + days));
+  return createDateString(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
 };
 
 const bs2Ad = (bsDate: string) => {
   const [year, month, day] = validateBsDate(bsDate)
     .split('-')
     .map((item) => parseInt(item));
-  let daysDiff = 0;
-  for (let i = MIN_BS_YEAR; i <= year; i++) {
-    if (i === year) {
-      for (let j = 1; j < month; j++) {
-        daysDiff += dates[i][j];
-      }
-      daysDiff += day - 1;
-    } else {
-      for (let j = 1; j <= 12; j++) {
-        daysDiff += dates[i][j];
-      }
-    }
-  }
+  let daysDiff = bsYearStartDays[year] + day - 1;
+  for (let m = 1; m < month; m++) daysDiff += dates[year][m];
   return evaluateEnglishDate(START_ENGLISH_DATE, daysDiff);
 };
 

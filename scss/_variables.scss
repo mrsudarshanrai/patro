@@ -2,12 +2,59 @@
   font-weight: normal;
 }
 
-$primary: #5865f2;
-$black: #000;
-$white: #fff;
+// Scoped to ._patro, not :root, so these never leak into a host app's
+// global scope. Dark applies only via explicit data-theme="dark" opt-in,
+// not prefers-color-scheme - a host app's own theme should win.
+._patro {
+  --patro-surface: #f3f5fe;
+  --patro-text: #292b31;
+  --patro-muted: #75798c;
+  --patro-sub: #595d6c;
+  --patro-faint: #9397ab;
+  --patro-faint-sub: #b2b6ca;
+  --patro-hover: #e4e7f5;
+  --patro-border: #cfd3e5;
+  --patro-border-hover: #9397ab;
+  --patro-accent: #796cbf;
+  --patro-today: #5d5294;
+  --patro-weekend: #b3261e;
+  --patro-danger: #b3261e;
+  --patro-sel-bg: #e7e5fe;
+  --patro-sel-text: #423a6a;
+  --patro-sel-sub: #5d5294;
+  --patro-halo: color-mix(in srgb, #796cbf 18%, transparent);
+  --patro-glow: 0 0 0 transparent;
+  --patro-shadow: 0 0 0 1px #cfd3e5, 0 8px 24px color-mix(in srgb, #292b31 12%, transparent);
 
-$hover_date_color: #fff;
-$day_color: #000;
-$offset_date: #757575;
-$date_color: $black;
-$date_border_color: #dfdfdf;
+  --patro-radius-popover: 14px;
+  --patro-radius-cell: 8px;
+  --patro-radius-input: 8px;
+
+  // Referenced, not injected - consumers who want the exact font load it
+  // themselves (see README); falls back to system sans-serif otherwise.
+  --patro-font: Inter, system-ui, sans-serif;
+  --patro-font-devanagari: 'Noto Sans Devanagari', sans-serif;
+}
+
+._patro[data-theme='dark'],
+[data-theme='dark'] ._patro {
+  --patro-surface: #232532;
+  --patro-text: #e9e9ed;
+  --patro-muted: #9397ab;
+  --patro-sub: #b2b6ca;
+  --patro-faint: #75798c;
+  --patro-faint-sub: #595d6c;
+  --patro-hover: #3f424d;
+  --patro-border: #3f424d;
+  --patro-border-hover: #75798c;
+  --patro-accent: #9184d9;
+  --patro-today: #d2cefd;
+  --patro-weekend: #f2a19b;
+  --patro-danger: #f2a19b;
+  --patro-sel-bg: #423a6a;
+  --patro-sel-text: #f5f4ff;
+  --patro-sel-sub: #d2cefd;
+  --patro-halo: color-mix(in srgb, #9184d9 22%, transparent);
+  --patro-glow: 0 0 14px color-mix(in srgb, #9184d9 30%, transparent);
+  --patro-shadow: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
+}

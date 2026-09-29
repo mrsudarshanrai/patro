@@ -4,10 +4,12 @@ import {
   bs2Ad,
   getMonthFirstDay,
   en2NpNumber,
-  formatDisplayDate,
+  formatDate,
+  monthRange,
+  monthTitle,
+  getToday,
+  getMonthGrid,
 } from '../utils';
-import { getRawAdDates } from '../utils/ad_utils';
-import { getRawBsDates } from '../utils/bs_utils';
 
 const adDate = '2022-10-24';
 const bsDate = '2079-07-07';
@@ -34,6 +36,27 @@ test('AD date past the BS table range throws', () => {
   expect(ad2Bs('2043-04-14')).toBe('2099-12-31');
 });
 
+test('getToday reads the clock at call time, not at import time', () => {
+  jest.useFakeTimers().setSystemTime(new Date(2026, 8, 30, 23, 59));
+  expect(getToday()).toEqual({ year: 2026, month: 9, date: 30 });
+  jest.setSystemTime(new Date(2026, 9, 1, 0, 1));
+  expect(getToday()).toEqual({ year: 2026, month: 10, date: 1 });
+  jest.useRealTimers();
+});
+
+test('impossible AD dates throw instead of rolling over', () => {
+  expect(() => ad2Bs('2026-02-30')).toThrow();
+  expect(() => ad2Bs('2026-02-29')).toThrow();
+  expect(() => ad2Bs('2026-04-31')).toThrow();
+  expect(() => ad2Bs('2026-10-00')).toThrow();
+  expect(ad2Bs('2024-02-29')).toBe('2080-11-17');
+});
+
+test('AD date before the BS table range throws', () => {
+  expect(() => ad2Bs('1921-04-12')).toThrow('AD Date out of range');
+  expect(ad2Bs('1921-04-13')).toBe('1978-01-01');
+});
+
 test('getMonthFirstDay returns the correct weekday regardless of local timezone', () => {
   // Hand-verified: Jan 1 2023 = Sunday, Feb 1 2024 = Thursday.
   expect(getMonthFirstDay(1, 2023)).toBe(0);
@@ -41,48 +64,55 @@ test('getMonthFirstDay returns the correct weekday regardless of local timezone'
 });
 
 test('AD grid leading cells show the correct BS date across a January year boundary', () => {
-  // Regression: the previous-month offset builder used to compute the
-  // leading (previous-month spillover) cells' BS subscript from the wrong
-  // month/year whenever the AD grid is January, since it mishandled rolling
-  // back into December of the *previous* year.
-  const grid = getRawAdDates(2024, 1, 1, { year: 2024, month: 1, date: 1 });
+  const grid = getMonthGrid('AD', '2024-01-01', '2024-01-01');
   const leadingCells = grid.flat().filter((cell) => cell.adDate < '2024-01-01');
 
   expect(leadingCells.length).toBeGreaterThan(0);
   leadingCells.forEach((cell) => {
     expect(cell.adDate.startsWith('2023-12')).toBe(true);
-    expect(cell.extraDate).toBe(en2NpNumber(ad2Bs(cell.adDate).split('-')[2]));
+    expect(cell.secondaryDay).toBe(Number(ad2Bs(cell.adDate).split('-')[2]));
   });
 });
 
 test('AD grid highlights the selected day, and only that day', () => {
-  const selected = { year: 2024, month: 3, date: 15 };
-  const grid = getRawAdDates(2024, 3, 15, selected).flat();
+  const grid = getMonthGrid('AD', '2024-03-01', '2024-03-15').flat();
 
-  expect(grid.find((cell) => cell.adDate === '2024-03-15')?.type).toContain(
-    '_patro_dates_current_date',
-  );
-  expect(grid.find((cell) => cell.adDate === '2024-03-14')?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(grid.find((cell) => cell.adDate === '2024-03-15')?.isSelected).toBe(true);
+  expect(grid.find((cell) => cell.adDate === '2024-03-14')?.isSelected).toBe(false);
+});
+
+test('the same day in another year is not highlighted as selected', () => {
+  const adGrid = getMonthGrid('AD', '2027-10-01', '2026-10-05').flat();
+  expect(adGrid.find((cell) => cell.adDate === '2027-10-05')?.isSelected).toBe(false);
+
+  const bsGrid = getMonthGrid('BS', bs2Ad('2080-07-01'), bs2Ad(bsDate)).flat();
+  expect(bsGrid.find((cell) => cell.adDate === bs2Ad('2080-07-07'))?.isSelected).toBe(false);
 });
 
 test('BS grid highlights the selected day, and only that day', () => {
-  const adSelected = { year: 2022, month: 10, date: 24 };
-  const bsSelected = { year: 2079, month: 7, date: 7 };
-  const grid = getRawBsDates(bsDate, 2022, 10, 24, adSelected, bsSelected).flat();
+  const grid = getMonthGrid('BS', bs2Ad('2079-07-01'), adDate).flat();
 
-  // BS 2079-07-07 is AD 2022-10-24 (the fixture at the top of this file).
-  expect(grid.find((cell) => cell.adDate === '2022-10-24')?.type).toContain(
-    '_patro_dates_current_date',
-  );
-  expect(grid.find((cell) => cell.adDate === '2022-10-23')?.type).not.toContain(
-    '_patro_dates_current_date',
-  );
+  expect(grid.find((cell) => cell.adDate === '2022-10-24')?.isSelected).toBe(true);
+  expect(grid.find((cell) => cell.adDate === '2022-10-23')?.isSelected).toBe(false);
 });
 
-test('formatDisplayDate formats a date in the given calendar system', () => {
-  const date = new Date(2022, 9, 24); // October 24, 2022
-  expect(formatDisplayDate(date, 'AD')).toBe('24 October 2022');
-  expect(formatDisplayDate(date, 'BS')).toBe('०७ कार्तिक २०७९');
+test('formatDate writes a date in either calendar, language and numerals', () => {
+  expect(formatDate('2022-10-24', 'AD')).toBe('24 October 2022');
+  expect(formatDate('2022-10-24', 'BS')).toBe('७ कार्तिक २०७९');
+  expect(formatDate('2022-10-24', 'BS', { locale: 'en', numerals: 'latin' })).toBe('7 Kartik 2079');
+  expect(formatDate('2022-10-24', 'AD', { locale: 'ne', numerals: 'devanagari' })).toBe(
+    '२४ अक्टोबर २०२२',
+  );
+  expect(formatDate('2022-10-24', 'AD', {}, { short: true })).toBe('24 Oct 2022');
+  expect(formatDate('2022-10-24', 'BS', {}, { withYear: false })).toBe('७ कार्तिक');
+});
+
+test('month titles and ranges name both years when a month spans two', () => {
+  expect(monthTitle('2026-12-16', 'BS')).toBe('पौष २०८३');
+  expect(monthRange('2026-12-16', '2027-01-14', 'BS')).toBe('Dec 2026 – Jan 2027');
+  expect(monthRange('2026-04-01', '2026-04-30', 'AD')).toBe('चैत्र २०८२ – बैशाख २०८३');
+});
+
+test('en2NpNumber converts only digits', () => {
+  expect(en2NpNumber('2083-07 12')).toBe('२०८३-०७ १२');
 });

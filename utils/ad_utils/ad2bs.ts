@@ -1,44 +1,47 @@
-import { dateString2Obj, evaluateNepaliDate, remove1stZero } from '..';
-import { createDateString } from '../dateUtils';
-import { START_ENGLISH_DATE, MAX_AD_DATE, config } from '../../constants/dateConstants';
-import { ICalendar } from '../../Calendar/types';
-const { np, en } = config;
+import { createDateString, dateString2Obj, getDates } from '../dateUtils';
+import {
+  START_ENGLISH_DATE,
+  MAX_AD_DATE,
+  MIN_BS_YEAR,
+  MAX_BS_YEAR,
+  bsYearStartDays,
+  dates,
+} from '../../constants/dateConstants';
 
-const isAd = (value: string) => value === ICalendar.CalendarTypeEnum.AD;
-
-/** AD date sanitizer: day/month/year shape is already checked by dateString2Obj */
 const validateAdDate = (date: string) => {
   const { year, month, day } = dateString2Obj(date);
-  const validated = createDateString(year, month, day);
+  if (day > getDates(month, year)) throw new Error(`No ${day} day exists in this month.`);
 
-  if (validated > MAX_AD_DATE) throw new Error('AD Date out of range');
+  const validated = createDateString(year, month, day);
+  if (validated < START_ENGLISH_DATE || validated > MAX_AD_DATE) {
+    throw new Error('AD Date out of range');
+  }
 
   return validated;
 };
 
-const getAdHeaderMonth = (bsMonth: string, adMonth: number, bsYear: string, adYear: string) => {
-  const parsedBsMonth = parseInt(remove1stZero(bsMonth));
-  const npMonths = Object.keys(np.months);
-  const beforeMonthIndex = parsedBsMonth - 2;
-  return {
-    oMonth: `${npMonths[beforeMonthIndex < 0 ? 11 : beforeMonthIndex]}/${
-      npMonths[parsedBsMonth - 1]
-    } - `,
-    month: Object.keys(en.months)[adMonth - 1],
-    oYear: bsYear,
-    year: adYear,
-  };
+const toUtcMs = (date: string) => {
+  const { year, month, day } = dateString2Obj(date);
+  return Date.UTC(year, month - 1, day);
 };
 
-/** AD To BS */
+const evaluateNepaliDate = (daysElapsed: number) => {
+  // A BS year is never longer than 366 days, so this never overshoots.
+  let year = Math.min(MAX_BS_YEAR, MIN_BS_YEAR + Math.floor(daysElapsed / 366));
+  while (year < MAX_BS_YEAR && bsYearStartDays[year + 1] <= daysElapsed) year++;
+
+  let remaining = daysElapsed - bsYearStartDays[year];
+  let month = 1;
+  while (remaining >= dates[year][month]) remaining -= dates[year][month++];
+
+  return createDateString(year, month, remaining + 1);
+};
+
 const ad2Bs = (adDate: string) => {
-  const startDate = new Date(START_ENGLISH_DATE);
-  const today = new Date(validateAdDate(adDate));
-  const daysDifference = Math.floor((today.getTime() - startDate.getTime()) / 86400000);
-  if (daysDifference < 0) {
-    throw new Error('AD Date out of range');
-  }
+  const daysDifference = Math.round(
+    (toUtcMs(validateAdDate(adDate)) - toUtcMs(START_ENGLISH_DATE)) / 86400000,
+  );
   return evaluateNepaliDate(daysDifference);
 };
 
-export { isAd, getAdHeaderMonth, ad2Bs };
+export { ad2Bs, evaluateNepaliDate };

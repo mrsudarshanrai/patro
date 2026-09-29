@@ -1,4 +1,31 @@
-import { stepViewAnchor } from '../hooks/useCalendarData';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
+import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
+import { ICalendar } from '../Calendar/types';
+
+// Effects don't run in renderToString, so this is exactly the first paint.
+const firstRender = (calendarType: ICalendar.calendarType, selectedDate?: Date) => {
+  let result: ReturnType<typeof useCalendarData> | undefined;
+  const Probe = (): null => {
+    result = useCalendarData(calendarType, selectedDate);
+    return null;
+  };
+  renderToString(createElement(Probe));
+  if (!result) throw new Error('hook did not render');
+  return { firstDay: result.firstAdDate, selected: result.adDate };
+};
+
+test('first render already shows the selected month and day', () => {
+  const selectedDate = new Date(2026, 9, 29);
+  expect(firstRender('BS', selectedDate)).toEqual({
+    firstDay: '2026-10-18',
+    selected: '2026-10-29',
+  });
+  expect(firstRender('AD', selectedDate)).toEqual({
+    firstDay: '2026-10-01',
+    selected: '2026-10-29',
+  });
+});
 
 test('stepViewAnchor advances one AD month without an invalid date at a month-length boundary', () => {
   // Regression: navigation state used to carry a stale day-of-month forward,

@@ -1,0 +1,168 @@
+._patro_datepicker {
+  display: inline-flex;
+  flex-direction: column;
+  font-family: var(--patro-font);
+
+  &_label {
+    margin: 0 0 5px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--patro-muted);
+  }
+
+  &_input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 288px;
+    height: 38px;
+    padding: 0 4px 0 11px;
+    background-color: var(--patro-surface);
+    border-radius: var(--patro-radius-input);
+    box-shadow: inset 0 0 0 1px var(--patro-border);
+    color: var(--patro-text);
+    cursor: pointer;
+    outline: none;
+
+    &:hover {
+      box-shadow: inset 0 0 0 1px var(--patro-border-hover);
+    }
+    &:focus-visible,
+    &[aria-expanded='true'] {
+      box-shadow:
+        inset 0 0 0 1px var(--patro-accent),
+        0 0 0 3px var(--patro-halo);
+    }
+    &_invalid,
+    &_invalid:hover {
+      box-shadow: inset 0 0 0 1px var(--patro-danger);
+    }
+    &_invalid:focus-visible,
+    &_invalid[aria-expanded='true'] {
+      box-shadow:
+        inset 0 0 0 1px var(--patro-danger),
+        0 0 0 3px color-mix(in srgb, var(--patro-danger) 20%, transparent);
+    }
+    &[aria-disabled='true'] {
+      cursor: default;
+      opacity: 0.55;
+      box-shadow: inset 0 0 0 1px var(--patro-border);
+    }
+    &[aria-readonly='true'] {
+      cursor: default;
+    }
+    &[aria-readonly='true']:hover {
+      box-shadow: inset 0 0 0 1px var(--patro-border);
+    }
+
+    &_primary {
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+      color: var(--patro-text);
+    }
+    &_secondary {
+      flex: 1;
+      min-width: 0;
+      font-size: 12px;
+      line-height: 16px;
+      font-weight: 500;
+      color: var(--patro-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &_custom {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &_placeholder {
+      flex: 1;
+      min-width: 0;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      color: var(--patro-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &_icon {
+      width: 30px;
+      height: 30px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      color: var(--patro-muted);
+      svg {
+        display: block;
+      }
+    }
+    &[aria-expanded='true'] &_icon {
+      color: var(--patro-accent);
+    }
+    &_clearable &_icon {
+      margin-left: 28px;
+    }
+  }
+
+  &_control {
+    position: relative;
+  }
+
+  &_clear {
+    position: absolute;
+    top: 50%;
+    right: 38px;
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    transform: translateY(-50%);
+    background: transparent;
+    color: var(--patro-muted);
+    cursor: pointer;
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      color: var(--patro-text);
+      outline: none;
+    }
+    svg {
+      display: block;
+    }
+  }
+
+  // Visually hidden but still part of native form submission and validation.
+  &_native {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_primary {
+  font-family: var(--patro-font-devanagari);
+  font-size: 15px;
+}
+
+._patro_datepicker_popper {
+  z-index: 1000;
+}
+
+._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {
+  font-family: var(--patro-font-devanagari);
+}
