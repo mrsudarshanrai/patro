@@ -11,6 +11,8 @@ import {
   getMonthGrid,
   isValidAdDate,
   isValidBsDate,
+  parseInputDate,
+  formatInputDate,
 } from '../utils';
 
 const adDate = '2022-10-24';
@@ -148,4 +150,35 @@ test('month titles and ranges name both years when a month spans two', () => {
 
 test('en2NpNumber converts only digits', () => {
   expect(en2NpNumber('2083-07 12')).toBe('२०८३-०७ १२');
+});
+
+describe('typed dates', () => {
+  test('parseInputDate reads the displayed calendar, with loose separators and digits', () => {
+    expect(parseInputDate('2026-10-29', 'AD')).toBe('2026-10-29');
+    expect(parseInputDate(' 2026/1/5 ', 'AD')).toBe('2026-01-05');
+    expect(parseInputDate('2026.10.29', 'AD')).toBe('2026-10-29');
+    expect(parseInputDate('२०८३-०७-१२', 'BS')).toBe('2026-10-29');
+    expect(parseInputDate('2083 7 12', 'BS')).toBe('2026-10-29');
+  });
+
+  test('parseInputDate rejects partial, impossible and unsupported dates', () => {
+    for (const text of [
+      '',
+      '2026-10',
+      '26-10-29',
+      '2026-10-029',
+      '2026-02-30',
+      '2050-01-01',
+      'abc',
+    ]) {
+      expect(parseInputDate(text, 'AD')).toBeNull();
+    }
+    expect(parseInputDate('2083-07-33', 'BS')).toBeNull();
+  });
+
+  test('formatInputDate writes the displayed calendar in its digits', () => {
+    expect(formatInputDate('2026-10-29', 'AD')).toBe('2026-10-29');
+    expect(formatInputDate('2026-10-29', 'BS')).toBe('२०८३-०७-१२');
+    expect(formatInputDate('2026-10-29', 'BS', { numerals: 'latin' })).toBe('2083-07-12');
+  });
 });

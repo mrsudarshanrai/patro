@@ -147,6 +147,11 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   readOnly?: boolean;
   /** Error styling and `aria-invalid`, e.g. after failed form validation. */
   invalid?: boolean;
+  /**
+   * Let people type the date as well, e.g. 2083-07-12 or 2083/7/12, in the displayed calendar and
+   * Latin or Devanagari digits. Committed on Enter or when leaving the field. Single mode only.
+   */
+  editable?: boolean;
   /** Close the popover after picking a day. Defaults to true. */
   closeOnSelect?: boolean;
   /** Controlled popover state. */
@@ -165,8 +170,8 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   autoFocus?: boolean;
   'aria-label'?: string;
   'aria-describedby'?: string;
-  onFocus?: (event: FocusEvent<HTMLDivElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLDivElement>) => void;
+  onFocus?: (event: FocusEvent<HTMLElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLElement>) => void;
   /** Popover position relative to the input. Defaults to 'bottom-start'. */
   placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'bottom' | 'top';
   /** Render the popover in `document.body`, e.g. to escape `overflow: hidden` parents. */

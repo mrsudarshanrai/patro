@@ -76,7 +76,8 @@
     outline-offset: -1px;
 
     &:focus-visible,
-    &[aria-expanded='true'] {
+    &[aria-expanded='true'],
+    &._patro_datepicker_input_editable:focus-within {
       outline: 2px solid Highlight;
       outline-offset: -2px;
     }

@@ -467,3 +467,99 @@ test('defaultMonth opens an empty picker on that month, e.g. for a date of birth
   await user.click(input);
   expect(container.querySelector('._patro_header_title')).toHaveTextContent('June 2000');
 });
+
+describe('editable', () => {
+  const setupEditable = (props: SingleProps & { editable?: boolean } = {}) => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const utils = render(
+      <>
+        <Datepicker editable label='Date' defaultValue={TODAY} onChange={onChange} {...props} />
+        <button type='button'>after</button>
+      </>,
+    );
+    const field = screen.getByRole('combobox', { name: 'Date' }) as HTMLInputElement;
+    return { user, onChange, field, ...utils };
+  };
+
+  test('shows the value as editable text in the displayed calendar', () => {
+    const { field, unmount } = setupEditable();
+    expect(field.tagName).toBe('INPUT');
+    expect(field).toHaveValue('2026-10-29');
+    unmount();
+    const { field: bs } = setupEditable({ calendar: 'BS' });
+    expect(bs).toHaveValue('२०८३-०७-१२');
+  });
+
+  test('typing a date and pressing Enter commits it', async () => {
+    const { user, field, onChange } = setupEditable();
+    await user.clear(field);
+    await user.type(field, '2026/1/5{Enter}');
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ ad: '2026-01-05' }));
+    expect(field).toHaveValue('2026-01-05');
+  });
+
+  test('BS text can be typed in Latin or Devanagari digits', async () => {
+    const { user, field, onChange } = setupEditable({ calendar: 'BS' });
+    await user.clear(field);
+    await user.type(field, '2083-01-01');
+    await user.tab();
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ bs: '2083-01-01' }));
+    expect(field).toHaveValue('२०८३-०१-०१');
+  });
+
+  test('Enter on text that is not a date marks it invalid; leaving puts the value back', async () => {
+    const { user, field, onChange } = setupEditable();
+    await user.clear(field);
+    await user.type(field, '2026-02-30{Enter}');
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(onChange).not.toHaveBeenCalled();
+    await user.tab();
+    expect(field).toHaveValue('2026-10-29');
+    expect(field).not.toHaveAttribute('aria-invalid');
+  });
+
+  test('dates outside minDate/maxDate or disabled are rejected', async () => {
+    const { user, field, onChange } = setupEditable({
+      maxDate: new Date(2026, 11, 31),
+      isDateDisabled: ({ ad }: PatroDate) => ad === '2026-11-11',
+    });
+    await user.clear(field);
+    await user.type(field, '2027-01-01{Enter}');
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    await user.clear(field);
+    await user.type(field, '2026-11-11{Enter}');
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  test('clearing the text clears the value', async () => {
+    const { user, field, onChange } = setupEditable();
+    await user.clear(field);
+    await user.tab();
+    expect(onChange).toHaveBeenLastCalledWith(null);
+    expect(field).toHaveValue('');
+    expect(field).toHaveAttribute('placeholder', 'YYYY-MM-DD');
+  });
+
+  test('ArrowDown opens the calendar in the grid; picking fills the text', async () => {
+    const { user, field } = setupEditable();
+    field.focus();
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('grid')).toHaveFocus();
+    expect(field).toHaveAttribute('aria-controls', screen.getByRole('dialog').id);
+    await user.keyboard('{ArrowLeft}{Enter}');
+    expect(field).toHaveFocus();
+    expect(field).toHaveValue('2026-10-28');
+  });
+
+  test('the calendar button toggles the popover; ref and name point at the right elements', async () => {
+    const user = userEvent.setup();
+    const ref = createRef<HTMLElement>();
+    const { container } = render(<Datepicker editable ref={ref} name='dob' defaultValue={TODAY} />);
+    expect(ref.current).toBe(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('button', { name: 'Choose a date' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(container.querySelector('input[name="dob"]')).toHaveValue('2026-10-29');
+  });
+});
