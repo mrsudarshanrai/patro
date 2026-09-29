@@ -272,7 +272,7 @@ describe('behaviour and forms', () => {
     );
     const form = container.querySelector('form') as HTMLFormElement;
     expect(form.checkValidity()).toBe(false);
-    expect(screen.getByRole('button')).toHaveAttribute('aria-required', 'true');
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-required', 'true');
   });
 
   test('label, id and aria props are wired to the input', () => {
@@ -287,7 +287,7 @@ describe('behaviour and forms', () => {
         <p id='dob-help'>As on your citizenship</p>
       </>,
     );
-    const input = screen.getByRole('button', { name: /Date of birth/ });
+    const input = screen.getByRole('combobox', { name: 'Date of birth' });
     expect(input).toHaveAttribute('id', 'dob');
     expect(input).toHaveAccessibleDescription('As on your citizenship');
   });
@@ -297,7 +297,7 @@ describe('behaviour and forms', () => {
     const onBlur = jest.fn();
     const ref = createRef<HTMLDivElement>();
     render(<Datepicker ref={ref} autoFocus onFocus={onFocus} onBlur={onBlur} />);
-    expect(ref.current).toBe(screen.getByRole('button'));
+    expect(ref.current).toBe(screen.getByRole('combobox', { name: 'Choose a date' }));
     expect(ref.current).toHaveFocus();
     expect(onFocus).toHaveBeenCalled();
     ref.current?.blur();
@@ -436,7 +436,8 @@ describe('focus management', () => {
         <button type='button'>after</button>
       </>,
     );
-    const input = screen.getByRole('button', { name: /October 2026/ });
+    const input = screen.getByRole('combobox', { name: 'Choose a date' });
+    expect(input).toHaveTextContent('29 October 2026');
     input.focus();
     await user.keyboard('{ArrowDown}');
     expect(screen.getByRole('grid')).toHaveFocus();

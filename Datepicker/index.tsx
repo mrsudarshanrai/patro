@@ -297,7 +297,8 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
             ]
               .filter(Boolean)
               .join(' ')}
-            role='button'
+            // Select-only combobox (WAI-ARIA APG): unlike a button it can be required and read-only.
+            role='combobox'
             tabIndex={disabled ? -1 : 0}
             aria-haspopup='dialog'
             aria-expanded={isOpen}
@@ -306,8 +307,8 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
             aria-readonly={readOnly || undefined}
             aria-invalid={invalid || undefined}
             aria-required={required || undefined}
-            aria-label={ariaLabel}
-            aria-labelledby={!ariaLabel && label ? `${labelId} ${inputId}` : undefined}
+            aria-label={ariaLabel ?? (label ? undefined : text.chooseDate)}
+            aria-labelledby={!ariaLabel && label ? labelId : undefined}
             aria-describedby={ariaDescribedBy}
             onClick={onInputClick}
             onKeyDown={onInputKeyDown}
