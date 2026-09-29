@@ -32,19 +32,24 @@ const isTodayAdDate = (adDate: string) => {
   return adDate === createDateString(year, month, date);
 };
 
-const isDayValid = (day: number) => day > 32 || day < 1 || !day;
-const isMonthValid = (month: number) => month > 12 || month < 1 || !month;
-const isYearValid = (year: number) => !year || year.toString().length < 4;
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+const toLatinDigits = (value: string) =>
+  value.replace(/[०-९]/g, (digit) => String(DEVANAGARI_DIGITS.indexOf(digit)));
+
+// Accepts 'YYYY-MM-DD' in Latin or Devanagari digits; the day is checked against the month by callers.
 const dateString2Obj = (date: string) => {
-  const splittedDate = date.split('-');
-  if (splittedDate.length !== 3) throw new Error('Date format is invalid');
-  const [year, month, day] = date.split('-').map((item) => parseInt(item));
-  if (isDayValid(day)) throw new Error('Day is invalid.');
-  if (isMonthValid(month)) throw new Error('Month is invalid.');
-
-  if (isYearValid(year)) throw new Error('Year is invalid.');
-
+  if (typeof date !== 'string') {
+    throw new TypeError(
+      `Expected a 'YYYY-MM-DD' string, got ${date === null ? 'null' : typeof date}.`,
+    );
+  }
+  const match = DATE_PATTERN.exec(toLatinDigits(date));
+  if (!match) throw new RangeError(`Invalid date "${date}": expected 'YYYY-MM-DD'.`);
+  const [year, month, day] = match.slice(1).map(Number);
+  if (month < 1 || month > 12 || day < 1 || day > 32) {
+    throw new RangeError(`Invalid date "${date}".`);
+  }
   return { year, month, day };
 };
 
@@ -77,6 +82,7 @@ export {
   getToday,
   isTodayAdDate,
   dateString2Obj,
+  toLatinDigits,
   adDateToLocalDate,
   isSupportedAdDate,
   clampAdDate,

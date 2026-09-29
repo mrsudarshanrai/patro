@@ -1,4 +1,4 @@
-import { createDateString, dateString2Obj, getDates } from '../dateUtils';
+import { createDateString, dateString2Obj, getDates, toAdDateString } from '../dateUtils';
 import {
   START_ENGLISH_DATE,
   MAX_AD_DATE,
@@ -10,11 +10,13 @@ import {
 
 const validateAdDate = (date: string) => {
   const { year, month, day } = dateString2Obj(date);
-  if (day > getDates(month, year)) throw new Error(`No ${day} day exists in this month.`);
+  if (day > getDates(month, year)) throw new RangeError(`"${date}" is not a valid AD date.`);
 
   const validated = createDateString(year, month, day);
   if (validated < START_ENGLISH_DATE || validated > MAX_AD_DATE) {
-    throw new Error('AD Date out of range');
+    throw new RangeError(
+      `AD date "${date}" is outside the supported range (${START_ENGLISH_DATE} to ${MAX_AD_DATE}).`,
+    );
   }
 
   return validated;
@@ -37,11 +39,22 @@ const evaluateNepaliDate = (daysElapsed: number) => {
   return createDateString(year, month, remaining + 1);
 };
 
-const ad2Bs = (adDate: string) => {
+/** AD 'YYYY-MM-DD' (or a `Date`, read in local time) to BS 'YYYY-MM-DD'. Throws for invalid or unsupported dates. */
+const ad2Bs = (adDate: string | Date) => {
+  const input = adDate instanceof Date ? toAdDateString(adDate) : adDate;
   const daysDifference = Math.round(
-    (toUtcMs(validateAdDate(adDate)) - toUtcMs(START_ENGLISH_DATE)) / 86400000,
+    (toUtcMs(validateAdDate(input)) - toUtcMs(START_ENGLISH_DATE)) / 86400000,
   );
   return evaluateNepaliDate(daysDifference);
 };
 
-export { ad2Bs, evaluateNepaliDate };
+const isValidAdDate = (adDate: string) => {
+  try {
+    validateAdDate(adDate);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+export { ad2Bs, evaluateNepaliDate, isValidAdDate };

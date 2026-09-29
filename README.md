@@ -160,11 +160,17 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 The AD ↔ BS conversion functions used internally are also exported directly, if you just need date math without the UI:
 
 ```ts
-import { ad2Bs, bs2Ad } from 'patro';
+import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patro';
 
 ad2Bs('2022-10-24'); // '2079-07-07'
+ad2Bs(new Date(2022, 9, 24)); // '2079-07-07' (read in local time)
 bs2Ad('2079-07-07'); // '2022-10-24'
+bs2Ad('२०७९-०७-०७'); // '2022-10-24'
+
+isValidBsDate('2080-01-32'); // false
 ```
+
+Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad` throw a `RangeError` for a malformed, impossible (e.g. `'2026-02-30'`) or unsupported date, and a `TypeError` for a non-string; `isValidAdDate`/`isValidBsDate` return a boolean instead, e.g. for form validation.
 
 Supported range: AD `1921-04-13` through `2043-04-14` (BS `1978-01-01` through `2099-12-31`).
 
