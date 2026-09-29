@@ -344,3 +344,11 @@
     font-family: var(--patro-font);
   }
 }
+
+// Server-rendered without a value or `today`: keep the size, hide the placeholder month.
+._patro_container[aria-busy='true'] {
+  ._patro_header_info,
+  ._patro_grid ._patro_dates_date {
+    visibility: hidden;
+  }
+}

@@ -56,7 +56,7 @@ In range mode `value`/`defaultValue` are `{ start: Date | null; end: Date | null
 
 ### Controlled vs uncontrolled
 
-Pass `defaultValue` (or nothing, meaning today) and the component keeps track of the selection itself. Pass `value` to control it from your state:
+Pass `defaultValue` (or nothing: no selection, showing the current month) and the component keeps track of the selection itself. Pass `value` to control it from your state:
 
 ```tsx
 const [value, setValue] = useState<Date | null>(null);
@@ -75,6 +75,12 @@ const [value, setValue] = useState<Date | null>(null);
   bs: '2083-07-12';
 }
 ```
+
+### Server rendering (Next.js, Remix)
+
+The package is marked `'use client'`, so it can be imported from React Server Components.
+
+"Today" is read in the browser, because the server's date (often UTC) can differ from the visitor's. Without a `value`, the server renders the calendar's frame with the month left blank; it fills in on hydration, with no hydration mismatch. To render the month on the server too, pass `today`, e.g. a date computed on the server for the visitor's timezone.
 
 ## Quick month and year navigation
 
@@ -114,7 +120,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `calendar`          | `'AD' \| 'BS'`                                                   | `'AD'`              | Which calendar system to display.                                                                                       |
 | `mode`              | `'single' \| 'range'`                                            | `'single'`          | Pick one day, or a start and an end. See [Date ranges](#date-ranges).                                                   |
 | `value`             | `Date \| null`                                                   | -                   | Controlled selection. `null` = nothing selected.                                                                        |
-| `defaultValue`      | `Date \| null`                                                   | today               | Starting selection when uncontrolled. `null` = nothing selected.                                                        |
+| `defaultValue`      | `Date \| null`                                                   | -                   | Starting selection when uncontrolled. Omitted or `null` = nothing selected.                                             |
 | `onChange`          | `(value: PatroDate \| null) => void`                             | -                   | Called when a day is picked.                                                                                            |
 | `showSecondaryDate` | `boolean`                                                        | `true`              | Show the other calendar's date on each day.                                                                             |
 | `locale`            | `'en' \| 'ne'`                                                   | each calendar's own | Language for month and weekday names. By default AD is English and BS is Nepali.                                        |
@@ -125,6 +131,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 | `dayClassName`      | `(date: PatroDate) => string \| undefined`                       | -                   | Extra class names for a day, e.g. `({ bs }) => holidays.has(bs) ? 'holiday' : undefined`.                               |
 | `onMonthChange`     | `({ start, end }: { start: PatroDate; end: PatroDate }) => void` | -                   | Called when the displayed month changes.                                                                                |
 | `showTodayButton`   | `boolean`                                                        | `false`             | Show a "Today" button that jumps to and selects today.                                                                  |
+| `today`             | `Date`                                                           | visitor's clock     | The current date. See [Server rendering](#server-rendering-nextjs-remix).                                               |
 | `className`         | `string`                                                         | -                   | Added to the root element.                                                                                              |
 | `style`             | `CSSProperties`                                                  | -                   | Inline styles on the root, including `--patro-*` token overrides.                                                       |
 | `theme`             | `'light' \| 'dark'`                                              | -                   | Sets `data-theme` on the component root. See [Theming](#theming).                                                       |

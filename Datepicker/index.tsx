@@ -34,6 +34,7 @@ import {
   toPatroDate,
 } from '../utils';
 import { icons } from './icons';
+import { useIsClient } from '../hooks/useToday';
 
 const DEFAULT_PLACEHOLDER = {
   single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
@@ -82,13 +83,14 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
       ...calendarProps
     } = props;
     const generatedId = useId();
+    const isClient = useIsClient();
     const inputId = id ?? generatedId;
     const labelId = `${inputId}-label`;
 
     const isRange = mode === 'range';
     const isControlled = value !== undefined;
     const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
-      defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : new Date(),
+      defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
     );
     const currentValue = isControlled ? value : uncontrolledValue;
     const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
@@ -348,7 +350,8 @@ const DatepickerComponent = forwardRef<HTMLDivElement, DatepickerProps>(
               />
             ))}
         </div>
-        {popover && (portal ? createPortal(popover, document.body) : popover)}
+        {/* No document.body while server rendering; the portal appears after hydration. */}
+        {popover && (portal ? isClient && createPortal(popover, document.body) : popover)}
       </div>
     );
   },

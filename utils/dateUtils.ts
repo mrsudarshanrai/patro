@@ -27,11 +27,6 @@ const getToday = () => {
   return { year: now.getFullYear(), month: now.getMonth() + 1, date: now.getDate() };
 };
 
-const isTodayAdDate = (adDate: string) => {
-  const { year, month, date } = getToday();
-  return adDate === createDateString(year, month, date);
-};
-
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const toLatinDigits = (value: string) =>
@@ -80,7 +75,6 @@ export {
   getMonthFirstDay,
   switchYear,
   getToday,
-  isTodayAdDate,
   dateString2Obj,
   toLatinDigits,
   adDateToLocalDate,

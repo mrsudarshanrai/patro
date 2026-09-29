@@ -1,5 +1,6 @@
 import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
 import { useCalendarData } from '../hooks/useCalendarData';
+import { useToday } from '../hooks/useToday';
 import {
   CalendarProps,
   CalendarRangeProps,
@@ -17,11 +18,9 @@ import {
   adDateToLocalDate,
   addDays,
   clampAdDate,
-  createDateString,
   datePartsIn,
   DisplayOptions,
   formatNumber,
-  getToday,
   isSupportedAdDate,
   languageOf,
   monthName,
@@ -71,13 +70,14 @@ const CalendarComponent = (props: CalendarProps) => {
     dayClassName,
     onMonthChange,
     showTodayButton = false,
+    today,
     className,
     style,
   } = props;
   const isRange = props.mode === 'range';
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
-    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : new Date(),
+    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
   );
   const currentValue = isControlled ? value : uncontrolledValue;
   const currentRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
@@ -94,6 +94,7 @@ const CalendarComponent = (props: CalendarProps) => {
   const [showFocusRing, setShowFocusRing] = useState(false);
   const pointerDown = useRef(false);
   const idPrefix = useId();
+  const todayAdDate = useToday(today);
 
   const {
     dates,
@@ -108,6 +109,7 @@ const CalendarComponent = (props: CalendarProps) => {
     minAdDate,
     maxAdDate,
     isDayDisabled,
+    pending,
   } = useCalendarData(calendar, selectedDate, {
     minDate,
     maxDate,
@@ -115,6 +117,7 @@ const CalendarComponent = (props: CalendarProps) => {
     weekStartsOn,
     fixedWeeks,
     weekendDays,
+    today: todayAdDate,
   });
 
   // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
@@ -148,11 +151,8 @@ const CalendarComponent = (props: CalendarProps) => {
   const pageLast = yearSpan(calendar, pageStart + YEARS_PER_PAGE - 1);
   const pageSpan = pageFirst && pageLast ? [pageFirst[0], pageLast[1]] : null;
 
-  const todayAdDate = (() => {
-    const { year, month, date } = getToday();
-    return createDateString(year, month, date);
-  })();
-  const todayAllowed = isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
+  const todayAllowed =
+    !!todayAdDate && isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
 
   const ownDays = dates.flat().filter((cell) => !cell.offset);
   const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
@@ -161,14 +161,10 @@ const CalendarComponent = (props: CalendarProps) => {
   const monthEnd = monthCells[monthCells.length - 1].adDate;
   const inView = (adDate?: string) =>
     !!adDate && adDate >= monthStart && adDate <= monthEnd && !isDayDisabled(adDate);
-  const today = getToday();
   // Keep focus on something visible after month changes: focused, else selected, else today.
   const activeAdDate =
-    [
-      focusedAdDate,
-      selectedAdDate ?? undefined,
-      createDateString(today.year, today.month, today.date),
-    ].find(inView) ?? monthStart;
+    [focusedAdDate, selectedAdDate ?? undefined, todayAdDate ?? undefined].find(inView) ??
+    monthStart;
 
   const onSelect = (adDate: string) => {
     setFocusedAdDate(adDate);
@@ -203,6 +199,7 @@ const CalendarComponent = (props: CalendarProps) => {
   };
 
   const goToToday = () => {
+    if (!todayAdDate) return;
     const [year, month] = datePartsIn(todayAdDate, calendar);
     goToMonth(year, month);
     setView('days');
@@ -309,6 +306,8 @@ const CalendarComponent = (props: CalendarProps) => {
       style={style}
       data-calendar-type={calendar}
       data-theme={theme}
+      // Month unknown until the browser's today is (server render / hydration); CSS hides the placeholder.
+      aria-busy={pending || undefined}
       onKeyDown={(event) => {
         if (view === 'days' || event.key !== 'Escape') return;
         event.stopPropagation();

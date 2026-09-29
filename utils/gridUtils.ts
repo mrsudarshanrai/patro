@@ -7,7 +7,6 @@ import {
   dateString2Obj,
   getDates,
   isSupportedAdDate,
-  isTodayAdDate,
 } from './dateUtils';
 import { ad2Bs } from './ad_utils/ad2bs';
 import { bs2Ad } from './bs_utils/bs2ad';
@@ -46,7 +45,13 @@ const getMonthGrid = (
     weekStartsOn = 0,
     fixedWeeks = true,
     weekendDays = [],
-  }: { weekStartsOn?: number; fixedWeeks?: boolean; weekendDays?: number[] } = {},
+    today = null,
+  }: {
+    weekStartsOn?: number;
+    fixedWeeks?: boolean;
+    weekendDays?: number[];
+    today?: string | null;
+  } = {},
 ): IUseCalendarData.IDates[][] => {
   const isAdView = calendarType === ICalendar.CalendarTypeEnum.AD;
   const [first, last] = monthBounds(calendarType, adDate);
@@ -81,7 +86,7 @@ const getMonthGrid = (
       year: Number(isAdView ? adYear : bsYear),
       month: Number(isAdView ? adMonth : bsMonth),
       adDate: ad,
-      isToday: isTodayAdDate(ad),
+      isToday: ad === today,
       isSelected: !offset && ad === selectedAdDate,
       ...(weekendDays.includes(weekday(ad)) && { isWeekend: true }),
       ...(isDayDisabled?.(ad) && { isDisabled: true }),

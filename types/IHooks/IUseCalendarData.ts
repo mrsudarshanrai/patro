@@ -13,6 +13,8 @@ export namespace IUseCalendarData {
     minAdDate: string;
     maxAdDate: string;
     isDayDisabled: (adDate: string) => boolean;
+    /** The month isn't known yet (server render / hydration without a selection). */
+    pending: boolean;
   }
 
   export interface ICurrDate {

@@ -28,7 +28,7 @@ export interface SingleSelection {
   mode?: 'single';
   /** Controlled selection. `null` = nothing selected. */
   value?: Date | null;
-  /** Initial selection when uncontrolled. Defaults to today; `null` = nothing selected. */
+  /** Initial selection when uncontrolled. Defaults to nothing selected. */
   defaultValue?: Date | null;
   onChange?: (value: PatroDate | null) => void;
 }
@@ -72,6 +72,12 @@ export interface CalendarBaseProps {
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
   /** Show a "Today" button that jumps to and selects today. */
   showTodayButton?: boolean;
+  /**
+   * The current date, for the today marker, the Today button and the initial month.
+   * Defaults to the visitor's clock, read in the browser. Pass it when server rendering
+   * without a value to render the month on the server too, or to pin it in tests.
+   */
+  today?: Date;
   /** Added to the root element. */
   className?: string;
   /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */

@@ -8,6 +8,8 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 
 - `Calendar`/`Datepicker` props renamed: `calendarType` → `calendar`, `showExtra` → `showSecondaryDate`, `defaultDate` → `value` / `defaultValue`.
 - `onChange` now receives a `PatroDate` (`{ date, ad, bs }`), or `null`, instead of an internal grid-cell object.
+- Nothing is selected by default; pass `defaultValue={new Date()}` for the old today-selected start.
+- `ad2Bs`/`bs2Ad` accept only `'YYYY-MM-DD'` and throw `RangeError`/`TypeError` with clearer messages.
 
 ### Added
 
@@ -19,6 +21,8 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - Full keyboard support (arrow keys, PageUp/PageDown, Enter/Escape) with a visible focus ring.
 - `Datepicker` form integration: `name`, `valueFormat`, `required`, `disabled`, `readOnly`, `invalid`, `clearable`, controlled `open`/`onOpenChange`, `placement`, `portal`, a forwarded `ref`.
 - `className`/`style` on both components, including `--patro-*` CSS custom property overrides.
+- Server rendering: `'use client'` for React Server Components, "today" read in the browser so hydration never mismatches, and a `today` prop to render it on the server.
+- `isValidAdDate`/`isValidBsDate`; `ad2Bs` takes a `Date`; both conversions accept Devanagari digits.
 - Exported types: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `CalendarSystem`, `Locale`, `Numerals`.
 
 ### Fixed
