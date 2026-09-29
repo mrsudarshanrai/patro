@@ -59,6 +59,12 @@ export interface RangeSelection {
   defaultValue?: DateRange;
   /** Called on every pick, so `end` is `null` while only the start is chosen. */
   onChange?: (value: PatroDateRange) => void;
+  /** Fewest days a range can span, counting both ends. Picking a closer end starts a new range there. */
+  minDays?: number;
+  /** Most days a range can span, counting both ends. Picking a farther end starts a new range there. */
+  maxDays?: number;
+  /** Ranges can't contain disabled days; picking an end past one starts a new range there. */
+  excludeDisabled?: boolean;
 }
 
 export interface CalendarBaseProps {

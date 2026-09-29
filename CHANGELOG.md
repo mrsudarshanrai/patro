@@ -13,7 +13,7 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 
 ### Added
 
-- Date-range selection: `mode="range"` on both components.
+- Date-range selection: `mode="range"` on both components, with `minDays`, `maxDays` and `excludeDisabled`.
 - `minDate`, `maxDate`, `isDateDisabled` for disabling individual days or ranges.
 - `locale` and `numerals` — display month/weekday names and digits in English/Nepali independent of the calendar system.
 - `weekStartsOn`, `fixedWeeks`, `weekendDays`; `dayClassName`, `dayContent` and `dayLabel` for holidays/events.

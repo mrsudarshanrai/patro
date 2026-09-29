@@ -76,6 +76,7 @@ const CalendarComponent = (props: CalendarProps) => {
     style,
   } = props;
   const isRange = props.mode === 'range';
+  const { minDays, maxDays, excludeDisabled } = isRange ? (props as CalendarRangeProps) : {};
   const isControlled = value !== undefined;
   const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
     defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
@@ -180,10 +181,19 @@ const CalendarComponent = (props: CalendarProps) => {
     [focusedAdDate, selectedAdDate ?? undefined, todayAdDate ?? undefined].find(inView) ??
     monthStart;
 
+  const isValidEnd = (start: string, end: string) => {
+    if (end < start) return false;
+    const days = Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000) + 1;
+    if ((minDays && days < minDays) || (maxDays && days > maxDays)) return false;
+    if (!excludeDisabled) return true;
+    for (let day = start; day <= end; day = addDays(day, 1)) if (isDayDisabled(day)) return false;
+    return true;
+  };
+
   const onSelect = (adDate: string) => {
     setFocusedAdDate(adDate);
     if (range) {
-      const restart = !range.start || !!range.end || adDate < range.start;
+      const restart = !range.start || !!range.end || !isValidEnd(range.start, adDate);
       const start = restart ? adDate : (range.start as string);
       const end = restart ? null : adDate;
       if (!isControlled) {
@@ -209,7 +219,8 @@ const CalendarComponent = (props: CalendarProps) => {
       : undefined;
   const gridRange = range && {
     ...range,
-    preview: previewEnd && range.start && previewEnd >= range.start ? previewEnd : undefined,
+    preview:
+      previewEnd && range.start && isValidEnd(range.start, previewEnd) ? previewEnd : undefined,
   };
 
   const goToToday = () => {

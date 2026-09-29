@@ -790,6 +790,59 @@ describe('range mode', () => {
 
   const classesOf = (container: HTMLElement, adDate: string) => cell(container, adDate).className;
 
+  describe('range rules', () => {
+    const ends = (onChange: jest.Mock) => {
+      const { start, end } = onChange.mock.lastCall[0];
+      return [start?.ad ?? null, end?.ad ?? null];
+    };
+
+    test('minDays: a closer end starts a new range there', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { container } = render(<Calendar mode='range' minDays={3} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-06'));
+      expect(ends(onChange)).toEqual(['2026-10-06', null]);
+      await user.click(cell(container, '2026-10-08'));
+      expect(ends(onChange)).toEqual(['2026-10-06', '2026-10-08']);
+    });
+
+    test('maxDays: a farther end starts a new range, and gets no preview', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { container } = render(<Calendar mode='range' maxDays={7} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-05'));
+      await user.hover(cell(container, '2026-10-12'));
+      expect(cell(container, '2026-10-08')).not.toHaveClass('_patro_dates_in_range');
+      await user.hover(cell(container, '2026-10-11'));
+      expect(cell(container, '2026-10-08')).toHaveClass('_patro_dates_in_range');
+
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-12', null]);
+      await user.click(cell(container, '2026-10-18'));
+      expect(ends(onChange)).toEqual(['2026-10-12', '2026-10-18']);
+    });
+
+    test('excludeDisabled: a range cannot span a disabled day', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const booked = ({ ad }: PatroDate) => ad === '2026-10-10';
+      const { container, rerender } = render(
+        <Calendar mode='range' isDateDisabled={booked} excludeDisabled onChange={onChange} />,
+      );
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-12', null]);
+
+      // Without it, disabled days can sit inside a range.
+      rerender(<Calendar mode='range' isDateDisabled={booked} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-20'));
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-05', '2026-10-12']);
+    });
+  });
+
   test('first click sets the start, second the end', async () => {
     const user = userEvent.setup();
     const onChange = jest.fn();

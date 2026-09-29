@@ -54,6 +54,12 @@ Set `mode='range'`. The first pick sets the start and the second the end; pickin
 
 In range mode `value`/`defaultValue` are `{ start: Date | null; end: Date | null }` and `onChange` receives `{ start: PatroDate | null; end: PatroDate | null }` on every pick. The `Datepicker` closes once the end is picked, and `name='stay'` submits `stay[start]` and `stay[end]`. Band colour: `--patro-range-bg`.
 
+Range rules, all optional: `minDays` and `maxDays` limit the length (counting both ends), and `excludeDisabled` keeps disabled days (e.g. booked nights) out of a range. Picking an end that breaks a rule starts a new range at that day instead.
+
+```tsx
+<Datepicker mode='range' minDays={2} maxDays={14} isDateDisabled={isBooked} excludeDisabled />
+```
+
 ### Controlled vs uncontrolled
 
 Pass `defaultValue` (or nothing: no selection, showing the current month) and the component keeps track of the selection itself. Pass `value` to control it from your state:
