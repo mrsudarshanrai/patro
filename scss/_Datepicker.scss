@@ -127,10 +127,6 @@
       flex: none;
       width: 7.4em;
       min-width: 0;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      font: inherit;
       font-size: 14px;
       line-height: 20px;
       font-weight: 500;
@@ -223,4 +219,22 @@
 
 ._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {
   font-family: var(--patro-font-devanagari);
+}
+
+// Two classes, so a host page's generic `form input { … }` rules don't restyle the editable field.
+._patro_datepicker ._patro_datepicker_input_text {
+  appearance: none;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--patro-text);
+  outline: none;
 }
