@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { createPopper } from '@popperjs/core';
+import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { Calendar } from '../Calendar';
 import { ICalendar } from '../Calendar/types';
 import {
@@ -160,14 +160,19 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen, anchorRef, popperRef, setOpen]);
 
+    // autoUpdate re-places the popover on scroll, resize and layout shifts, not just on open.
     useEffect(() => {
       if (!anchorRef || !popperRef || !isOpen) return;
-      const popper = createPopper(anchorRef, popperRef, {
-        placement,
-        modifiers: [{ name: 'offset', options: { offset: [0, 6] } }],
+      return autoUpdate(anchorRef, popperRef, () => {
+        computePosition(anchorRef, popperRef, {
+          placement,
+          strategy: portal ? 'fixed' : 'absolute',
+          middleware: [offset(6), flip(), shift({ padding: 8 })],
+        }).then(({ x, y }) => {
+          Object.assign(popperRef.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
+        });
       });
-      return () => popper.destroy();
-    }, [isOpen, anchorRef, popperRef, placement]);
+    }, [isOpen, anchorRef, popperRef, placement, portal]);
 
     const commit = (next: PatroDate | null) => {
       if (!isControlled) setUncontrolledValue(next?.date ?? null);
@@ -320,6 +325,8 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
         role='dialog'
         aria-label={text.chooseDate}
         className='_patro_datepicker_popper'
+        // Transparent, not hidden, until placed: a keyboard-opened grid must be able to take focus.
+        style={{ position: portal ? 'fixed' : 'absolute', left: 0, top: 0, opacity: 0 }}
         onKeyDown={onPopperKeyDown}
       >
         <Calendar

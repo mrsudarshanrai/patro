@@ -40,8 +40,11 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - Types resolved incorrectly under TypeScript's `node16`/`nodenext` module resolution; they're now bundled per entry, as `.d.ts` and `.d.cts`.
 
 - Clicking the calendar's month arrows inside a `<form>` submitted it.
+- The Datepicker popover stayed put when content above it moved the field, covering it; it now follows the field.
 
 ### Changed
+
+- The popover is positioned with Floating UI (`@floating-ui/dom`) instead of Popper v2 (last released in 2023); about 1 kB smaller.
 
 - Rewrote the day-grid builder, hook, and utils to remove all circular imports.
 - Upgraded the toolchain: Rollup 4, TypeScript 6, ESLint 9 (flat config), Jest 30, Storybook 10, Vite 8.
