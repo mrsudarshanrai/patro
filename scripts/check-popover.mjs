@@ -52,6 +52,15 @@ const App = () => {
     case 'portal-scroll':
       return h('div', { style: { padding: 8, height: 2000 } },
         h('div', { style: { height: 40 } }), picker({ portal: true }));
+    case 'placement':
+      // Two months, so the popover is wider than the field and each alignment differs.
+      return h('div', { style: { padding: '420px 0 0 350px' } },
+        picker({ mode: 'range', numberOfMonths: 2, placement: new URLSearchParams(location.search).get('p') }));
+    case 'portal-right':
+      return h('div', { style: { display: 'flex', justifyContent: 'flex-end', padding: 8 } },
+        picker({ mode: 'range', numberOfMonths: 2, portal: true }));
+    case 'keyboard':
+      return h('div', { style: { padding: 8 } }, picker({ defaultOpen: false }));
     case 'top-end':
       return h('div', { style: { padding: '420px 8px 8px 300px' } }, picker({ placement: 'top-end' }));
   }
@@ -113,13 +122,14 @@ try {
   });
 
   const failures = [];
-  const check = async (scenario, step) => {
+  const check = async (scenario, step, expect) => {
     const geometry = await cdp.evaluate(`(() => {
       const field = document.querySelector('._patro_datepicker_input').getBoundingClientRect();
       const pop = document.querySelector('._patro_datepicker_popper').getBoundingClientRect();
-      return { field: field.toJSON(), pop: pop.toJSON(), vw: innerWidth, vh: innerHeight };
+      const { opacity } = getComputedStyle(document.querySelector('._patro_datepicker_popper'));
+      return { field: field.toJSON(), pop: pop.toJSON(), vw: innerWidth, vh: innerHeight, opacity };
     })()`);
-    const { field, pop, vw, vh } = geometry;
+    const { field, pop, vw, vh, opacity } = geometry;
     const below = Math.round(pop.top - field.bottom);
     const above = Math.round(field.top - pop.bottom);
     const problems = [];
@@ -127,6 +137,8 @@ try {
       problems.push(`not 6px from the field (below ${below}, above ${above})`);
     if (pop.left < 0 || pop.right > vw || pop.top < 0 || pop.bottom > vh)
       problems.push('off screen');
+    if (opacity !== '1') problems.push(`still transparent (opacity ${opacity})`);
+    if (expect) problems.push(...expect(field, pop));
     const label = step ? `${scenario} (${step})` : scenario;
     if (problems.length) failures.push(`${label}: ${problems.join(', ')}`);
     console.log(`${problems.length ? 'FAIL' : 'ok  '} ${label}`);
@@ -138,12 +150,65 @@ try {
     await sleep(150);
   };
 
-  for (const scenario of ['right', 'bottom', 'top-end']) {
+  for (const scenario of ['right', 'bottom', 'top-end', 'portal-right']) {
     await open(scenario);
     await check(scenario);
   }
 
-  await open('layout-shift');
+  // With room on every side, each placement lands on its own side and alignment.
+  await cdp.send('Emulation.setDeviceMetricsOverride', {
+    width: 1000,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  const offsets = {
+    start: (field, pop) => Math.round(pop.left - field.left),
+    end: (field, pop) => Math.round(pop.right - field.right),
+    center: (field, pop) => Math.round((pop.left + pop.right - field.left - field.right) / 2),
+  };
+  for (const placement of ['bottom-start', 'bottom-end', 'bottom', 'top-start', 'top-end', 'top']) {
+    await cdp.send('Page.navigate', { url: `${origin}/?s=placement&p=${placement}` });
+    await cdp.waitFor('!!document.querySelector("._patro_datepicker_popper")');
+    await sleep(150);
+    const [side, align = 'center'] = placement.split('-');
+    await check('placement', placement, (field, pop) => {
+      const problems = [];
+      if ((side === 'top') !== pop.bottom <= field.top) problems.push(`not on the ${side}`);
+      if (offsets[align](field, pop) !== 0) problems.push(`not aligned ${align}`);
+      return problems;
+    });
+  }
+
+  await cdp.send('Emulation.setDeviceMetricsOverride', {
+    width: 700,
+    height: 700,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
+  await open('right');
+  await cdp.evaluate('document.querySelector("._patro_header_titleBtn").click()');
+  await sleep(300);
+  await check('right', 'after switching to the month picker');
+
+  // Opening from the keyboard focuses the grid, even though the popover starts transparent.
+  await cdp.send('Page.navigate', { url: `${origin}/?s=keyboard` });
+  await cdp.waitFor('!!document.querySelector("._patro_datepicker_input")');
+  await cdp.evaluate('document.querySelector("._patro_datepicker_input").focus()');
+  for (const type of ['keyDown', 'keyUp']) {
+    await cdp.send('Input.dispatchKeyEvent', {
+      type,
+      key: 'ArrowDown',
+      code: 'ArrowDown',
+      windowsVirtualKeyCode: 40,
+    });
+  }
+  await sleep(300);
+  await check('keyboard', 'opened with ArrowDown');
+  const focused = await cdp.evaluate('document.activeElement.getAttribute("role")');
+  if (focused !== 'grid') failures.push(`keyboard: focus is on ${focused}, not the day grid`);
+
   await check('layout-shift', 'before');
   await cdp.evaluate('window.shiftLayout()');
   await sleep(300);
