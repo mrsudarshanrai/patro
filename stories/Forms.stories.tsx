@@ -47,13 +47,17 @@ const RegistrationForm = () => {
             required
             value={dob}
             onChange={(picked) => setDob(picked?.date ?? null)}
+            editable
+            defaultMonth={new Date(2000, 0, 1)}
             maxDate={new Date()}
             invalid={dobMissing}
             aria-describedby='dob-help'
             clearable
           />
           <span id='dob-help' className={dobMissing ? 'story-error' : 'story-hint'}>
-            {dobMissing ? 'Date of birth is required.' : 'As written on your birth certificate.'}
+            {dobMissing
+              ? 'Date of birth is required.'
+              : 'Type it (२०५७-०१-१५) or pick it, as on your birth certificate.'}
           </span>
         </div>
 
@@ -99,6 +103,9 @@ export const Registration: Story = {
 const NIGHTLY_RATE = 3500;
 const DAY = 86400000;
 
+// Two booked nights every month, so excludeDisabled has something to route around.
+const isBooked = ({ date }: { date: Date }) => [12, 13].includes(date.getDate());
+
 const BookingForm = () => {
   const [stay, setStay] = useState<DateRange>({ start: null, end: null });
   const [sent, setSent] = useState('');
@@ -115,7 +122,7 @@ const BookingForm = () => {
     <div className='story-row'>
       <form className='story-form' onSubmit={onSubmit}>
         <h2>Book a room</h2>
-        <p>Pick check-in, then check-out. Holidays are marked.</p>
+        <p>Pick check-in, then check-out: 2 to 14 nights, around booked dates.</p>
 
         <div className='story-field'>
           <Datepicker
@@ -129,6 +136,11 @@ const BookingForm = () => {
               setStay({ start: start?.date ?? null, end: end?.date ?? null })
             }
             minDate={new Date()}
+            numberOfMonths={2}
+            minDays={3}
+            maxDays={15}
+            isDateDisabled={isBooked}
+            excludeDisabled
             weekendDays={[6]}
             dayClassName={holidayClass}
             placeholder='Check-in – check-out'
@@ -163,7 +175,7 @@ const BookingForm = () => {
 };
 
 export const Booking: Story = {
-  name: 'Hotel booking (range, holidays, summary)',
+  name: 'Hotel booking (range, two months, booked nights)',
   render: () => <BookingForm />,
 };
 

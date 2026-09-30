@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Datepicker, type DateRange, type PatroDate } from '../index';
-import { holidayClass, Readout, toDate } from './helpers';
+import { addDays, holidayClass, Readout, toDate } from './helpers';
 
 const meta = {
   title: 'Datepicker',
@@ -14,7 +14,12 @@ const meta = {
     defaultValue: { control: 'date' },
     minDate: { control: 'date' },
     maxDate: { control: 'date' },
+    defaultMonth: { control: 'date' },
+    today: { control: 'date' },
+    month: { control: false },
+    presets: { control: false },
     showSecondaryDate: { control: 'boolean' },
+    numberOfMonths: { control: { type: 'number', min: 1, max: 3 } },
   },
   args: {
     label: 'Date',
@@ -32,6 +37,8 @@ const meta = {
         key={String(defaultValue)}
         {...(args as object)}
         defaultValue={defaultValue}
+        defaultMonth={toDate(args.defaultMonth)}
+        today={toDate(args.today)}
         minDate={toDate(args.minDate)}
         maxDate={toDate(args.maxDate)}
       />
@@ -60,7 +67,7 @@ export const EmptyBS: Story = {
 };
 
 export const Clearable: Story = {
-  args: { clearable: true },
+  args: { clearable: true, defaultValue: new Date() },
 };
 
 export const Range: Story = {
@@ -84,7 +91,7 @@ export const States: Story = {
   render: () => (
     <div className='story-row'>
       <Datepicker label='Disabled' disabled />
-      <Datepicker label='Read-only' readOnly />
+      <Datepicker label='Read-only' readOnly defaultValue={new Date()} />
       <Datepicker label='Invalid' invalid aria-describedby='invalid-help' />
       <span id='invalid-help' hidden>
         Please choose a date
@@ -97,6 +104,7 @@ export const CustomText: Story = {
   name: 'formatValue',
   args: {
     calendar: 'BS',
+    defaultValue: new Date(),
     formatValue: ({ bs, ad }: PatroDate) => `${bs} BS (${ad} AD)`,
   },
 };
@@ -118,8 +126,19 @@ export const Localized: Story = {
   name: 'locale / numerals',
   render: () => (
     <div className='story-row'>
-      <Datepicker label='BS in English' calendar='BS' locale='en' numerals='latin' />
-      <Datepicker label='AD in Nepali' locale='ne' numerals='devanagari' />
+      <Datepicker
+        label='BS in English'
+        calendar='BS'
+        locale='en'
+        numerals='latin'
+        defaultValue={new Date()}
+      />
+      <Datepicker
+        label='AD in Nepali'
+        locale='ne'
+        numerals='devanagari'
+        defaultValue={new Date()}
+      />
     </div>
   ),
 };
@@ -233,10 +252,93 @@ export const Portal: Story = {
 };
 
 export const DarkTheme: Story = {
-  args: { theme: 'dark', calendar: 'BS', label: 'मिति', clearable: true },
+  args: { theme: 'dark', calendar: 'BS', label: 'मिति', clearable: true, defaultValue: new Date() },
   render: (args) => (
     <div className='story-dark' style={{ minHeight: 440 }}>
       <Datepicker {...(args as object)} />
     </div>
   ),
+};
+
+export const Editable: Story = {
+  name: 'editable (type a date)',
+  args: { editable: true, clearable: true, defaultValue: new Date() },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        Type <code>2026-10-29</code>, <code>2026/10/29</code> or <code>2026.10.29</code>, then Enter
+        or Tab. Text that isn&rsquo;t a date is marked invalid on Enter and reverts when you leave.
+        ArrowDown opens the calendar.
+      </p>
+      <Datepicker {...(args as object)} defaultValue={toDate(args.defaultValue)} />
+    </div>
+  ),
+};
+
+export const EditableBS: Story = {
+  name: 'editable (BS, Devanagari or Latin digits)',
+  args: { editable: true, calendar: 'BS', label: 'मिति', defaultValue: null },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        BS dates can be typed as <code>२०८३-०७-१२</code> or <code>2083-07-12</code>; they&rsquo;re
+        shown back in the calendar&rsquo;s own digits.
+      </p>
+      <Datepicker {...(args as object)} />
+    </div>
+  ),
+};
+
+export const DateOfBirth: Story = {
+  name: 'Date of birth (editable + defaultMonth)',
+  args: {
+    label: 'Date of birth',
+    editable: true,
+    defaultValue: null,
+    defaultMonth: new Date(2000, 0, 1),
+    maxDate: new Date(),
+  },
+};
+
+export const Presets: Story = {
+  args: {
+    label: 'Follow-up',
+    defaultValue: null,
+    minDate: new Date(),
+    presets: [
+      { label: 'Tomorrow', value: () => addDays(new Date(), 1) },
+      { label: 'In a week', value: () => addDays(new Date(), 7) },
+      { label: 'In a month', value: () => addDays(new Date(), 30) },
+    ],
+  },
+};
+
+export const Stay: Story = {
+  name: 'Range: two months, presets, 2–14 nights',
+  args: {
+    mode: 'range',
+    label: 'Stay',
+    clearable: true,
+    numberOfMonths: 2,
+    minDays: 2,
+    maxDays: 14,
+    minDate: new Date(),
+    presets: [
+      { label: 'This weekend', value: () => weekend(0) },
+      { label: 'Next weekend', value: () => weekend(7) },
+      { label: 'Next 7 days', value: () => ({ start: new Date(), end: addDays(new Date(), 6) }) },
+    ],
+  },
+};
+
+// Friday to Sunday of this week (or `offset` days later).
+const weekend = (offset: number) => {
+  const today = new Date();
+  const friday = addDays(today, ((5 - today.getDay() + 7) % 7) + offset);
+  return { start: friday, end: addDays(friday, 2) };
+};
+
+export const TwoMonthsBS: Story = {
+  name: 'Range (BS, two months)',
+  args: { mode: 'range', calendar: 'BS', label: 'बिदा', numberOfMonths: 2, weekendDays: [6] },
 };

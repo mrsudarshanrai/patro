@@ -1,8 +1,8 @@
 import { useState, type CSSProperties } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { Calendar, type PatroDate } from '../index';
-import { HOLIDAYS, holidayClass, json, Readout, toDate } from './helpers';
+import { Calendar, type DateRange, type PatroDate } from '../index';
+import { addDays, HOLIDAYS, holidayClass, json, Readout, toDate } from './helpers';
 
 const meta = {
   title: 'Calendar',
@@ -13,17 +13,25 @@ const meta = {
     defaultValue: { control: 'date' },
     minDate: { control: 'date' },
     maxDate: { control: 'date' },
+    defaultMonth: { control: 'date' },
+    today: { control: 'date' },
+    month: { control: false },
+    presets: { control: false },
     showSecondaryDate: { control: 'boolean' },
+    numberOfMonths: { control: { type: 'number', min: 1, max: 3 } },
   },
   args: { onChange: fn(), onMonthChange: fn() },
   // defaultValue is only read on mount, so remount when its control changes.
   render: (args) => {
     const defaultValue = toDate(args.defaultValue);
+    const defaultMonth = toDate(args.defaultMonth);
     return (
       <Calendar
-        key={String(defaultValue)}
+        key={`${defaultValue}|${defaultMonth}`}
         {...(args as object)}
         defaultValue={defaultValue}
+        defaultMonth={defaultMonth}
+        today={toDate(args.today)}
         minDate={toDate(args.minDate)}
         maxDate={toDate(args.maxDate)}
       />
@@ -56,9 +64,9 @@ export const RangeWithInitialValue: Story = {
   },
 };
 
-export const Empty: Story = {
-  name: 'Empty (defaultValue null)',
-  args: { defaultValue: null },
+export const TodaySelected: Story = {
+  name: 'Starting on today (defaultValue)',
+  args: { defaultValue: new Date() },
 };
 
 export const EnglishBS: Story = {
@@ -205,6 +213,201 @@ export const SupportedRangeEdges: Story = {
         <Calendar defaultValue={new Date(1921, 3, 20)} />
         <Calendar calendar='BS' defaultValue={new Date(2043, 3, 1)} />
       </div>
+    </div>
+  ),
+};
+
+export const DefaultMonth: Story = {
+  name: 'defaultMonth (date of birth)',
+  args: { defaultMonth: new Date(2000, 0, 1), maxDate: new Date() },
+};
+
+const ControlledMonthDemo = () => {
+  const [month, setMonth] = useState(new Date(2026, 9, 1));
+  const jump = (months: number) =>
+    setMonth(new Date(month.getFullYear(), month.getMonth() + months, 1));
+  return (
+    <div className='story-row'>
+      <Calendar month={month} onMonthChange={({ start }) => setMonth(start.date)} />
+      <div>
+        <p className='story-note'>
+          The parent owns the displayed month. Navigation only calls <code>onMonthChange</code>.
+        </p>
+        <button className='story-button' onClick={() => jump(-12)}>
+          −1 year
+        </button>{' '}
+        <button className='story-button' onClick={() => jump(12)}>
+          +1 year
+        </button>{' '}
+        <button className='story-button' onClick={() => setMonth(new Date())}>
+          This month
+        </button>
+        <Readout label='month'>{month.toDateString()}</Readout>
+      </div>
+    </div>
+  );
+};
+
+export const ControlledMonth: Story = {
+  name: 'month / onMonthChange (controlled)',
+  render: () => <ControlledMonthDemo />,
+};
+
+export const DayContent: Story = {
+  name: 'dayContent + dayLabel (event dots)',
+  args: {
+    calendar: 'BS',
+    defaultValue: new Date(2026, 9, 21),
+    weekendDays: [6],
+    dayContent: ({ bs }: PatroDate) => HOLIDAYS[bs] && <i className='story-dot' />,
+    dayLabel: ({ bs }: PatroDate) => HOLIDAYS[bs],
+  },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        <code>dayContent</code> draws in the corner; <code>dayLabel</code> adds the holiday name to
+        what screen readers announce for that day.
+      </p>
+      <Calendar {...(args as object)} />
+    </div>
+  ),
+};
+
+export const Presets: Story = {
+  args: {
+    presets: [
+      { label: 'Today', value: () => new Date() },
+      { label: 'Tomorrow', value: () => addDays(new Date(), 1) },
+      { label: 'In a week', value: () => addDays(new Date(), 7) },
+      { label: 'In a month', value: () => addDays(new Date(), 30) },
+    ],
+  },
+};
+
+export const RangePresets: Story = {
+  name: 'Presets (range)',
+  args: {
+    mode: 'range',
+    maxDays: 14,
+    presets: [
+      { label: 'Next 7 days', value: () => ({ start: new Date(), end: addDays(new Date(), 6) }) },
+      { label: 'Next 14 days', value: () => ({ start: new Date(), end: addDays(new Date(), 13) }) },
+      { label: 'Next 30 days', value: () => ({ start: new Date(), end: addDays(new Date(), 29) }) },
+    ],
+  },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        With <code>maxDays={'{14}'}</code>, &ldquo;Next 30 days&rdquo; is disabled. The preset
+        matching the value is highlighted.
+      </p>
+      <Calendar {...(args as object)} />
+    </div>
+  ),
+};
+
+// Booked nights a stay can't include.
+const BOOKED = new Set([7, 8, 15, 22].map((day) => `2026-11-${String(day).padStart(2, '0')}`));
+
+const RangeRulesDemo = () => {
+  const [range, setRange] = useState<DateRange>({ start: null, end: null });
+  return (
+    <div className='story-row'>
+      <Calendar
+        mode='range'
+        defaultMonth={new Date(2026, 10, 1)}
+        minDays={2}
+        maxDays={7}
+        isDateDisabled={({ ad }) => BOOKED.has(ad)}
+        excludeDisabled
+        onChange={({ start, end }) =>
+          setRange({ start: start?.date ?? null, end: end?.date ?? null })
+        }
+      />
+      <div>
+        <p className='story-note'>
+          <code>minDays={'{2}'}</code>, <code>maxDays={'{7}'}</code> and{' '}
+          <code>excludeDisabled</code> with booked nights disabled. Picking an end that breaks a
+          rule starts a new range there, and the hover preview only shows valid ends.
+        </p>
+        <Readout label='value'>
+          {`start: ${range.start?.toDateString() ?? 'null'}\nend:   ${
+            range.end?.toDateString() ?? 'null'
+          }`}
+        </Readout>
+      </div>
+    </div>
+  );
+};
+
+export const RangeRules: Story = {
+  name: 'minDays / maxDays / excludeDisabled',
+  render: () => <RangeRulesDemo />,
+};
+
+export const TwoMonths: Story = {
+  name: 'numberOfMonths={2}',
+  args: { mode: 'range', numberOfMonths: 2 },
+};
+
+export const TwoMonthsBS: Story = {
+  name: 'numberOfMonths={2} (BS)',
+  args: { calendar: 'BS', numberOfMonths: 2, weekendDays: [6], dayClassName: holidayClass },
+};
+
+export const Labels: Story = {
+  name: 'labels (custom accessible names)',
+  args: {
+    showTodayButton: true,
+    labels: { previousMonth: 'Mois précédent', nextMonth: 'Mois suivant', today: 'Aujourd’hui' },
+  },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        Accessible names and button text default to English or Nepali, following <code>locale</code>
+        . <code>labels</code> overrides any of them.
+      </p>
+      <Calendar {...(args as object)} />
+    </div>
+  ),
+};
+
+export const FixedToday: Story = {
+  name: 'today (pinned date)',
+  args: { today: new Date(2030, 0, 15), showTodayButton: true },
+  render: (args) => (
+    <div>
+      <p className='story-note'>
+        <code>today</code> replaces the visitor&rsquo;s clock: for server rendering the month, or
+        pinning dates in tests and screenshots.
+      </p>
+      <Calendar {...(args as object)} today={toDate(args.today)} />
+    </div>
+  ),
+};
+
+export const Keyboard: Story = {
+  render: () => (
+    <div className='story-row'>
+      <Calendar defaultValue={new Date()} numberOfMonths={2} />
+      <table className='story-keys'>
+        <tbody>
+          {[
+            ['← → ↑ ↓', 'Day / week'],
+            ['PageUp / PageDown', 'Same day, previous / next month'],
+            ['Shift + PageUp / PageDown', 'Same day, previous / next year'],
+            ['Home / End', 'Start / end of the week'],
+            ['Enter / Space', 'Select'],
+            ['Month title, then arrows', 'Month and year grids'],
+            ['Escape', 'Back to the days'],
+          ].map(([key, action]) => (
+            <tr key={key}>
+              <th>{key}</th>
+              <td>{action}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   ),
 };

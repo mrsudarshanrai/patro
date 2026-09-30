@@ -82,6 +82,35 @@
   background: #f3f5fe;
 }
 
+.story-dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #b3261e;
+}
+
+.story-keys {
+  border-collapse: collapse;
+  font:
+    13px/1.5 Inter,
+    system-ui,
+    sans-serif;
+  color: #292b31;
+}
+
+.story-keys th,
+.story-keys td {
+  padding: 6px 12px 6px 0;
+  border-bottom: 1px solid #e4e7f5;
+  text-align: left;
+}
+
+.story-keys th {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* Template forms */
 
 .story-form {
@@ -144,9 +173,8 @@
     0 0 0 3px color-mix(in srgb, #796cbf 18%, transparent);
 }
 
-.story-field ._patro_datepicker,
-.story-field ._patro_datepicker_input {
-  width: 100%;
+.story-field ._patro_datepicker {
+  --patro-input-width: 100%;
 }
 
 .story-hint {
