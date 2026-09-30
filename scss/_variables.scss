@@ -32,6 +32,8 @@
   --patro-radius-popover: 14px;
   --patro-radius-cell: 8px;
   --patro-radius-input: 8px;
+  // Datepicker field width; e.g. 100% to fill a form column.
+  --patro-input-width: 288px;
 
   // Referenced, not injected - consumers who want the exact font load it
   // themselves (see README); falls back to system sans-serif otherwise.

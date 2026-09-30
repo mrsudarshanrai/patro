@@ -121,6 +121,8 @@ Colors, radii, and fonts are CSS custom properties scoped to `._patro`, not the 
 <Calendar style={{ '--patro-accent': 'teal' } as React.CSSProperties} />
 ```
 
+The Datepicker field is `--patro-input-width` wide (288px by default); set it to `100%` to fill a form column.
+
 Text colour tokens (`--patro-muted`, `--patro-faint` for other months' days, …) meet 4.5:1 on `--patro-surface`; `--patro-disabled` colours days you can't pick.
 
 For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.google.com/noto/specimen/Noto+Sans+Devanagari) yourself — it isn't bundled or auto-injected. It falls back to your system sans-serif otherwise.
