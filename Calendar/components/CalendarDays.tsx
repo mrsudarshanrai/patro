@@ -1,14 +1,9 @@
 import { weekdayNames } from '../../utils';
-import { ICalendar } from '../types';
+import type { CalendarDaysProps } from '../CalendarType';
 
 const rotate = <T,>(items: T[], by: number) => [...items.slice(by), ...items.slice(0, by)];
 
-const CalendarDays = ({
-  calendar,
-  display,
-  weekStartsOn,
-  weekendDays = [],
-}: ICalendar.CalendarDaysProps) => {
+const CalendarDays = ({ calendar, display, weekStartsOn, weekendDays = [] }: CalendarDaysProps) => {
   const names = weekdayNames(calendar, display);
   const long = rotate(names.long, weekStartsOn);
   const short = rotate(names.short, weekStartsOn);

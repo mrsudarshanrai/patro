@@ -2,17 +2,10 @@ import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 
 import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
 import { useToday } from '../hooks/useToday';
 import { useControllableValue } from '../hooks/useControllableValue';
-import {
-  CalendarProps,
-  CalendarRangeProps,
-  CalendarSingleProps,
-  DateRange,
-  RangeSelection,
-  SingleSelection,
-} from '../types/public';
+import type { CalendarProps, CalendarRangeProps, CalendarSingleProps } from './CalendarType';
+import { DateRange, RangeSelection, SingleSelection } from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
-import { ICalendar } from './types';
 import CalendarDays from './components/CalendarDays';
 import { CalendarPicker, PickerView } from './components/CalendarPicker';
 import {
@@ -53,7 +46,7 @@ const CalendarComponent = (props: CalendarProps) => {
     value,
     defaultValue,
     onChange,
-    calendar = ICalendar.CalendarTypeEnum.AD,
+    calendar = 'AD',
     showSecondaryDate = true,
     theme,
     minDate,

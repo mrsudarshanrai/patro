@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import {
   addDays,
   clampAdDate,
@@ -18,8 +17,8 @@ import {
   ad2Bs,
   bs2Ad,
 } from '../utils';
-import { ICalendar } from '../Calendar/types';
-import { PatroDate } from '../types/public';
+import type { DayParts, UseCalendarDataResult } from '../Calendar/CalendarType';
+import type { CalendarSystem, PatroDate } from '../types/public';
 import { MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
 
 /**
@@ -33,14 +32,14 @@ type Bounds = { min: string; max: string };
 const FULL_RANGE: Bounds = { min: START_ENGLISH_DATE, max: MAX_AD_DATE };
 
 const getViewAnchor = (
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   year: number,
   month: number,
   date: number,
   bounds: Bounds = FULL_RANGE,
 ): string => {
   const adDate = clampAdDate(createDateString(year, month, date), bounds.min, bounds.max);
-  if (calendarType === ICalendar.CalendarTypeEnum.BS) {
+  if (calendarType === 'BS') {
     const { year: bsYear, month: bsMonth } = dateString2Obj(ad2Bs(adDate));
     return bs2Ad(createDateString(bsYear, bsMonth, 1));
   }
@@ -51,7 +50,7 @@ const getViewAnchor = (
 // Whether the neighbouring month has any day inside the bounds.
 const canStep = (
   viewAnchor: string,
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   step: 1 | -1,
   bounds: Bounds = FULL_RANGE,
 ) => {
@@ -69,12 +68,12 @@ const canStep = (
  */
 const stepViewAnchor = (
   viewAnchor: string,
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   step: 1 | -1,
   bounds: Bounds = FULL_RANGE,
 ): string => {
   if (!canStep(viewAnchor, calendarType, step, bounds)) return viewAnchor;
-  if (calendarType === ICalendar.CalendarTypeEnum.BS) {
+  if (calendarType === 'BS') {
     const { year, month } = dateString2Obj(ad2Bs(viewAnchor));
     const stepped = switchYear(year, month + step);
     return bs2Ad(createDateString(stepped.year, stepped.month, 1));
@@ -85,19 +84,19 @@ const stepViewAnchor = (
 };
 
 // Dates outside the supported table range can't be shown, so they count as no selection.
-const ymd = (date: Date): IUseCalendarData.ICurrDate => ({
+const ymd = (date: Date): DayParts => ({
   year: date.getFullYear(),
   month: date.getMonth() + 1,
   date: date.getDate(),
 });
 
-const toSelection = (date: Date): IUseCalendarData.ICurrDate | null => {
+const toSelection = (date: Date): DayParts | null => {
   const selection = ymd(date);
   const adDate = createDateString(selection.year, selection.month, selection.date);
   return isSupportedAdDate(adDate) ? selection : null;
 };
 
-const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICurrDate | null) =>
+const isSameDay = (a: DayParts | null, b: DayParts | null) =>
   a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
 
 type Options = {
@@ -126,7 +125,7 @@ const todayParts = (today: string | null) => {
 };
 
 const useCalendarData = (
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   selectedDate?: Date | null,
   {
     minDate,
@@ -140,12 +139,12 @@ const useCalendarData = (
     month,
     onNavigate,
   }: Options = {},
-): IUseCalendarData.IReturn => {
+): UseCalendarDataResult => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
   const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
   const bounds = useMemo(() => ({ min: minAdDate, max: maxAdDate }), [minAdDate, maxAdDate]);
 
-  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
+  const [selected, setSelected] = useState<DayParts | null>(() =>
     selectedDate ? toSelection(selectedDate) : null,
   );
   // Every other date value derives from this AD date, pinned to day 1 of the displayed month.

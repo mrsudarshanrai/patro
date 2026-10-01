@@ -1,7 +1,7 @@
 import { icons } from '../../shared/icons';
-import { ICalendar } from '../types';
+import type { CalendarHeaderProps } from '../CalendarType';
 
-const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
+const CalendarHeader = (props: CalendarHeaderProps) => {
   const {
     title,
     subtitle,

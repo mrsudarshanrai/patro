@@ -2,9 +2,6 @@ export * from './Calendar';
 export * from './Datepicker';
 export { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from './utils';
 export type {
-  CalendarProps,
-  CalendarRangeProps,
-  CalendarSingleProps,
   CalendarSystem,
   DateRange,
   PatroDateRange,
@@ -14,6 +11,11 @@ export type {
   PatroLabels,
   Preset,
 } from './types/public';
+export type {
+  CalendarProps,
+  CalendarRangeProps,
+  CalendarSingleProps,
+} from './Calendar/CalendarType';
 export type {
   DatepickerProps,
   DatepickerRangeProps,
