@@ -142,7 +142,7 @@ export interface UseCalendarDataOptions {
   today?: string | null;
   defaultMonth?: Date;
   month?: Date;
-  onNavigate?: (anchor: string) => void;
+  onMonthChange?: CalendarBaseProps['onMonthChange'];
 }
 
 export interface ShownRange {

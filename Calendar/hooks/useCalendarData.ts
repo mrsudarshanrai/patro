@@ -107,7 +107,7 @@ const useCalendarData = (
     today = null,
     defaultMonth,
     month,
-    onNavigate,
+    onMonthChange,
   }: UseCalendarDataOptions = {},
 ): UseCalendarDataResult => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
@@ -124,6 +124,20 @@ const useCalendarData = (
     const { year, month, date } = selectedDate ? ymd(selectedDate) : fallback;
     return getViewAnchor(calendarType, year, month, date, bounds);
   });
+  // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
+  const onMonthChangeRef = useRef(onMonthChange);
+  useEffect(() => {
+    onMonthChangeRef.current = onMonthChange;
+  });
+  const reportMonth = useCallback(
+    (first: string, last: string) =>
+      onMonthChangeRef.current?.({
+        start: toPatroDate(clampAdDate(first)),
+        end: toPatroDate(clampAdDate(last)),
+      }),
+    [],
+  );
+
   const controlledAnchor = month
     ? getViewAnchor(
         calendarType,
@@ -168,15 +182,25 @@ const useCalendarData = (
   const navigate = useCallback(
     (anchor: string) => {
       if (!controlledAnchor) setViewAnchor(anchor);
-      else if (anchor !== controlledAnchor) onNavigate?.(anchor);
+      else if (anchor !== controlledAnchor) {
+        reportMonth(...(monthBounds(calendarType, anchor) as [string, string]));
+      }
     },
-    [controlledAnchor, onNavigate],
+    [controlledAnchor, reportMonth, calendarType],
   );
 
   const [firstAdDate, lastAdDate] = useMemo(
     () => monthBounds(calendarType, shownAnchor),
     [calendarType, shownAnchor],
   );
+
+  // Uncontrolled: report every month the view moves to. Controlled: navigate reports requests.
+  const shownMonth = useRef(firstAdDate);
+  useEffect(() => {
+    if (shownMonth.current === firstAdDate) return;
+    shownMonth.current = firstAdDate;
+    if (!controlledAnchor) reportMonth(firstAdDate, lastAdDate);
+  }, [firstAdDate, lastAdDate, controlledAnchor, reportMonth]);
 
   const pending = !controlledAnchor && !viewAnchor;
 
