@@ -58,3 +58,28 @@ export type DatepickerRangeProps = DatepickerBaseProps &
     formatValue?: (value: PatroDateRange) => string;
   };
 export type DatepickerProps = DatepickerSingleProps | DatepickerRangeProps;
+
+/** AD dates ('YYYY-MM-DD') of the shown range, after dropping unsupported dates. */
+export interface ShownRange {
+  start: string | null;
+  end: string | null;
+}
+
+/** A hidden native input that submits the date with a form. */
+export interface FormField {
+  name: string | undefined;
+  value: string;
+}
+
+export interface ComboboxAriaOptions {
+  isOpen: boolean;
+  popoverId: string;
+  invalid: boolean;
+  required: boolean;
+  label: string | undefined;
+  labelId: string;
+  ariaLabel: string | undefined;
+  ariaDescribedBy: string | undefined;
+  /** Accessible name when there's neither `label` nor `aria-label`. */
+  fallbackLabel: string;
+}

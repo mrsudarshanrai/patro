@@ -23,12 +23,9 @@ import {
   SingleSelection,
 } from '../types/public';
 import {
-  ad2Bs,
   formatDate,
   labelsFor,
-  languageOf,
   otherSystem,
-  datePartsIn,
   formatInputDate,
   parseInputDate,
   supportedAdDate,
@@ -45,11 +42,7 @@ import type {
 } from './DatepickerType';
 import { useIsClient } from '../hooks/useToday';
 import { useControllableValue } from '../hooks/useControllableValue';
-
-const DEFAULT_PLACEHOLDER = {
-  single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
-  range: { en: 'Select dates', ne: 'मितिहरू छान्नुहोस्' },
-};
+import { comboboxAria, defaultPlaceholder, formFields, rangeText } from './utils';
 
 const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -290,25 +283,16 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
 
     const hasValue = shownRange ? !!shownRange.start : !!shownAdDate;
     const showClear = clearable && hasValue && !disabled && !readOnly;
-    const submitted = (adDate: string | null) =>
-      adDate ? (valueFormat === 'bs' ? ad2Bs(adDate) : adDate) : '';
-    const formFields = shownRange
-      ? [
-          { name: name && `${name}[start]`, value: submitted(shownRange.start) },
-          { name: name && `${name}[end]`, value: submitted(shownRange.end) },
-        ]
-      : [{ name, value: submitted(shownAdDate) }];
-
-    const rangeText = (range: { start: string | null; end: string | null }) => {
-      if (!range.start) return null;
-      if (!range.end) return `${formatDate(range.start, calendar, display)} – …`;
-      const [startYear] = datePartsIn(range.start, calendar);
-      const [endYear] = datePartsIn(range.end, calendar);
-      const start = formatDate(range.start, calendar, display, {
-        short: true,
-        withYear: startYear !== endYear,
-      });
-      return `${start} – ${formatDate(range.end, calendar, display, { short: true })}`;
+    const fields = formFields(name, { range: shownRange, adDate: shownAdDate }, valueFormat);
+    const aria = {
+      isOpen,
+      popoverId,
+      required,
+      label,
+      labelId,
+      ariaLabel,
+      ariaDescribedBy,
+      fallbackLabel: text.chooseDate,
     };
 
     const calendarSelection = (
@@ -383,14 +367,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
                 placeholder={placeholder ?? 'YYYY-MM-DD'}
                 disabled={disabled}
                 readOnly={readOnly}
-                aria-haspopup='dialog'
-                aria-expanded={isOpen}
-                aria-controls={isOpen ? popoverId : undefined}
-                aria-invalid={invalid || typedInvalid || undefined}
-                aria-required={required || undefined}
-                aria-label={ariaLabel ?? (label ? undefined : text.chooseDate)}
-                aria-labelledby={!ariaLabel && label ? labelId : undefined}
-                aria-describedby={ariaDescribedBy}
+                {...comboboxAria({ ...aria, invalid: invalid || typedInvalid })}
                 onChange={(event) => {
                   setDraft(event.target.value);
                   setTypedInvalid(false);
@@ -441,16 +418,9 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
               // Select-only combobox (WAI-ARIA APG): unlike a button it can be required and read-only.
               role='combobox'
               tabIndex={disabled ? -1 : 0}
-              aria-haspopup='dialog'
-              aria-expanded={isOpen}
-              aria-controls={isOpen ? popoverId : undefined}
+              {...comboboxAria({ ...aria, invalid })}
               aria-disabled={disabled || undefined}
               aria-readonly={readOnly || undefined}
-              aria-invalid={invalid || undefined}
-              aria-required={required || undefined}
-              aria-label={ariaLabel ?? (label ? undefined : text.chooseDate)}
-              aria-labelledby={!ariaLabel && label ? labelId : undefined}
-              aria-describedby={ariaDescribedBy}
               onClick={onInputClick}
               onKeyDown={onInputKeyDown}
               onFocus={onFocus}
@@ -463,7 +433,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
                         start: toPatroDate(shownRange.start),
                         end: shownRange.end ? toPatroDate(shownRange.end) : null,
                       })
-                    : rangeText(shownRange)}
+                    : rangeText(shownRange, calendar, display)}
                 </span>
               ) : shownAdDate && formatValue ? (
                 <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
@@ -482,10 +452,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
                 </>
               ) : (
                 <span className='_patro_datepicker_input_placeholder'>
-                  {placeholder ??
-                    DEFAULT_PLACEHOLDER[isRange ? 'range' : 'single'][
-                      languageOf(calendar, display)
-                    ]}
+                  {placeholder ?? defaultPlaceholder(isRange, calendar, display)}
                 </span>
               )}
               <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
@@ -502,7 +469,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
             </button>
           )}
           {(name || required) &&
-            formFields.map((field, index) => (
+            fields.map((field, index) => (
               // Real input so native forms submit and validate the date; focus goes back to the picker.
               <input
                 key={index}
