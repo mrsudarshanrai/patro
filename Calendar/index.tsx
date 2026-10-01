@@ -1,6 +1,7 @@
 import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
 import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
 import { useToday } from '../hooks/useToday';
+import { useControllableValue } from '../hooks/useControllableValue';
 import {
   CalendarProps,
   CalendarRangeProps,
@@ -35,9 +36,8 @@ import {
   toPatroDate,
   weekday,
   yearSpan,
+  EMPTY_RANGE,
 } from '../utils';
-
-const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 const YEARS_PER_PAGE = 12;
 
@@ -80,11 +80,9 @@ const CalendarComponent = (props: CalendarProps) => {
   } = props;
   const isRange = props.mode === 'range';
   const { minDays, maxDays, excludeDisabled } = isRange ? (props as CalendarRangeProps) : {};
-  const isControlled = value !== undefined;
-  const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
+  const [currentValue, setValue] = useControllableValue<Date | DateRange | null>(value, () =>
     defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
   );
-  const currentValue = isControlled ? value : uncontrolledValue;
   const currentRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
   const range = currentRange && supportedAdRange(currentRange);
   // In range mode the start anchors the view, like a single selection would.
@@ -230,12 +228,7 @@ const CalendarComponent = (props: CalendarProps) => {
   };
 
   const commitRange = (start: string, end: string | null) => {
-    if (!isControlled) {
-      setUncontrolledValue({
-        start: adDateToLocalDate(start),
-        end: end ? adDateToLocalDate(end) : null,
-      });
-    }
+    setValue({ start: adDateToLocalDate(start), end: end ? adDateToLocalDate(end) : null });
     (onChange as RangeSelection['onChange'])?.({
       start: toPatroDate(start),
       end: end ? toPatroDate(end) : null,
@@ -244,7 +237,7 @@ const CalendarComponent = (props: CalendarProps) => {
 
   const commitDay = (adDate: string) => {
     const selected = toPatroDate(adDate);
-    if (!isControlled) setUncontrolledValue(selected.date);
+    setValue(selected.date);
     (onChange as SingleSelection['onChange'])?.(selected);
   };
 

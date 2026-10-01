@@ -35,6 +35,7 @@ import {
   supportedAdRange,
   toAdDateString,
   toPatroDate,
+  EMPTY_RANGE,
 } from '../utils';
 import { icons } from '../shared/icons';
 import type {
@@ -43,12 +44,12 @@ import type {
   DatepickerSingleProps,
 } from './DatepickerType';
 import { useIsClient } from '../hooks/useToday';
+import { useControllableValue } from '../hooks/useControllableValue';
 
 const DEFAULT_PLACEHOLDER = {
   single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
   range: { en: 'Select dates', ne: 'मितिहरू छान्नुहोस्' },
 };
-const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -97,11 +98,9 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     const popoverId = `${inputId}-popover`;
 
     const isRange = mode === 'range';
-    const isControlled = value !== undefined;
-    const [uncontrolledValue, setUncontrolledValue] = useState<Date | DateRange | null>(() =>
+    const [currentValue, setValue] = useControllableValue<Date | DateRange | null>(value, () =>
       defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
     );
-    const currentValue = isControlled ? value : uncontrolledValue;
     const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
     const selectedDate = selectedRange ? null : (currentValue as Date | null);
 
@@ -177,14 +176,12 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     }, [isOpen, anchorRef, popperRef, placement, portal]);
 
     const commit = (next: PatroDate | null) => {
-      if (!isControlled) setUncontrolledValue(next?.date ?? null);
+      setValue(next?.date ?? null);
       (onChange as SingleSelection['onChange'])?.(next);
     };
 
     const commitRange = (next: PatroDateRange) => {
-      if (!isControlled) {
-        setUncontrolledValue({ start: next.start?.date ?? null, end: next.end?.date ?? null });
-      }
+      setValue({ start: next.start?.date ?? null, end: next.end?.date ?? null });
       (onChange as RangeSelection['onChange'])?.(next);
     };
 
