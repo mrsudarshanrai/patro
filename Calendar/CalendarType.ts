@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type {
   CalendarSystem,
+  DateRange,
   Locale,
   Numerals,
   PatroDate,
@@ -9,6 +10,8 @@ import type {
   SingleSelection,
 } from '../types/public';
 import type { DisplayOptions, GridCell } from '../utils';
+import type { PickerItem, PickerView } from './components/CalendarPicker';
+import type { useGridFocus } from './hooks/useGridFocus';
 
 export interface CalendarBaseProps {
   /** Calendar system to display. Defaults to 'AD'. */
@@ -169,4 +172,69 @@ export interface PresetItem {
   pressed: boolean;
   start: string | null;
   end: string | null;
+}
+
+export interface UseCalendarValueOptions {
+  isRange: boolean;
+  value: Date | DateRange | null | undefined;
+  defaultValue: Date | DateRange | null | undefined;
+  onChange: SingleSelection['onChange'] | RangeSelection['onChange'];
+}
+
+export interface UsePickerViewOptions {
+  calendar: CalendarSystem;
+  display: DisplayOptions;
+  text: PatroLabels;
+  firstAdDate: string;
+  lastAdDate: string;
+  minAdDate: string;
+  maxAdDate: string;
+  prevMonth: () => void;
+  nextMonth: () => void;
+  canPrevMonth: boolean;
+  canNextMonth: boolean;
+  goToMonth: (year: number, month: number) => void;
+}
+
+export interface UseGridFocusOptions {
+  calendar: CalendarSystem;
+  months: VisibleMonth[];
+  selectedAdDate: string | null;
+  todayAdDate: string | null;
+  isDayDisabled: (adDate: string) => boolean;
+  minAdDate: string;
+  maxAdDate: string;
+  goToMonth: (year: number, month: number) => void;
+  weekStartsOn: number;
+  autoFocus: boolean;
+  idPrefix: string;
+  onSelect: (adDate: string) => void;
+}
+
+export interface CalendarHeaderView {
+  title: string;
+  subtitle: string;
+  onTitleClick: (() => void) | undefined;
+  titleActionLabel: string | undefined;
+  prev: () => void;
+  next: () => void;
+  canPrev: boolean;
+  canNext: boolean;
+  prevLabel: string;
+  nextLabel: string;
+}
+
+export interface CalendarMonthProps {
+  header: CalendarHeaderView;
+  title: string;
+  subtitle: string;
+  isFirst: boolean;
+  isLast: boolean;
+  view: PickerView;
+  pickerItems: PickerItem[];
+  onPick: (value: number) => void;
+  grid: ReturnType<ReturnType<typeof useGridFocus>['gridProps']>;
+  weekdays: CalendarDaysProps;
+  days: CalendarGridProps;
+  onMouseLeave: () => void;
 }
