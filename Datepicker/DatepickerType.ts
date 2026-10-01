@@ -83,3 +83,13 @@ export interface ComboboxAriaOptions {
   /** Accessible name when there's neither `label` nor `aria-label`. */
   fallbackLabel: string;
 }
+
+export interface UsePopoverOptions {
+  open: boolean | undefined;
+  defaultOpen: boolean;
+  onOpenChange: ((open: boolean) => void) | undefined;
+  disabled: boolean;
+  readOnly: boolean;
+  placement: NonNullable<DatepickerBaseProps['placement']>;
+  portal: boolean;
+}

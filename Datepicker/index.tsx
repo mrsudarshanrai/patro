@@ -7,11 +7,9 @@ import {
   useCallback,
   useEffect,
   useId,
-  useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
 import { Calendar } from '../Calendar';
 import { ICalendar } from '../Calendar/types';
 import {
@@ -42,6 +40,7 @@ import type {
 } from './DatepickerType';
 import { useIsClient } from '../hooks/useToday';
 import { useControllableValue } from '../hooks/useControllableValue';
+import { usePopover } from './hooks/usePopover';
 import { comboboxAria, defaultPlaceholder, formFields, rangeText } from './utils';
 
 const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
@@ -97,16 +96,18 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
     const selectedDate = selectedRange ? null : (currentValue as Date | null);
 
-    const isOpenControlled = open !== undefined;
-    const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-    const isOpen = !disabled && !readOnly && (isOpenControlled ? open : uncontrolledOpen);
+    const { isOpen, setOpen, setAnchor, setPopover, rootRef, onFocusLeave } = usePopover({
+      open,
+      defaultOpen,
+      onOpenChange,
+      disabled,
+      readOnly,
+      placement,
+      portal,
+    });
 
     // The focusable field: the combobox div, or the text input when editable.
     const [inputRef, setInputRef] = useState<HTMLElement | null>(null);
-    // The field's box, which the popover is placed against.
-    const [anchorRef, setAnchorRef] = useState<HTMLDivElement | null>(null);
-    const [popperRef, setPopperRef] = useState<HTMLDivElement | null>(null);
-    const rootRef = useRef<HTMLDivElement>(null);
     // Keyboard users land in the day grid; mouse users keep focus where they clicked.
     const [focusGrid, setFocusGrid] = useState(false);
 
@@ -125,48 +126,14 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     const setInputAndAnchor = useCallback(
       (node: HTMLDivElement | null) => {
         setInputNode(node);
-        setAnchorRef(node);
+        setAnchor(node);
       },
-      [setInputNode],
-    );
-
-    const setOpen = useCallback(
-      (next: boolean) => {
-        if (next === isOpen || (next && (disabled || readOnly))) return;
-        if (!isOpenControlled) setUncontrolledOpen(next);
-        onOpenChange?.(next);
-      },
-      [isOpen, disabled, readOnly, isOpenControlled, onOpenChange],
+      [setInputNode, setAnchor],
     );
 
     useEffect(() => {
       if (autoFocus) inputRef?.focus();
     }, [autoFocus, inputRef]);
-
-    useEffect(() => {
-      if (!isOpen) return;
-      const handleClickOutside = (event: MouseEvent) => {
-        const target = event.target as Node;
-        if (popperRef?.contains(target) || anchorRef?.contains(target)) return;
-        setOpen(false);
-      };
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, [isOpen, anchorRef, popperRef, setOpen]);
-
-    // autoUpdate re-places the popover on scroll, resize and layout shifts, not just on open.
-    useEffect(() => {
-      if (!anchorRef || !popperRef || !isOpen) return;
-      return autoUpdate(anchorRef, popperRef, () => {
-        computePosition(anchorRef, popperRef, {
-          placement,
-          strategy: portal ? 'fixed' : 'absolute',
-          middleware: [offset(6), flip(), shift({ padding: 8 })],
-        }).then(({ x, y }) => {
-          Object.assign(popperRef.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
-        });
-      });
-    }, [isOpen, anchorRef, popperRef, placement, portal]);
 
     const commit = (next: PatroDate | null) => {
       setValue(next?.date ?? null);
@@ -217,15 +184,6 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     const onInputClick = () => {
       setFocusGrid(false);
       setOpen(!isOpen);
-    };
-
-    // Tabbing out of the picker closes it; focus lost to nowhere (e.g. switching windows) doesn't.
-    // React bubbles blur out of a portal, so this also sees the portalled popover.
-    const onFocusLeave = (event: FocusEvent<HTMLDivElement>) => {
-      const next = event.relatedTarget as Node | null;
-      if (!isOpen || !next) return;
-      if (rootRef.current?.contains(next) || popperRef?.contains(next)) return;
-      setOpen(false);
     };
 
     // Typing (editable, single mode). `draft` is the text while it differs from the value.
@@ -303,7 +261,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
 
     const popover = isOpen && (
       <div
-        ref={setPopperRef}
+        ref={setPopover}
         id={popoverId}
         role='dialog'
         aria-label={text.chooseDate}
@@ -341,7 +299,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
         <div className='_patro_datepicker_control'>
           {isEditable ? (
             <div
-              ref={setAnchorRef}
+              ref={setAnchor}
               className={[
                 '_patro_datepicker_input',
                 '_patro_datepicker_input_editable',
