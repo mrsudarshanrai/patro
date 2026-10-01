@@ -1,0 +1,100 @@
+.demo-section {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+.demo-section h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.demo-section > p {
+  margin: 0 0 20px;
+  color: var(--vp-c-text-2);
+}
+
+/* Height of the open calendar, so the page doesn't jump while React loads. */
+.demo-root {
+  min-height: 420px;
+}
+
+.demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.demo-segmented {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+}
+
+.demo-segmented button {
+  padding: 4px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vp-c-text-2);
+}
+
+.demo-segmented button[aria-pressed='true'] {
+  background: var(--vp-c-bg);
+  color: var(--vp-c-text-1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.demo-stage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.demo-side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.demo-output {
+  margin: 0;
+  padding: 12px 14px;
+  max-width: 320px;
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  font-family: var(--vp-font-family-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--vp-c-text-1);
+}
+
+.demo-output span {
+  color: var(--vp-c-text-2);
+}
+
+.demo-more a {
+  font-weight: 500;
+  color: var(--vp-c-brand-1);
+}
+
+/* vp-raw opts out of the docs' prose styles, so restore the intro text and link. */
+.demo-section code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--vp-c-default-soft);
+  font-family: var(--vp-font-family-mono);
+  font-size: 0.875em;
+  color: var(--vp-c-brand-1);
+  white-space: nowrap;
+}
+
+.demo-more {
+  margin: 24px 0 0;
+}

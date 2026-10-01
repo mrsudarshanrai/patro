@@ -1,12 +1,26 @@
 import { defineConfig } from 'vitepress';
 
+// Where Storybook is hosted, e.g. 'https://patro-storybook.example.com'. Empty until it's deployed:
+// "more examples" links then go to the /storybook page, which says it's coming soon.
+const storybookUrl = '';
+
 export default defineConfig({
   title: 'patro',
   description: 'A React AD ↔ BS (Bikram Sambat) calendar and datepicker',
   lastUpdated: true,
   cleanUrls: true,
 
+  vite: {
+    // The home page demo is React (TSX) inside this Vue site.
+    esbuild: { jsx: 'automatic' },
+    // patro is linked from the parent repo, which has its own React; use one copy.
+    resolve: { dedupe: ['react', 'react-dom'] },
+    optimizeDeps: { include: ['react', 'react-dom/client', 'patro'] },
+  },
+
   themeConfig: {
+    // @ts-expect-error: a custom key, read by the home page demo.
+    storybookUrl,
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Reference', link: '/reference/props' },
