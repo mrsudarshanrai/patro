@@ -26,6 +26,3 @@ firebase-debug.log*
 
 # storybook
 storybook-static
-
-# docs site (its own independent git repo, deployed separately)
-/docs
