@@ -230,9 +230,24 @@ try {
     process.exitCode = 1;
   }
 } finally {
-  chrome?.kill();
+  await stopChrome(chrome);
   server.close();
-  rmSync(dir, { recursive: true, force: true });
+  // A leftover temp folder isn't a positioning failure, so it only warns.
+  try {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  } catch (error) {
+    console.warn(`Could not remove ${dir}: ${error.message}`);
+  }
+}
+
+// kill() only sends the signal; Chrome keeps writing its profile until it has actually exited.
+async function stopChrome(child) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((done) => child.once('exit', done));
+  child.kill();
+  const timeout = setTimeout(() => child.kill('SIGKILL'), 5000);
+  await exited;
+  clearTimeout(timeout);
 }
 
 function sleep(ms) {
