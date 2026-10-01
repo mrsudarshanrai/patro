@@ -215,6 +215,7 @@
 
 ._patro_datepicker_popper {
   z-index: 1000;
+  width: max-content;
 }
 
 ._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {

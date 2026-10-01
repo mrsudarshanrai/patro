@@ -342,3 +342,28 @@ export const TwoMonthsBS: Story = {
   name: 'Range (BS, two months)',
   args: { mode: 'range', calendar: 'BS', label: 'बिदा', numberOfMonths: 2, weekendDays: [6] },
 };
+
+const LayoutShiftDemo = () => {
+  const [notices, setNotices] = useState(0);
+  return (
+    <div>
+      <p className='story-note'>
+        Open the picker, then add a notice above it: the popover should stay attached to the field.
+      </p>
+      <button className='story-button' onClick={() => setNotices(notices + 1)}>
+        Add a notice above
+      </button>
+      {Array.from({ length: notices }, (_, i) => (
+        <p key={i} className='story-note'>
+          Notice {i + 1}: something appeared and pushed the form down.
+        </p>
+      ))}
+      <Datepicker label='Date' closeOnSelect={false} />
+    </div>
+  );
+};
+
+export const LayoutShift: Story = {
+  name: 'Layout shift while open',
+  render: () => <LayoutShiftDemo />,
+};
