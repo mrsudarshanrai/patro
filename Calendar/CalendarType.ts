@@ -131,3 +131,16 @@ export interface UseCalendarDataResult {
   isDayDisabled: (adDate: string) => boolean;
   pending: boolean;
 }
+
+export interface UseCalendarDataOptions {
+  minDate?: Date;
+  maxDate?: Date;
+  isDateDisabled?: (date: PatroDate) => boolean;
+  weekStartsOn?: number;
+  fixedWeeks?: boolean;
+  weekendDays?: number[];
+  today?: string | null;
+  defaultMonth?: Date;
+  month?: Date;
+  onNavigate?: (anchor: string) => void;
+}

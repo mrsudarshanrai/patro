@@ -1,6 +1,6 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
+import { stepViewAnchor, useCalendarData } from '../Calendar/hooks/useCalendarData';
 import type { CalendarSystem } from '../types/public';
 
 // Effects don't run in renderToString, so this is exactly the first paint.
