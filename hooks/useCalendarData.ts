@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import {
@@ -107,55 +107,126 @@ type Options = {
   weekStartsOn?: number;
   fixedWeeks?: boolean;
   weekendDays?: number[];
+  /** Today's AD date; null while it isn't known yet (server rendering, hydration). */
+  today?: string | null;
+  /** Month shown when nothing is selected, instead of today's. */
+  defaultMonth?: Date;
+  /** Controlled month: navigation calls `onNavigate` instead of moving the view. */
+  month?: Date;
+  onNavigate?: (anchor: string) => void;
+};
+
+// Placeholder month while neither a selection nor today is known; the calendar hides it.
+const PENDING_ANCHOR = { year: 2000, month: 1, date: 1 };
+
+const todayParts = (today: string | null) => {
+  if (!today) return getToday();
+  const { year, month, day } = dateString2Obj(today);
+  return { year, month, date: day };
 };
 
 const useCalendarData = (
   calendarType: ICalendar.calendarType,
   selectedDate?: Date | null,
-  { minDate, maxDate, isDateDisabled, weekStartsOn, fixedWeeks, weekendDays }: Options = {},
+  {
+    minDate,
+    maxDate,
+    isDateDisabled,
+    weekStartsOn,
+    fixedWeeks,
+    weekendDays,
+    today = null,
+    defaultMonth,
+    month,
+    onNavigate,
+  }: Options = {},
 ): IUseCalendarData.IReturn => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
   const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
   const bounds = useMemo(() => ({ min: minAdDate, max: maxAdDate }), [minAdDate, maxAdDate]);
 
   const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
-    selectedDate === null ? null : toSelection(selectedDate ?? new Date()),
+    selectedDate ? toSelection(selectedDate) : null,
   );
   // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
-  const [viewAnchor, setViewAnchor] = useState(() => {
-    const { year, month, date } = selectedDate ? ymd(selectedDate) : (selected ?? getToday());
+  // null until there's a selection or a known today to anchor on.
+  const [viewAnchor, setViewAnchor] = useState<string | null>(() => {
+    const fallback = defaultMonth ? ymd(defaultMonth) : today && todayParts(today);
+    if (!selectedDate && !fallback) return null;
+    const { year, month, date } = selectedDate ? ymd(selectedDate) : fallback;
     return getViewAnchor(calendarType, year, month, date, bounds);
+  });
+  const controlledAnchor = month
+    ? getViewAnchor(
+        calendarType,
+        month.getFullYear(),
+        month.getMonth() + 1,
+        month.getDate(),
+        bounds,
+      )
+    : null;
+  const shownAnchor =
+    controlledAnchor ??
+    viewAnchor ??
+    getViewAnchor(
+      calendarType,
+      PENDING_ANCHOR.year,
+      PENDING_ANCHOR.month,
+      PENDING_ANCHOR.date,
+      bounds,
+    );
+
+  // A ref so today moving on at midnight doesn't pull the view away from where the user is.
+  const todayRef = useRef(today);
+  useEffect(() => {
+    todayRef.current = today;
   });
 
   const selectedTime = selectedDate?.getTime();
-  const cleared = selectedDate === null;
+  const defaultMonthTime = defaultMonth?.getTime();
   useEffect(() => {
     const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
-    const next = requested ? toSelection(requested) : cleared ? null : selected;
-    const { year, month, date } = requested ? ymd(requested) : (next ?? getToday());
+    const next = requested ? toSelection(requested) : null;
+    // Effects only run in the browser, so the clock here is the visitor's.
+    const fallback =
+      defaultMonthTime !== undefined
+        ? ymd(new Date(defaultMonthTime))
+        : todayParts(todayRef.current);
+    const { year, month, date } = requested ? ymd(requested) : fallback;
     setViewAnchor(getViewAnchor(calendarType, year, month, date, bounds));
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
-  }, [selectedTime, cleared, calendarType, selected, bounds]);
+  }, [selectedTime, defaultMonthTime, calendarType, bounds]);
 
-  const [firstAdDate, lastAdDate] = useMemo(
-    () => monthBounds(calendarType, viewAnchor),
-    [calendarType, viewAnchor],
+  // Controlled: ask the owner to move; uncontrolled: move.
+  const navigate = useCallback(
+    (anchor: string) => {
+      if (!controlledAnchor) setViewAnchor(anchor);
+      else if (anchor !== controlledAnchor) onNavigate?.(anchor);
+    },
+    [controlledAnchor, onNavigate],
   );
 
+  const [firstAdDate, lastAdDate] = useMemo(
+    () => monthBounds(calendarType, shownAnchor),
+    [calendarType, shownAnchor],
+  );
+
+  const pending = !controlledAnchor && !viewAnchor;
+
   const nextMonth = useCallback(() => {
-    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, 1, bounds));
-  }, [calendarType, bounds]);
+    if (!pending) navigate(stepViewAnchor(shownAnchor, calendarType, 1, bounds));
+  }, [pending, navigate, shownAnchor, calendarType, bounds]);
 
   const prevMonth = useCallback(() => {
-    setViewAnchor((anchor) => stepViewAnchor(anchor, calendarType, -1, bounds));
-  }, [calendarType, bounds]);
+    if (!pending) navigate(stepViewAnchor(shownAnchor, calendarType, -1, bounds));
+  }, [pending, navigate, shownAnchor, calendarType, bounds]);
 
   const goToMonth = useCallback(
     (year: number, month: number) => {
       const span = monthSpan(calendarType, year, month);
-      if (span && overlaps(span, bounds.min, bounds.max)) setViewAnchor(span[0]);
+      if (span && overlaps(span, bounds.min, bounds.max)) navigate(span[0]);
     },
-    [calendarType, bounds],
+    [navigate, calendarType, bounds],
   );
 
   const isDayDisabled = useCallback(
@@ -182,12 +253,22 @@ const useCalendarData = (
   );
   const dates = useMemo(
     () =>
-      getMonthGrid(calendarType, viewAnchor, selectedAdDate, isDayDisabled, {
+      getMonthGrid(calendarType, shownAnchor, selectedAdDate, isDayDisabled, {
         weekStartsOn,
         fixedWeeks,
         weekendDays: weekend,
+        today,
       }),
-    [calendarType, viewAnchor, selectedAdDate, isDayDisabled, weekStartsOn, fixedWeeks, weekend],
+    [
+      calendarType,
+      shownAnchor,
+      selectedAdDate,
+      isDayDisabled,
+      weekStartsOn,
+      fixedWeeks,
+      weekend,
+      today,
+    ],
   );
 
   return {
@@ -199,8 +280,9 @@ const useCalendarData = (
     nextMonth,
     prevMonth,
     goToMonth,
-    canNextMonth: canStep(viewAnchor, calendarType, 1, bounds),
-    canPrevMonth: canStep(viewAnchor, calendarType, -1, bounds),
+    canNextMonth: !pending && canStep(shownAnchor, calendarType, 1, bounds),
+    canPrevMonth: !pending && canStep(shownAnchor, calendarType, -1, bounds),
+    pending,
     minAdDate,
     maxAdDate,
     isDayDisabled,

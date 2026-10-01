@@ -9,6 +9,10 @@ import {
   monthTitle,
   getToday,
   getMonthGrid,
+  isValidAdDate,
+  isValidBsDate,
+  parseInputDate,
+  formatInputDate,
 } from '../utils';
 
 const adDate = '2022-10-24';
@@ -32,7 +36,7 @@ test('Convert BS date to AD', () => {
 
 test('AD date past the BS table range throws', () => {
   // 2043-04-14 (BS 2099-12-31) is the last date the table supports.
-  expect(() => ad2Bs('2043-04-15')).toThrow('AD Date out of range');
+  expect(() => ad2Bs('2043-04-15')).toThrow('outside the supported range');
   expect(ad2Bs('2043-04-14')).toBe('2099-12-31');
 });
 
@@ -53,8 +57,39 @@ test('impossible AD dates throw instead of rolling over', () => {
 });
 
 test('AD date before the BS table range throws', () => {
-  expect(() => ad2Bs('1921-04-12')).toThrow('AD Date out of range');
+  expect(() => ad2Bs('1921-04-12')).toThrow('outside the supported range');
   expect(ad2Bs('1921-04-13')).toBe('1978-01-01');
+});
+
+test('conversions accept only YYYY-MM-DD, in Latin or Devanagari digits', () => {
+  expect(() => ad2Bs('2022-1-5')).toThrow(/expected 'YYYY-MM-DD'/);
+  expect(() => ad2Bs(' 2022-10-24')).toThrow(/expected 'YYYY-MM-DD'/);
+  expect(() => ad2Bs('2022/10/24')).toThrow(/expected 'YYYY-MM-DD'/);
+  expect(() => ad2Bs('')).toThrow(RangeError);
+  expect(() => ad2Bs(undefined as unknown as string)).toThrow(TypeError);
+  expect(() => bs2Ad(null as unknown as string)).toThrow('got null');
+  expect(bs2Ad('२०७९-०७-०७')).toBe(adDate);
+});
+
+test('ad2Bs takes a Date, read in local time', () => {
+  expect(ad2Bs(new Date(2022, 9, 24, 23, 30))).toBe(bsDate);
+});
+
+test('impossible BS dates and months throw', () => {
+  expect(() => bs2Ad('2080-01-32')).toThrow('not a valid BS date');
+  expect(() => bs2Ad('2080-13-01')).toThrow(RangeError);
+  expect(() => bs2Ad('1977-12-30')).toThrow(
+    'outside the supported range (1978-01-01 to 2099-12-31)',
+  );
+});
+
+test('isValidAdDate / isValidBsDate never throw', () => {
+  expect(isValidAdDate('2024-02-29')).toBe(true);
+  expect(isValidAdDate('2026-02-29')).toBe(false);
+  expect(isValidAdDate('2043-04-15')).toBe(false);
+  expect(isValidAdDate(42 as unknown as string)).toBe(false);
+  expect(isValidBsDate('२०८०-०१-३१')).toBe(true);
+  expect(isValidBsDate('2080-01-32')).toBe(false);
 });
 
 test('getMonthFirstDay returns the correct weekday regardless of local timezone', () => {
@@ -115,4 +150,35 @@ test('month titles and ranges name both years when a month spans two', () => {
 
 test('en2NpNumber converts only digits', () => {
   expect(en2NpNumber('2083-07 12')).toBe('२०८३-०७ १२');
+});
+
+describe('typed dates', () => {
+  test('parseInputDate reads the displayed calendar, with loose separators and digits', () => {
+    expect(parseInputDate('2026-10-29', 'AD')).toBe('2026-10-29');
+    expect(parseInputDate(' 2026/1/5 ', 'AD')).toBe('2026-01-05');
+    expect(parseInputDate('2026.10.29', 'AD')).toBe('2026-10-29');
+    expect(parseInputDate('२०८३-०७-१२', 'BS')).toBe('2026-10-29');
+    expect(parseInputDate('2083 7 12', 'BS')).toBe('2026-10-29');
+  });
+
+  test('parseInputDate rejects partial, impossible and unsupported dates', () => {
+    for (const text of [
+      '',
+      '2026-10',
+      '26-10-29',
+      '2026-10-029',
+      '2026-02-30',
+      '2050-01-01',
+      'abc',
+    ]) {
+      expect(parseInputDate(text, 'AD')).toBeNull();
+    }
+    expect(parseInputDate('2083-07-33', 'BS')).toBeNull();
+  });
+
+  test('formatInputDate writes the displayed calendar in its digits', () => {
+    expect(formatInputDate('2026-10-29', 'AD')).toBe('2026-10-29');
+    expect(formatInputDate('2026-10-29', 'BS')).toBe('२०८३-०७-१२');
+    expect(formatInputDate('2026-10-29', 'BS', { numerals: 'latin' })).toBe('2083-07-12');
+  });
 });

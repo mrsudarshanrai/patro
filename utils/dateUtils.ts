@@ -27,24 +27,24 @@ const getToday = () => {
   return { year: now.getFullYear(), month: now.getMonth() + 1, date: now.getDate() };
 };
 
-const isTodayAdDate = (adDate: string) => {
-  const { year, month, date } = getToday();
-  return adDate === createDateString(year, month, date);
-};
+const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-const isDayValid = (day: number) => day > 32 || day < 1 || !day;
-const isMonthValid = (month: number) => month > 12 || month < 1 || !month;
-const isYearValid = (year: number) => !year || year.toString().length < 4;
+const toLatinDigits = (value: string) =>
+  value.replace(/[०-९]/g, (digit) => String(DEVANAGARI_DIGITS.indexOf(digit)));
 
+// Accepts 'YYYY-MM-DD' in Latin or Devanagari digits; the day is checked against the month by callers.
 const dateString2Obj = (date: string) => {
-  const splittedDate = date.split('-');
-  if (splittedDate.length !== 3) throw new Error('Date format is invalid');
-  const [year, month, day] = date.split('-').map((item) => parseInt(item));
-  if (isDayValid(day)) throw new Error('Day is invalid.');
-  if (isMonthValid(month)) throw new Error('Month is invalid.');
-
-  if (isYearValid(year)) throw new Error('Year is invalid.');
-
+  if (typeof date !== 'string') {
+    throw new TypeError(
+      `Expected a 'YYYY-MM-DD' string, got ${date === null ? 'null' : typeof date}.`,
+    );
+  }
+  const match = DATE_PATTERN.exec(toLatinDigits(date));
+  if (!match) throw new RangeError(`Invalid date "${date}": expected 'YYYY-MM-DD'.`);
+  const [year, month, day] = match.slice(1).map(Number);
+  if (month < 1 || month > 12 || day < 1 || day > 32) {
+    throw new RangeError(`Invalid date "${date}".`);
+  }
   return { year, month, day };
 };
 
@@ -55,6 +55,16 @@ const clampAdDate = (adDate: string, min = START_ENGLISH_DATE, max = MAX_AD_DATE
 
 const toAdDateString = (date: Date) =>
   createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
+
+const supportedAdDate = (date: Date | null | undefined) =>
+  date && isSupportedAdDate(toAdDateString(date)) ? toAdDateString(date) : null;
+
+// A range given end-first is treated as the same range, start-first.
+const supportedAdRange = (range: { start: Date | null; end: Date | null }) => {
+  const start = supportedAdDate(range.start);
+  const end = supportedAdDate(range.end);
+  return start && end && end < start ? { start: end, end: start } : { start, end };
+};
 
 // `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
@@ -75,12 +85,14 @@ export {
   getMonthFirstDay,
   switchYear,
   getToday,
-  isTodayAdDate,
   dateString2Obj,
+  toLatinDigits,
   adDateToLocalDate,
   isSupportedAdDate,
   clampAdDate,
   toAdDateString,
+  supportedAdDate,
+  supportedAdRange,
   en2NpNumber,
   remove1stZero,
 };

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import { CalendarSystem, PatroDate } from '../types/public';
 import { DisplayOptions } from '../utils/formatUtils';
@@ -18,6 +19,10 @@ export namespace ICalendar {
     idPrefix: string;
     focusedAdDate?: string;
     dayClassName?: (date: PatroDate) => string | undefined;
+    dayContent?: (date: PatroDate) => ReactNode;
+    /** Blank out other months' days, e.g. when several months are shown. */
+    hideOutsideDays?: boolean;
+    dayLabel?: (date: PatroDate) => string | undefined;
     range?: { start: string | null; end: string | null; preview?: string };
     onHoverDay?: (adDate?: string) => void;
   };
@@ -27,8 +32,10 @@ export namespace ICalendar {
     subtitle: string;
     onTitleClick?: () => void;
     titleActionLabel?: string;
-    prevLabel?: string;
-    nextLabel?: string;
+    showPrev?: boolean;
+    showNext?: boolean;
+    prevLabel: string;
+    nextLabel: string;
     nextMonth: () => void;
     prevMonth: () => void;
     canNextMonth: boolean;

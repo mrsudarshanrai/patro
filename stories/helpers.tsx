@@ -16,6 +16,9 @@ export const HOLIDAYS: Record<string, string> = {
   '2083-10-01': 'Maghe Sankranti',
 };
 
+export const addDays = (date: Date, days: number) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+
 export const holidayClass = ({ bs }: { bs: string }) =>
   HOLIDAYS[bs] ? 'story-holiday' : undefined;
 

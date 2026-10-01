@@ -3,27 +3,59 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import terser from '@rollup/plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import { dts } from 'rollup-plugin-dts';
+
+const entries = { index: './index.ts', utils: './entries/utils.ts' };
+
+// Components use hooks, so React Server Components must treat them as client code.
+// Only the main entry: `patro/utils` stays callable from server code.
+// Added after terser, which drops unknown directives.
+const clientDirective = () => ({
+  name: 'client-directive',
+  renderChunk: (code, chunk) =>
+    chunk.isEntry && chunk.name === 'index' ? { code: `'use client';\n${code}`, map: null } : null,
+});
+
+// One self-contained declaration file per entry, as .d.ts (ESM) and .d.cts (CJS).
+const types = Object.entries(entries).map(([name, input]) => ({
+  input,
+  output: [
+    { file: `dist/${name}.d.ts`, format: 'es' },
+    { file: `dist/${name}.d.cts`, format: 'es' },
+  ],
+  plugins: [dts({ tsconfig: './tsconfig.build.json' })],
+}));
+
 export default [
   {
-    input: './index.ts',
+    input: entries,
     output: [
       {
-        // .cjs, not .js: the package is "type": "module", so .js would load as ESM.
-        file: 'dist/index.cjs',
-        format: 'cjs',
+        dir: 'dist',
+        format: 'es',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
       },
       {
-        file: 'dist/index.es.js',
-        format: 'es',
-        exports: 'named',
+        // .cjs, not .js: the package is "type": "module", so .js would load as ESM.
+        dir: 'dist',
+        format: 'cjs',
+        entryFileNames: '[name].cjs',
+        chunkFileNames: '[name]-[hash].cjs',
       },
     ],
     plugins: [
       peerDepsExternal(),
       resolve(),
       commonjs(),
-      typescript({ tsconfig: './tsconfig.build.json' }),
+      typescript({
+        tsconfig: './tsconfig.build.json',
+        declaration: false,
+        emitDeclarationOnly: false,
+      }),
       terser(),
+      clientDirective(),
     ],
   },
+  ...types,
 ];

@@ -8,10 +8,12 @@
 ._patro {
   --patro-surface: #f3f5fe;
   --patro-text: #292b31;
-  --patro-muted: #75798c;
+  // Text tokens keep at least 4.5:1 (WCAG AA) on the surface; --patro-disabled is exempt.
+  --patro-muted: #6b6e80;
   --patro-sub: #595d6c;
-  --patro-faint: #9397ab;
-  --patro-faint-sub: #b2b6ca;
+  --patro-faint: #696e87;
+  --patro-faint-sub: #666d94;
+  --patro-disabled: #9397ab;
   --patro-hover: #e4e7f5;
   --patro-border: #cfd3e5;
   --patro-border-hover: #9397ab;
@@ -30,6 +32,8 @@
   --patro-radius-popover: 14px;
   --patro-radius-cell: 8px;
   --patro-radius-input: 8px;
+  // Datepicker field width; e.g. 100% to fill a form column.
+  --patro-input-width: 288px;
 
   // Referenced, not injected - consumers who want the exact font load it
   // themselves (see README); falls back to system sans-serif otherwise.
@@ -43,8 +47,9 @@
   --patro-text: #e9e9ed;
   --patro-muted: #9397ab;
   --patro-sub: #b2b6ca;
-  --patro-faint: #75798c;
-  --patro-faint-sub: #595d6c;
+  --patro-faint: #8a8d9d;
+  --patro-faint-sub: #898d9d;
+  --patro-disabled: #75798c;
   --patro-hover: #3f424d;
   --patro-border: #3f424d;
   --patro-border-hover: #75798c;

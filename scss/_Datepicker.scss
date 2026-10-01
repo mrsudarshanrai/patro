@@ -15,7 +15,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    width: 288px;
+    width: 100%;
     height: 38px;
     padding: 0 4px 0 11px;
     background-color: var(--patro-surface);
@@ -103,7 +103,56 @@
         display: block;
       }
     }
-    &[aria-expanded='true'] &_icon {
+    // Editable: a text input and a toggle button inside the box, which takes the focus ring.
+    &_editable {
+      cursor: text;
+    }
+    &_editable:focus-within,
+    &_open {
+      box-shadow:
+        inset 0 0 0 1px var(--patro-accent),
+        0 0 0 3px var(--patro-halo);
+    }
+    &_editable#{&}_invalid:focus-within,
+    &_open#{&}_invalid {
+      box-shadow:
+        inset 0 0 0 1px var(--patro-danger),
+        0 0 0 3px color-mix(in srgb, var(--patro-danger) 20%, transparent);
+    }
+    &_disabled {
+      cursor: default;
+      opacity: 0.55;
+    }
+    &_text {
+      flex: none;
+      width: 7.4em;
+      min-width: 0;
+      font-size: 14px;
+      line-height: 20px;
+      font-weight: 500;
+      color: var(--patro-text);
+      outline: none;
+      &::placeholder {
+        color: var(--patro-muted);
+        opacity: 1;
+      }
+    }
+    &_editable &_icon {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      &:hover {
+        background-color: var(--patro-hover);
+        color: var(--patro-text);
+      }
+      &:disabled {
+        background: transparent;
+        cursor: default;
+      }
+    }
+    &[aria-expanded='true'] &_icon,
+    &_open &_icon {
       color: var(--patro-accent);
     }
     &_clearable &_icon {
@@ -111,8 +160,11 @@
     }
   }
 
+  // The field's width lives here, so the absolutely placed clear button always sits on the input.
   &_control {
     position: relative;
+    width: var(--patro-input-width);
+    max-width: 100%;
   }
 
   &_clear {
@@ -155,15 +207,35 @@
   }
 }
 
-._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_primary {
+._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_primary,
+._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_text {
   font-family: var(--patro-font-devanagari);
   font-size: 15px;
 }
 
 ._patro_datepicker_popper {
   z-index: 1000;
+  width: max-content;
 }
 
 ._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {
   font-family: var(--patro-font-devanagari);
+}
+
+// Two classes, so a host page's generic `form input { … }` rules don't restyle the editable field.
+._patro_datepicker ._patro_datepicker_input_text {
+  appearance: none;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: var(--patro-text);
+  outline: none;
 }

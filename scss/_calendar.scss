@@ -228,9 +228,12 @@
 
   &_disabled,
   &_disabled:hover {
-    color: var(--patro-faint);
+    color: var(--patro-disabled);
     background-color: transparent;
     cursor: default;
+    sub {
+      color: var(--patro-disabled);
+    }
   }
 
   &_focused {
@@ -285,7 +288,7 @@
     }
     &:disabled {
       background: transparent;
-      color: var(--patro-faint);
+      color: var(--patro-disabled);
       cursor: default;
     }
   }
@@ -294,6 +297,45 @@
 ._patro_container[data-calendar-type='BS'] ._patro_picker_item {
   font-family: var(--patro-font-devanagari);
   font-size: 14px;
+}
+
+._patro_presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 2px 0;
+
+  &_item {
+    padding: 3px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--patro-border);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--patro-text);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      outline: none;
+    }
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--patro-accent);
+    }
+    &[aria-pressed='true'] {
+      background-color: var(--patro-sel-bg);
+      box-shadow: inset 0 0 0 1px var(--patro-accent);
+      color: var(--patro-sel-text);
+    }
+    &:disabled {
+      background: transparent;
+      color: var(--patro-disabled);
+      cursor: default;
+    }
+  }
 }
 
 ._patro_footer {
@@ -309,7 +351,7 @@
     font-family: inherit;
     font-size: 13px;
     font-weight: 500;
-    color: var(--patro-accent);
+    color: var(--patro-today);
     cursor: pointer;
     &:hover,
     &:focus-visible {
@@ -317,7 +359,7 @@
       outline: none;
     }
     &:disabled {
-      color: var(--patro-faint);
+      color: var(--patro-disabled);
       background: transparent;
       cursor: default;
     }
@@ -343,4 +385,48 @@
     right: 5px;
     font-family: var(--patro-font);
   }
+}
+
+// Server-rendered without a value or `today`: keep the size, hide the placeholder month.
+._patro_container[aria-busy='true'] {
+  ._patro_header_info,
+  ._patro_grid ._patro_dates_date {
+    visibility: hidden;
+  }
+}
+
+// dayContent: the top-left corner is free in both the AD and BS layouts.
+._patro_dates_content {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  display: flex;
+  gap: 2px;
+  font-size: 9px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+// numberOfMonths: months side by side, wrapping on narrow screens.
+._patro_container_multi {
+  width: max-content;
+  max-width: 100%;
+}
+._patro_months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+._patro_month {
+  width: 272px;
+  min-width: 0;
+}
+._patro_header_spacer {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+// Empty but still a gridcell, so rows keep their cells for assistive tech.
+._patro_dates_hidden {
+  pointer-events: none;
 }

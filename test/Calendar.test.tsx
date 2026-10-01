@@ -1,9 +1,12 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
-import type { CalendarBaseProps, SingleSelection } from '../types/public';
+import { Datepicker } from '../Datepicker';
+import type { CalendarBaseProps, PatroDate, SingleSelection } from '../types/public';
+import { bs2Ad } from '../utils';
 
 const TODAY = new Date(2026, 9, 29);
 
@@ -97,14 +100,46 @@ test('uncontrolled: defaultValue is only the starting value', async () => {
   expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_current_date');
 });
 
+test('header buttons never submit a surrounding form', async () => {
+  const user = userEvent.setup();
+  const onSubmit = jest.fn((event: { preventDefault: () => void }) => event.preventDefault());
+  render(
+    <form onSubmit={onSubmit}>
+      <Calendar defaultValue={TODAY} />
+    </form>,
+  );
+  await user.click(screen.getByLabelText('Next month'));
+  await user.click(screen.getByLabelText('November 2026, choose month'));
+  await user.click(screen.getByLabelText('Next year'));
+  expect(onSubmit).not.toHaveBeenCalled();
+});
+
+describe('labels', () => {
+  test('follow the display language', () => {
+    const { rerender } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
+    expect(screen.getByLabelText('अर्को महिना')).toBeInTheDocument();
+    rerender(<Calendar calendar='BS' locale='en' defaultValue={TODAY} />);
+    expect(screen.getByLabelText('Next month')).toBeInTheDocument();
+  });
+
+  test('can be overridden one at a time', () => {
+    render(
+      <Calendar defaultValue={TODAY} showTodayButton labels={{ nextMonth: 'Mois suivant' }} />,
+    );
+    expect(screen.getByLabelText('Mois suivant')).toBeInTheDocument();
+    expect(screen.getByLabelText('Previous month')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Today' })).toBeInTheDocument();
+  });
+});
+
 test('month navigation steps by one month in the displayed calendar', async () => {
   const user = userEvent.setup();
   const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} />);
 
-  await user.click(screen.getByLabelText('Next month'));
+  await user.click(screen.getByLabelText('अर्को महिना'));
   expect(title(container)).toBe('मंसिर २०८३');
-  await user.click(screen.getByLabelText('Previous month'));
-  await user.click(screen.getByLabelText('Previous month'));
+  await user.click(screen.getByLabelText('अघिल्लो महिना'));
+  await user.click(screen.getByLabelText('अघिल्लो महिना'));
   expect(title(container)).toBe('आश्विन २०८३');
 });
 
@@ -182,15 +217,68 @@ describe('keyboard navigation', () => {
     expect(title(container)).toBe('मंसिर २०८३');
   });
 
-  test('PageDown and PageUp change month and keep a visible day focused', async () => {
+  test('PageDown and PageUp move the focused day by a month', async () => {
     const { user, container, grid } = setup();
     grid.focus();
 
     await user.keyboard('{PageDown}');
     expect(title(container)).toBe('November 2026');
-    expect(focused(container)).toBe('2026-11-01');
+    expect(focused(container)).toBe('2026-11-29');
     await user.keyboard('{PageUp}');
     expect(focused(container)).toBe('2026-10-29');
+  });
+
+  test('a month move clamps to the shorter month', async () => {
+    const { user, container, grid } = setup({ defaultValue: new Date(2027, 0, 31) });
+    grid.focus();
+
+    await user.keyboard('{PageDown}');
+    expect(focused(container)).toBe('2027-02-28');
+  });
+
+  test('Shift+PageUp / Shift+PageDown move by a year', async () => {
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{Shift>}{PageUp}{/Shift}');
+    expect(title(container)).toBe('October 2025');
+    expect(focused(container)).toBe('2025-10-29');
+    await user.keyboard('{Shift>}{PageDown}{PageDown}{/Shift}');
+    expect(focused(container)).toBe('2027-10-29');
+  });
+
+  test('month moves follow BS months in BS mode', async () => {
+    // 2026-10-29 = BS 2083-07-12; a BS month later is 2083-08-12.
+    const { user, container, grid } = setup({ calendar: 'BS' });
+    grid.focus();
+
+    await user.keyboard('{PageDown}');
+    expect(title(container)).toBe('मंसिर २०८३');
+    expect(focused(container)).toBe(bs2Ad('2083-08-12'));
+  });
+
+  test('Home and End go to the start and end of the week', async () => {
+    // 2026-10-29 is a Thursday.
+    const { user, container, grid } = setup();
+    grid.focus();
+
+    await user.keyboard('{Home}');
+    expect(focused(container)).toBe('2026-10-25');
+    await user.keyboard('{End}');
+    expect(focused(container)).toBe('2026-10-31');
+  });
+
+  test('Home and End respect weekStartsOn and skip disabled days', async () => {
+    const { user, container, grid } = setup({
+      weekStartsOn: 1,
+      isDateDisabled: ({ date }: PatroDate) => date.getDay() === 0,
+    });
+    grid.focus();
+
+    await user.keyboard('{Home}');
+    expect(focused(container)).toBe('2026-10-26');
+    await user.keyboard('{End}');
+    expect(focused(container)).toBe('2026-10-31');
   });
 
   test('Enter selects the focused day', async () => {
@@ -228,7 +316,7 @@ describe('supported range edges', () => {
     );
     expect(title(container)).toBe('चैत्र २०९९');
 
-    const next = screen.getByLabelText('Next month');
+    const next = screen.getByLabelText('अर्को महिना');
     expect(next).toBeDisabled();
     await user.click(next);
     screen.getByRole('grid').focus();
@@ -270,8 +358,8 @@ describe('supported range edges', () => {
   test('first BS month (1978 Baisakh) cannot go back', () => {
     const { container } = render(<Calendar calendar='BS' defaultValue={new Date(1921, 3, 20)} />);
     expect(title(container)).toBe('बैशाख १९७८');
-    expect(screen.getByLabelText('Previous month')).toBeDisabled();
-    expect(screen.getByLabelText('Next month')).toBeEnabled();
+    expect(screen.getByLabelText('अघिल्लो महिना')).toBeDisabled();
+    expect(screen.getByLabelText('अर्को महिना')).toBeEnabled();
   });
 
   test('an out-of-range defaultValue shows the nearest month with nothing selected', () => {
@@ -318,12 +406,32 @@ describe('minDate / maxDate / isDateDisabled', () => {
     expect(title(container)).toBe('January 2027');
   });
 
+  test('minDate after maxDate disables every day instead of crashing', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar
+        minDate={new Date(2026, 9, 20)}
+        maxDate={new Date(2026, 9, 10)}
+        onChange={onChange}
+      />,
+    );
+    expect(
+      container.querySelectorAll('._patro_dates_date:not(._patro_dates_disabled)'),
+    ).toHaveLength(0);
+    expect(screen.getByLabelText('Previous month')).toBeDisabled();
+    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    await user.click(screen.getByRole('grid'));
+    await user.keyboard('{ArrowRight}{PageUp}{Enter}');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   test('bounds apply in BS mode too', () => {
     const { container } = render(
       <Calendar calendar='BS' defaultValue={TODAY} maxDate={new Date(2026, 10, 1)} />,
     );
     expect(title(container)).toBe('कार्तिक २०८३');
-    expect(screen.getByLabelText('Next month')).toBeDisabled();
+    expect(screen.getByLabelText('अर्को महिना')).toBeDisabled();
     expect(cell(container, '2026-11-02')).toHaveClass('_patro_dates_disabled');
   });
 
@@ -440,6 +548,23 @@ test('dayClassName adds your own classes, e.g. for holidays', () => {
   expect(cell(container, '2026-10-22')).not.toHaveClass('holiday');
 });
 
+test('dayContent adds content to a day and dayLabel extends its accessible name', () => {
+  const holidays: Record<string, string> = { '2083-06-26': 'Dashain' };
+  const { container } = render(
+    <Calendar
+      defaultValue={TODAY}
+      dayContent={({ bs }) => holidays[bs] && <i className='dot' />}
+      dayLabel={({ bs }) => holidays[bs]}
+    />,
+  );
+  // 2026-10-12 = BS 2083-06-26.
+  const holiday = cell(container, '2026-10-12');
+  expect(holiday.querySelector('._patro_dates_content .dot')).not.toBeNull();
+  expect(holiday).toHaveAccessibleName('12 October 2026, २६ आश्विन २०८३, Dashain');
+  expect(cell(container, '2026-10-13').querySelector('._patro_dates_content')).toBeNull();
+  expect(cell(container, '2026-10-13')).toHaveAccessibleName('13 October 2026, २७ आश्विन २०८३');
+});
+
 test('onMonthChange reports the new month, not the initial one', async () => {
   const user = userEvent.setup();
   const onMonthChange = jest.fn();
@@ -451,6 +576,222 @@ test('onMonthChange reports the new month, not the initial one', async () => {
   expect(onMonthChange).toHaveBeenCalledWith({
     start: expect.objectContaining({ ad: '2026-11-01' }),
     end: expect.objectContaining({ ad: '2026-11-30' }),
+  });
+});
+
+describe('numberOfMonths', () => {
+  const titles = (container: HTMLElement) =>
+    Array.from(container.querySelectorAll('._patro_header_title'), (el) => el.textContent);
+
+  test('shows consecutive months, hiding other months’ days so none repeats', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);
+    expect(titles(container)).toEqual(['October 2026', 'November 2026']);
+    expect(container.querySelectorAll('[title="2026-11-01"]')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Previous month')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Next month')).toHaveLength(1);
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(titles(container)).toEqual(['November 2026', 'December 2026']);
+  });
+
+  test('one Tab stop; arrow keys cross into the next month without scrolling', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);
+    const grids = screen.getAllByRole('grid');
+    expect(grids.map((grid) => grid.tabIndex)).toEqual([0, -1]);
+
+    // Previous month, the title, then the first grid (the first month has no Next arrow).
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    expect(grids[0]).toHaveFocus();
+    await user.keyboard('{ArrowDown}');
+    expect(grids[1]).toHaveFocus();
+    expect(grids[1]).toHaveAttribute('aria-activedescendant', expect.stringMatching(/2026-11-05$/));
+    expect(titles(container)).toEqual(['October 2026', 'November 2026']);
+
+    await user.keyboard('{PageDown}');
+    expect(titles(container)).toEqual(['November 2026', 'December 2026']);
+    expect(grids[1]).toHaveFocus();
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-12-05');
+
+    await user.keyboard('{Shift>}{PageUp}{/Shift}');
+    expect(titles(container)).toEqual(['December 2025', 'January 2026']);
+    expect(grids[0]).toHaveFocus();
+  });
+
+  test('a range can start in one month and end in the next', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(<Calendar mode='range' numberOfMonths={2} onChange={onChange} />);
+    await user.click(cell(container, '2026-10-28'));
+    await user.click(cell(container, '2026-11-03'));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-28' }),
+      end: expect.objectContaining({ ad: '2026-11-03' }),
+    });
+    expect(cell(container, '2026-11-01')).toHaveClass('_patro_dates_in_range');
+  });
+
+  test('BS months follow BS month boundaries', () => {
+    const { container } = render(
+      <Calendar calendar='BS' defaultValue={TODAY} numberOfMonths={2} />,
+    );
+    expect(titles(container)).toEqual(['कार्तिक २०८३', 'मंसिर २०८३']);
+  });
+});
+
+describe('presets', () => {
+  const addDays = (date: Date, days: number) =>
+    new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+
+  test('single presets select a day, move to its month and mark the active one', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <Calendar
+        defaultValue={null}
+        onChange={onChange}
+        presets={[
+          { label: 'Today', value: () => new Date() },
+          { label: 'In a month', value: () => addDays(new Date(), 30) },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('group', { name: 'Quick picks' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'In a month' }));
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ ad: '2026-11-28' }));
+    expect(title(container)).toBe('November 2026');
+    expect(screen.getByRole('button', { name: 'In a month' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('range presets set both ends; presets breaking the rules are disabled', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    render(
+      <Calendar
+        mode='range'
+        maxDays={7}
+        maxDate={new Date(2026, 11, 31)}
+        onChange={onChange}
+        presets={[
+          {
+            label: 'Next 7 days',
+            value: () => ({ start: new Date(), end: addDays(new Date(), 6) }),
+          },
+          {
+            label: 'Next 30 days',
+            value: () => ({ start: new Date(), end: addDays(new Date(), 29) }),
+          },
+          { label: 'Next year', value: { start: new Date(2027, 0, 1), end: new Date(2027, 0, 2) } },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Next 30 days' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next year' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Next 7 days' }));
+    expect(onChange).toHaveBeenLastCalledWith({
+      start: expect.objectContaining({ ad: '2026-10-29' }),
+      end: expect.objectContaining({ ad: '2026-11-04' }),
+    });
+  });
+
+  test('picking a range preset closes the Datepicker', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <Datepicker
+        mode='range'
+        defaultOpen
+        presets={[
+          {
+            label: 'This week',
+            value: { start: new Date(2026, 9, 25), end: new Date(2026, 9, 31) },
+          },
+        ]}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'This week' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(container.querySelector('._patro_datepicker_input')).toHaveTextContent(
+      '25 Oct – 31 Oct 2026',
+    );
+  });
+});
+
+describe('defaultMonth and month', () => {
+  test('defaultMonth is shown when nothing is selected', async () => {
+    const user = userEvent.setup();
+    const { container, rerender } = render(<Calendar defaultMonth={new Date(2000, 5, 10)} />);
+    expect(title(container)).toBe('June 2000');
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(title(container)).toBe('July 2000');
+
+    rerender(<Calendar defaultMonth={new Date(2000, 5, 10)} value={new Date(2026, 0, 5)} />);
+    expect(title(container)).toBe('January 2026');
+  });
+
+  test('a value wins over defaultMonth', () => {
+    const { container } = render(
+      <Calendar defaultMonth={new Date(2000, 5, 10)} defaultValue={new Date(2026, 0, 5)} />,
+    );
+    expect(title(container)).toBe('January 2026');
+  });
+
+  test('defaultMonth follows BS months in BS mode', () => {
+    // 2000-06-10 is BS 2057-02-28 (Jestha).
+    const { container } = render(<Calendar calendar='BS' defaultMonth={new Date(2000, 5, 10)} />);
+    expect(title(container)).toBe('जेष्ठ २०५७');
+  });
+
+  test('a controlled month only moves when the owner updates it', async () => {
+    const user = userEvent.setup();
+    const onMonthChange = jest.fn();
+    const { container, rerender } = render(
+      <Calendar month={new Date(2026, 2, 1)} onMonthChange={onMonthChange} />,
+    );
+    expect(title(container)).toBe('March 2026');
+
+    await user.click(screen.getByLabelText('Next month'));
+    expect(title(container)).toBe('March 2026');
+    expect(onMonthChange).toHaveBeenCalledWith({
+      start: expect.objectContaining({ ad: '2026-04-01' }),
+      end: expect.objectContaining({ ad: '2026-04-30' }),
+    });
+
+    rerender(<Calendar month={new Date(2026, 3, 1)} onMonthChange={onMonthChange} />);
+    expect(title(container)).toBe('April 2026');
+    // Updating the prop isn't reported back.
+    expect(onMonthChange).toHaveBeenCalledTimes(1);
+  });
+
+  test('a controlled month works with state, the keyboard and the month picker', async () => {
+    const user = userEvent.setup();
+    const Controlled = () => {
+      const [month, setMonth] = useState(new Date(2026, 9, 1));
+      return (
+        <Calendar
+          defaultValue={TODAY}
+          month={month}
+          onMonthChange={({ start }) => setMonth(start.date)}
+        />
+      );
+    };
+    const { container } = render(<Controlled />);
+    screen.getByRole('grid').focus();
+    await user.keyboard('{PageDown}');
+    expect(title(container)).toBe('November 2026');
+    expect(container.querySelector('._patro_dates_focused')).toHaveAttribute('title', '2026-11-29');
+
+    await user.click(screen.getByRole('button', { name: /choose month/ }));
+    await user.click(screen.getByRole('button', { name: 'March' }));
+    expect(title(container)).toBe('March 2026');
   });
 });
 
@@ -514,6 +855,34 @@ describe('month and year quick navigation', () => {
     expect(screen.getByLabelText('Previous year')).toBeDisabled();
   });
 
+  test('the month grid is one Tab stop, and arrow keys move within it', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} minDate={new Date(2026, 1, 1)} />);
+    await user.click(titleButton());
+    const october = screen.getByRole('button', { name: 'October' });
+    expect(
+      [...container.querySelectorAll('._patro_picker_item')].filter(
+        (item) => item.getAttribute('tabindex') === '0',
+      ),
+    ).toEqual([october]);
+
+    // Title button, then Next year, then the grid.
+    await user.tab();
+    await user.tab();
+    expect(october).toHaveFocus();
+    await user.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'November' })).toHaveFocus();
+    await user.keyboard('{ArrowUp}{ArrowUp}{ArrowUp}');
+    // November, August, May, February; January is disabled, so Left stays put.
+    expect(screen.getByRole('button', { name: 'February' })).toHaveFocus();
+    await user.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: 'February' })).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(screen.getByRole('button', { name: 'December' })).toHaveFocus();
+    await user.keyboard('{Home}{Enter}');
+    expect(title(container)).toBe('February 2026');
+  });
+
   test('Escape goes back to the days', async () => {
     const user = userEvent.setup();
     const { container } = render(<Calendar defaultValue={TODAY} />);
@@ -552,7 +921,72 @@ test('the year page subtitle shows the span in the other calendar', async () => 
 });
 
 describe('range mode', () => {
+  test('a range given end-first is drawn start-first', () => {
+    const { container } = render(
+      <Calendar
+        mode='range'
+        value={{ start: new Date(2026, 9, 20), end: new Date(2026, 9, 10) }}
+      />,
+    );
+    expect(cell(container, '2026-10-10')).toHaveClass('_patro_dates_range_start');
+    expect(cell(container, '2026-10-15')).toHaveClass('_patro_dates_in_range');
+    expect(cell(container, '2026-10-20')).toHaveClass('_patro_dates_range_end');
+  });
+
   const classesOf = (container: HTMLElement, adDate: string) => cell(container, adDate).className;
+
+  describe('range rules', () => {
+    const ends = (onChange: jest.Mock) => {
+      const { start, end } = onChange.mock.lastCall[0];
+      return [start?.ad ?? null, end?.ad ?? null];
+    };
+
+    test('minDays: a closer end starts a new range there', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { container } = render(<Calendar mode='range' minDays={3} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-06'));
+      expect(ends(onChange)).toEqual(['2026-10-06', null]);
+      await user.click(cell(container, '2026-10-08'));
+      expect(ends(onChange)).toEqual(['2026-10-06', '2026-10-08']);
+    });
+
+    test('maxDays: a farther end starts a new range, and gets no preview', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const { container } = render(<Calendar mode='range' maxDays={7} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-05'));
+      await user.hover(cell(container, '2026-10-12'));
+      expect(cell(container, '2026-10-08')).not.toHaveClass('_patro_dates_in_range');
+      await user.hover(cell(container, '2026-10-11'));
+      expect(cell(container, '2026-10-08')).toHaveClass('_patro_dates_in_range');
+
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-12', null]);
+      await user.click(cell(container, '2026-10-18'));
+      expect(ends(onChange)).toEqual(['2026-10-12', '2026-10-18']);
+    });
+
+    test('excludeDisabled: a range cannot span a disabled day', async () => {
+      const user = userEvent.setup();
+      const onChange = jest.fn();
+      const booked = ({ ad }: PatroDate) => ad === '2026-10-10';
+      const { container, rerender } = render(
+        <Calendar mode='range' isDateDisabled={booked} excludeDisabled onChange={onChange} />,
+      );
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-12', null]);
+
+      // Without it, disabled days can sit inside a range.
+      rerender(<Calendar mode='range' isDateDisabled={booked} onChange={onChange} />);
+      await user.click(cell(container, '2026-10-20'));
+      await user.click(cell(container, '2026-10-05'));
+      await user.click(cell(container, '2026-10-12'));
+      expect(ends(onChange)).toEqual(['2026-10-05', '2026-10-12']);
+    });
+  });
 
   test('first click sets the start, second the end', async () => {
     const user = userEvent.setup();

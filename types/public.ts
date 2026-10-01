@@ -1,4 +1,4 @@
-import type { CSSProperties, FocusEvent } from 'react';
+import type { CSSProperties, FocusEvent, ReactNode } from 'react';
 
 export type CalendarSystem = 'AD' | 'BS';
 export type Locale = 'en' | 'ne';
@@ -13,6 +13,25 @@ export interface PatroDate {
   bs: string;
 }
 
+/** Accessible names and button text; each defaults to the display language's. */
+export interface PatroLabels {
+  previousMonth: string;
+  nextMonth: string;
+  previousYear: string;
+  nextYear: string;
+  previousYears: string;
+  nextYears: string;
+  chooseMonth: string;
+  chooseYear: string;
+  today: string;
+  /** Group of `presets` buttons. */
+  presets: string;
+  /** Datepicker popover. */
+  chooseDate: string;
+  /** Datepicker clear button. */
+  clear: string;
+}
+
 export interface DateRange {
   start: Date | null;
   end: Date | null;
@@ -23,14 +42,22 @@ export interface PatroDateRange {
   end: PatroDate | null;
 }
 
+/** A quick pick shown under the grid. A function value is read when clicked, e.g. for "Next 7 days". */
+export interface Preset<T> {
+  label: string;
+  value: T | (() => T);
+}
+
 export interface SingleSelection {
   /** Pick one day. The default. */
   mode?: 'single';
   /** Controlled selection. `null` = nothing selected. */
   value?: Date | null;
-  /** Initial selection when uncontrolled. Defaults to today; `null` = nothing selected. */
+  /** Initial selection when uncontrolled. Defaults to nothing selected. */
   defaultValue?: Date | null;
   onChange?: (value: PatroDate | null) => void;
+  /** Quick picks under the grid, e.g. `[{ label: 'Today', value: () => new Date() }]`. */
+  presets?: Preset<Date>[];
 }
 
 export interface RangeSelection {
@@ -42,6 +69,14 @@ export interface RangeSelection {
   defaultValue?: DateRange;
   /** Called on every pick, so `end` is `null` while only the start is chosen. */
   onChange?: (value: PatroDateRange) => void;
+  /** Fewest days a range can span, counting both ends. Picking a closer end starts a new range there. */
+  minDays?: number;
+  /** Most days a range can span, counting both ends. Picking a farther end starts a new range there. */
+  maxDays?: number;
+  /** Ranges can't contain disabled days; picking an end past one starts a new range there. */
+  excludeDisabled?: boolean;
+  /** Quick picks under the grid, e.g. "This week" or "Next 7 days". */
+  presets?: Preset<DateRange>[];
 }
 
 export interface CalendarBaseProps {
@@ -68,10 +103,33 @@ export interface CalendarBaseProps {
   weekendDays?: number[];
   /** Extra class names for a day, e.g. to mark holidays or events. */
   dayClassName?: (date: PatroDate) => string | undefined;
+  /** Extra content inside a day, e.g. an event dot; shown in its top-left corner. Visual only: pair it with `dayLabel`. */
+  dayContent?: (date: PatroDate) => ReactNode;
+  /** Extra text for a day's accessible name, e.g. a holiday: "12 October 2026, …, Dashain". */
+  dayLabel?: (date: PatroDate) => string | undefined;
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
+  /** Month to show when nothing is selected, e.g. decades back for a date of birth. Defaults to today's. */
+  defaultMonth?: Date;
+  /**
+   * Controlled displayed month (any day in it). Navigation then only calls `onMonthChange`,
+   * e.g. `onMonthChange={({ start }) => setMonth(start.date)}`.
+   */
+  month?: Date;
   /** Show a "Today" button that jumps to and selects today. */
   showTodayButton?: boolean;
+  /**
+   * The current date, for the today marker, the Today button and the initial month.
+   * Defaults to the visitor's clock, read in the browser. Pass it when server rendering
+   * without a value to render the month on the server too, or to pin it in tests.
+   */
+  today?: Date;
+  /** Override accessible names and button text, e.g. for a language other than English or Nepali. */
+  labels?: Partial<PatroLabels>;
+  /** Months shown side by side, e.g. 2 for picking a stay. Other months' days are hidden then. */
+  numberOfMonths?: number;
+  /** Focus the day grid on mount, e.g. when the calendar opens in a dialog. */
+  autoFocus?: boolean;
   /** Added to the root element. */
   className?: string;
   /** Inline styles on the root element, e.g. `{ '--patro-accent': 'teal' }`. */
@@ -91,6 +149,11 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   readOnly?: boolean;
   /** Error styling and `aria-invalid`, e.g. after failed form validation. */
   invalid?: boolean;
+  /**
+   * Let people type the date as well, e.g. 2083-07-12 or 2083/7/12, in the displayed calendar and
+   * Latin or Devanagari digits. Committed on Enter or when leaving the field. Single mode only.
+   */
+  editable?: boolean;
   /** Close the popover after picking a day. Defaults to true. */
   closeOnSelect?: boolean;
   /** Controlled popover state. */
@@ -109,8 +172,8 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   autoFocus?: boolean;
   'aria-label'?: string;
   'aria-describedby'?: string;
-  onFocus?: (event: FocusEvent<HTMLDivElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLDivElement>) => void;
+  onFocus?: (event: FocusEvent<HTMLElement>) => void;
+  onBlur?: (event: FocusEvent<HTMLElement>) => void;
   /** Popover position relative to the input. Defaults to 'bottom-start'. */
   placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'bottom' | 'top';
   /** Render the popover in `document.body`, e.g. to escape `overflow: hidden` parents. */

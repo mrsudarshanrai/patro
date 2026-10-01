@@ -4,9 +4,10 @@ import {
   MIN_BS_YEAR,
   START_ENGLISH_DATE,
 } from '../constants/dateConstants';
-import { CalendarSystem, Locale, Numerals, PatroDate } from '../types/public';
-import { adDateToLocalDate, en2NpNumber } from './dateUtils';
-import { ad2Bs } from './ad_utils/ad2bs';
+import { CalendarSystem, Locale, Numerals, PatroDate, PatroLabels } from '../types/public';
+import { adDateToLocalDate, createDateString, en2NpNumber, toLatinDigits } from './dateUtils';
+import { ad2Bs, isValidAdDate } from './ad_utils/ad2bs';
+import { bs2Ad, isValidBsDate } from './bs_utils/bs2ad';
 
 export type DisplayOptions = { locale?: Locale; numerals?: Numerals };
 
@@ -162,8 +163,66 @@ const toPatroDate = (adDate: string): PatroDate => ({
   bs: ad2Bs(adDate),
 });
 
+// Editable text for a date: 'YYYY-MM-DD' in `system`, in its digits.
+const formatInputDate = (adDate: string, system: CalendarSystem, options: DisplayOptions = {}) => {
+  const [year, month, day] = partsIn(adDate, system);
+  const text = createDateString(year, month, day);
+  return numeralsOf(system, options) === 'devanagari' ? en2NpNumber(text) : text;
+};
+
+// Typed year, month and day in `system` (any of - / . or spaces between, either digit set) to an
+// AD date, or null if it isn't a real, supported date.
+const parseInputDate = (text: string, system: CalendarSystem) => {
+  const parts = toLatinDigits(text.trim()).split(/[-/.\s]+/);
+  if (parts.length !== 3 || !/^\d{4}$/.test(parts[0])) return null;
+  if (!parts.slice(1).every((part) => /^\d{1,2}$/.test(part))) return null;
+  const date = createDateString(...(parts.map(Number) as [number, number, number]));
+  if (system === 'BS') return isValidBsDate(date) ? bs2Ad(date) : null;
+  return isValidAdDate(date) ? date : null;
+};
+
+const LABELS: Record<Locale, PatroLabels> = {
+  en: {
+    previousMonth: 'Previous month',
+    nextMonth: 'Next month',
+    previousYear: 'Previous year',
+    nextYear: 'Next year',
+    previousYears: 'Previous 12 years',
+    nextYears: 'Next 12 years',
+    chooseMonth: 'choose month',
+    chooseYear: 'choose year',
+    today: 'Today',
+    presets: 'Quick picks',
+    chooseDate: 'Choose a date',
+    clear: 'Clear date',
+  },
+  ne: {
+    previousMonth: 'अघिल्लो महिना',
+    nextMonth: 'अर्को महिना',
+    previousYear: 'अघिल्लो वर्ष',
+    nextYear: 'अर्को वर्ष',
+    previousYears: 'अघिल्लो १२ वर्ष',
+    nextYears: 'अर्को १२ वर्ष',
+    chooseMonth: 'महिना छान्नुहोस्',
+    chooseYear: 'वर्ष छान्नुहोस्',
+    today: 'आज',
+    presets: 'छिटो छनोट',
+    chooseDate: 'मिति छान्नुहोस्',
+    clear: 'मिति हटाउनुहोस्',
+  },
+};
+
+const labelsFor = (
+  system: CalendarSystem,
+  options: DisplayOptions,
+  overrides?: Partial<PatroLabels>,
+): PatroLabels => ({ ...LABELS[languageOf(system, options)], ...overrides });
+
 export {
   partsIn as datePartsIn,
+  labelsFor,
+  formatInputDate,
+  parseInputDate,
   toPatroDate,
   otherSystem,
   languageOf,
