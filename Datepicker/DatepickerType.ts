@@ -1,7 +1,9 @@
-import type { FocusEvent } from 'react';
+import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode } from 'react';
+import type { DisplayOptions } from '../utils';
 import type {
   CalendarBaseProps,
   CalendarSystem,
+  DateRange,
   PatroDate,
   PatroDateRange,
   RangeSelection,
@@ -60,13 +62,11 @@ export type DatepickerRangeProps = DatepickerBaseProps &
   };
 export type DatepickerProps = DatepickerSingleProps | DatepickerRangeProps;
 
-/** AD dates ('YYYY-MM-DD') of the shown range, after dropping unsupported dates. */
 export interface ShownRange {
   start: string | null;
   end: string | null;
 }
 
-/** A hidden native input that submits the date with a form. */
 export interface FormField {
   name: string | undefined;
   value: string;
@@ -81,7 +81,6 @@ export interface ComboboxAriaOptions {
   labelId: string;
   ariaLabel: string | undefined;
   ariaDescribedBy: string | undefined;
-  /** Accessible name when there's neither `label` nor `aria-label`. */
   fallbackLabel: string;
 }
 
@@ -97,7 +96,6 @@ export interface UsePopoverOptions {
 
 export interface UseTypedDateOptions {
   calendar: CalendarSystem;
-  /** The current value's AD date, if it's in the supported range. */
   shownAdDate: string | null;
   minDate: Date | undefined;
   maxDate: Date | undefined;
@@ -105,7 +103,74 @@ export interface UseTypedDateOptions {
   commit: (next: PatroDate | null) => void;
   isOpen: boolean;
   setOpen: (open: boolean) => void;
-  /** Opens the popover with focus in the day grid. */
   openFromKeyboard: () => void;
   onBlur: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+}
+
+export interface ComboboxAriaProps {
+  'aria-haspopup': 'dialog';
+  'aria-expanded': boolean;
+  'aria-controls': string | undefined;
+  'aria-invalid': true | undefined;
+  'aria-required': true | undefined;
+  'aria-label': string | undefined;
+  'aria-labelledby': string | undefined;
+  'aria-describedby': string | undefined;
+}
+
+export interface PopoverControls {
+  isOpen: boolean;
+  onOpen: (fromKeyboard: boolean) => void;
+  onToggle: (fromKeyboard: boolean) => void;
+  onClose: () => void;
+}
+
+export interface FieldValueProps {
+  calendar: CalendarSystem;
+  display: DisplayOptions;
+  isRange: boolean;
+  shownAdDate: string | null;
+  shownRange: ShownRange | null;
+  formatValue: DatepickerSingleProps['formatValue'] | DatepickerRangeProps['formatValue'];
+  placeholder: string | undefined;
+}
+
+export interface ComboboxFieldProps extends PopoverControls {
+  fieldRef: (node: HTMLDivElement | null) => void;
+  id: string;
+  aria: ComboboxAriaProps;
+  disabled: boolean;
+  readOnly: boolean;
+  invalid: boolean;
+  clearable: boolean;
+  onFocus: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+  onBlur: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+  children: ReactNode;
+}
+
+export interface EditableFieldProps extends PopoverControls {
+  anchorRef: (node: HTMLDivElement | null) => void;
+  inputRef: (node: HTMLElement | null) => void;
+  id: string;
+  aria: ComboboxAriaProps;
+  popoverId: string;
+  toggleLabel: string;
+  text: string;
+  placeholder: string;
+  secondaryText: string;
+  disabled: boolean;
+  readOnly: boolean;
+  invalid: boolean;
+  clearable: boolean;
+  onTextChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onTextKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void;
+  onTextBlur: (event: FocusEvent<HTMLInputElement>) => void;
+  onFocus: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+}
+
+export interface UseDatepickerValueOptions {
+  isRange: boolean;
+  value: Date | DateRange | null | undefined;
+  defaultValue: Date | DateRange | null | undefined;
+  onChange: DatepickerSingleProps['onChange'] | DatepickerRangeProps['onChange'];
 }

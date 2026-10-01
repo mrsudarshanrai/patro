@@ -1,10 +1,6 @@
 import { useCallback, useState } from 'react';
 
-/**
- * Controlled when `value` isn't `undefined` (`null` counts as a controlled "nothing selected");
- * otherwise keeps its own state, starting from `initial()`. The setter only updates that own
- * state, so a controlled owner stays the single source of truth.
- */
+// `null` is a controlled "nothing selected"; only `undefined` means uncontrolled.
 const useControllableValue = <T>(value: T | undefined, initial: () => T) => {
   const isControlled = value !== undefined;
   const [own, setOwn] = useState<T>(initial);

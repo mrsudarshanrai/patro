@@ -1,45 +1,24 @@
-import {
-  forwardRef,
-  KeyboardEvent,
-  ReactElement,
-  RefAttributes,
-  useCallback,
-  useEffect,
-  useId,
-  useState,
-} from 'react';
-import { createPortal } from 'react-dom';
+import { forwardRef, ReactElement, RefAttributes, useEffect, useId, useState } from 'react';
 import { Calendar } from '../Calendar';
 import { ICalendar } from '../Calendar/types';
-import {
-  CalendarProps,
-  DateRange,
-  PatroDate,
-  PatroDateRange,
-  RangeSelection,
-  SingleSelection,
-} from '../types/public';
-import {
-  formatDate,
-  labelsFor,
-  otherSystem,
-  formatInputDate,
-  supportedAdDate,
-  supportedAdRange,
-  toPatroDate,
-  EMPTY_RANGE,
-} from '../utils';
-import { icons } from '../shared/icons';
+import { CalendarProps, PatroDate, PatroDateRange } from '../types/public';
+import { formatDate, formatInputDate, labelsFor, otherSystem } from '../utils';
 import type {
   DatepickerProps,
   DatepickerRangeProps,
   DatepickerSingleProps,
 } from './DatepickerType';
-import { useIsClient } from '../hooks/useToday';
-import { useControllableValue } from '../hooks/useControllableValue';
+import { useDatepickerValue } from './hooks/useDatepickerValue';
+import { useFieldRef } from './hooks/useFieldRef';
 import { usePopover } from './hooks/usePopover';
 import { useTypedDate } from './hooks/useTypedDate';
-import { comboboxAria, defaultPlaceholder, formFields, rangeText } from './utils';
+import { comboboxAria, formFields } from './utils';
+import { ClearButton } from './components/ClearButton';
+import { ComboboxField } from './components/ComboboxField';
+import { EditableField } from './components/EditableField';
+import { FieldValue } from './components/FieldValue';
+import { NativeInputs } from './components/NativeInputs';
+import { Popover } from './components/Popover';
 
 const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -82,17 +61,15 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
     } = props;
     const text = labelsFor(calendar, { locale, numerals }, props.labels);
     const generatedId = useId();
-    const isClient = useIsClient();
     const inputId = id ?? generatedId;
     const labelId = `${inputId}-label`;
     const popoverId = `${inputId}-popover`;
+    const display = { locale, numerals };
 
     const isRange = mode === 'range';
-    const [currentValue, setValue] = useControllableValue<Date | DateRange | null>(value, () =>
-      defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
-    );
-    const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
-    const selectedDate = selectedRange ? null : (currentValue as Date | null);
+    const isEditable = editable && !isRange;
+    const { selectedRange, selectedDate, shownAdDate, shownRange, hasValue, commit, commitRange } =
+      useDatepickerValue({ isRange, value, defaultValue, onChange });
 
     const { isOpen, setOpen, setAnchor, setPopover, rootRef, onFocusLeave } = usePopover({
       open,
@@ -103,93 +80,39 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
       placement,
       portal,
     });
-
-    // The focusable field: the combobox div, or the text input when editable.
-    const [inputRef, setInputRef] = useState<HTMLElement | null>(null);
-    // Keyboard users land in the day grid; mouse users keep focus where they clicked.
     const [focusGrid, setFocusGrid] = useState(false);
-
-    const shownAdDate = supportedAdDate(selectedDate);
-    const shownRange = selectedRange && supportedAdRange(selectedRange);
-    const display = { locale, numerals };
-
-    const setInputNode = useCallback(
-      (node: HTMLElement | null) => {
-        setInputRef(node);
-        if (typeof ref === 'function') ref(node);
-        else if (ref) ref.current = node;
+    const popoverControls = {
+      isOpen,
+      onOpen: (fromKeyboard: boolean) => {
+        setFocusGrid(fromKeyboard);
+        setOpen(true);
       },
-      [ref],
-    );
-    const setInputAndAnchor = useCallback(
-      (node: HTMLDivElement | null) => {
-        setInputNode(node);
-        setAnchor(node);
+      onToggle: (fromKeyboard: boolean) => {
+        setFocusGrid(fromKeyboard && !isOpen);
+        setOpen(!isOpen);
       },
-      [setInputNode, setAnchor],
-    );
+      onClose: () => setOpen(false),
+    };
+
+    const { field, setFieldNode, setFieldAndAnchor } = useFieldRef(ref, setAnchor);
 
     useEffect(() => {
-      if (autoFocus) inputRef?.focus();
-    }, [autoFocus, inputRef]);
-
-    const commit = (next: PatroDate | null) => {
-      setValue(next?.date ?? null);
-      (onChange as SingleSelection['onChange'])?.(next);
-    };
-
-    const commitRange = (next: PatroDateRange) => {
-      setValue({ start: next.start?.date ?? null, end: next.end?.date ?? null });
-      (onChange as RangeSelection['onChange'])?.(next);
-    };
+      if (autoFocus) field?.focus();
+    }, [autoFocus, field]);
 
     const close = () => {
       if (!closeOnSelect) return;
       setOpen(false);
-      inputRef?.focus();
-    };
-
-    const onSelect = (selected: PatroDate | null) => {
-      commit(selected);
-      close();
-    };
-
-    const onSelectRange = (selected: PatroDateRange) => {
-      commitRange(selected);
-      if (selected.end) close();
+      field?.focus();
     };
 
     const onClear = () => {
       if (isRange) commitRange({ start: null, end: null });
       else commit(null);
-      inputRef?.focus();
+      field?.focus();
     };
 
-    const onInputKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === 'Escape') setOpen(false);
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        setFocusGrid(!isOpen);
-        setOpen(!isOpen);
-      }
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setFocusGrid(true);
-        setOpen(true);
-      }
-    };
-
-    const onInputClick = () => {
-      setFocusGrid(false);
-      setOpen(!isOpen);
-    };
-
-    const isEditable = editable && !isRange;
-    const openFromKeyboard = () => {
-      setFocusGrid(true);
-      setOpen(true);
-    };
-    const { draft, typedInvalid, onTextChange, onTextKeyDown, onTextBlur } = useTypedDate({
+    const typed = useTypedDate({
       calendar,
       shownAdDate,
       minDate: calendarProps.minDate,
@@ -198,19 +121,11 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
       commit,
       isOpen,
       setOpen,
-      openFromKeyboard,
+      openFromKeyboard: () => popoverControls.onOpen(true),
       onBlur,
     });
 
-    const onPopperKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key !== 'Escape') return;
-      setOpen(false);
-      inputRef?.focus();
-    };
-
-    const hasValue = shownRange ? !!shownRange.start : !!shownAdDate;
     const showClear = clearable && hasValue && !disabled && !readOnly;
-    const fields = formFields(name, { range: shownRange, adDate: shownAdDate }, valueFormat);
     const aria = {
       isOpen,
       popoverId,
@@ -224,32 +139,24 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
 
     const calendarSelection = (
       shownRange
-        ? { mode: 'range', value: selectedRange, onChange: onSelectRange, presets }
-        : { value: selectedDate, onChange: onSelect, presets }
+        ? {
+            mode: 'range',
+            value: selectedRange,
+            presets,
+            onChange: (selected: PatroDateRange) => {
+              commitRange(selected);
+              if (selected.end) close();
+            },
+          }
+        : {
+            value: selectedDate,
+            presets,
+            onChange: (selected: PatroDate | null) => {
+              commit(selected);
+              close();
+            },
+          }
     ) as Pick<CalendarProps, 'mode' | 'value' | 'onChange' | 'presets'>;
-
-    const popover = isOpen && (
-      <div
-        ref={setPopover}
-        id={popoverId}
-        role='dialog'
-        aria-label={text.chooseDate}
-        className='_patro_datepicker_popper'
-        // Transparent, not hidden, until placed: a keyboard-opened grid must be able to take focus.
-        style={{ position: portal ? 'fixed' : 'absolute', left: 0, top: 0, opacity: 0 }}
-        onKeyDown={onPopperKeyDown}
-      >
-        <Calendar
-          {...calendarProps}
-          {...(calendarSelection as CalendarProps)}
-          calendar={calendar}
-          locale={locale}
-          numerals={numerals}
-          theme={theme}
-          autoFocus={focusGrid}
-        />
-      </div>
-    );
 
     return (
       <div
@@ -267,150 +174,88 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
         )}
         <div className='_patro_datepicker_control'>
           {isEditable ? (
-            <div
-              ref={setAnchor}
-              className={[
-                '_patro_datepicker_input',
-                '_patro_datepicker_input_editable',
-                isOpen && '_patro_datepicker_input_open',
-                (invalid || typedInvalid) && '_patro_datepicker_input_invalid',
-                showClear && '_patro_datepicker_input_clearable',
-                disabled && '_patro_datepicker_input_disabled',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-            >
-              <input
-                ref={setInputNode}
-                id={inputId}
-                className='_patro_datepicker_input_text'
-                type='text'
-                role='combobox'
-                autoComplete='off'
-                spellCheck={false}
-                value={
-                  draft ?? (shownAdDate ? formatInputDate(shownAdDate, calendar, display) : '')
-                }
-                placeholder={placeholder ?? 'YYYY-MM-DD'}
-                disabled={disabled}
-                readOnly={readOnly}
-                {...comboboxAria({ ...aria, invalid: invalid || typedInvalid })}
-                onChange={onTextChange}
-                onClick={() => {
-                  setFocusGrid(false);
-                  setOpen(true);
-                }}
-                onKeyDown={onTextKeyDown}
-                onFocus={onFocus}
-                onBlur={onTextBlur}
-              />
-              {/* Always rendered: it fills the space that keeps the buttons at the end. */}
-              <span className='_patro_datepicker_input_secondary'>
-                {shownAdDate && draft === null
-                  ? formatDate(shownAdDate, otherSystem(calendar), display, { short: true })
-                  : ''}
-              </span>
-              {/* Out of the tab order: ArrowDown on the field opens the popover too (APG). */}
-              <button
-                type='button'
-                className='_patro_datepicker_input_icon _patro_datepicker_toggle'
-                tabIndex={-1}
-                aria-label={text.chooseDate}
-                aria-haspopup='dialog'
-                aria-expanded={isOpen}
-                aria-controls={isOpen ? popoverId : undefined}
-                disabled={disabled || readOnly}
-                onClick={() => {
-                  setFocusGrid(false);
-                  setOpen(!isOpen);
-                }}
-              >
-                {icons.calendarIcon}
-              </button>
-            </div>
-          ) : (
-            <div
-              ref={setInputAndAnchor}
+            <EditableField
+              {...popoverControls}
+              anchorRef={setAnchor}
+              inputRef={setFieldNode}
               id={inputId}
-              className={[
-                '_patro_datepicker_input',
-                invalid && '_patro_datepicker_input_invalid',
-                showClear && '_patro_datepicker_input_clearable',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              // Select-only combobox (WAI-ARIA APG): unlike a button it can be required and read-only.
-              role='combobox'
-              tabIndex={disabled ? -1 : 0}
-              {...comboboxAria({ ...aria, invalid })}
-              aria-disabled={disabled || undefined}
-              aria-readonly={readOnly || undefined}
-              onClick={onInputClick}
-              onKeyDown={onInputKeyDown}
+              aria={comboboxAria({ ...aria, invalid: invalid || typed.typedInvalid })}
+              popoverId={popoverId}
+              toggleLabel={text.chooseDate}
+              text={
+                typed.draft ?? (shownAdDate ? formatInputDate(shownAdDate, calendar, display) : '')
+              }
+              placeholder={placeholder ?? 'YYYY-MM-DD'}
+              secondaryText={
+                shownAdDate && typed.draft === null
+                  ? formatDate(shownAdDate, otherSystem(calendar), display, { short: true })
+                  : ''
+              }
+              disabled={disabled}
+              readOnly={readOnly}
+              invalid={invalid || typed.typedInvalid}
+              clearable={showClear}
+              onTextChange={typed.onTextChange}
+              onTextKeyDown={typed.onTextKeyDown}
+              onTextBlur={typed.onTextBlur}
+              onFocus={onFocus}
+            />
+          ) : (
+            <ComboboxField
+              {...popoverControls}
+              fieldRef={setFieldAndAnchor}
+              id={inputId}
+              aria={comboboxAria({ ...aria, invalid })}
+              disabled={disabled}
+              readOnly={readOnly}
+              invalid={invalid}
+              clearable={showClear}
               onFocus={onFocus}
               onBlur={onBlur}
             >
-              {shownRange && shownRange.start ? (
-                <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
-                  {formatValue
-                    ? (formatValue as (value: PatroDateRange) => string)({
-                        start: toPatroDate(shownRange.start),
-                        end: shownRange.end ? toPatroDate(shownRange.end) : null,
-                      })
-                    : rangeText(shownRange, calendar, display)}
-                </span>
-              ) : shownAdDate && formatValue ? (
-                <span className='_patro_datepicker_input_primary _patro_datepicker_input_custom'>
-                  {(formatValue as (value: PatroDate) => string)(toPatroDate(shownAdDate))}
-                </span>
-              ) : shownAdDate ? (
-                <>
-                  <span className='_patro_datepicker_input_primary'>
-                    {formatDate(shownAdDate, calendar, display)}
-                  </span>
-                  <span className='_patro_datepicker_input_secondary'>
-                    {calendar === 'AD'
-                      ? formatDate(shownAdDate, 'BS', display, { withYear: false })
-                      : formatDate(shownAdDate, otherSystem(calendar), display, { short: true })}
-                  </span>
-                </>
-              ) : (
-                <span className='_patro_datepicker_input_placeholder'>
-                  {placeholder ?? defaultPlaceholder(isRange, calendar, display)}
-                </span>
-              )}
-              <span className='_patro_datepicker_input_icon'>{icons.calendarIcon}</span>
-            </div>
-          )}
-          {showClear && (
-            <button
-              type='button'
-              className='_patro_datepicker_clear'
-              aria-label={text.clear}
-              onClick={onClear}
-            >
-              {icons.clearIcon}
-            </button>
-          )}
-          {(name || required) &&
-            fields.map((field, index) => (
-              // Real input so native forms submit and validate the date; focus goes back to the picker.
-              <input
-                key={index}
-                className='_patro_datepicker_native'
-                name={field.name}
-                value={field.value}
-                required={required}
-                disabled={disabled}
-                tabIndex={-1}
-                aria-hidden
-                onChange={() => undefined}
-                onFocus={() => inputRef?.focus()}
+              <FieldValue
+                calendar={calendar}
+                display={display}
+                isRange={isRange}
+                shownAdDate={shownAdDate}
+                shownRange={shownRange}
+                formatValue={formatValue}
+                placeholder={placeholder}
               />
-            ))}
+            </ComboboxField>
+          )}
+          {showClear && <ClearButton label={text.clear} onClear={onClear} />}
+          {(name || required) && (
+            <NativeInputs
+              fields={formFields(name, { range: shownRange, adDate: shownAdDate }, valueFormat)}
+              required={required}
+              disabled={disabled}
+              onFocus={() => field?.focus()}
+            />
+          )}
         </div>
-        {/* No document.body while server rendering; the portal appears after hydration. */}
-        {popover && (portal ? isClient && createPortal(popover, document.body) : popover)}
+        {isOpen && (
+          <Popover
+            popoverRef={setPopover}
+            id={popoverId}
+            label={text.chooseDate}
+            portal={portal}
+            onEscape={() => {
+              setOpen(false);
+              field?.focus();
+            }}
+          >
+            <Calendar
+              {...calendarProps}
+              {...(calendarSelection as CalendarProps)}
+              calendar={calendar}
+              locale={locale}
+              numerals={numerals}
+              theme={theme}
+              autoFocus={focusGrid}
+            />
+          </Popover>
+        )}
       </div>
     );
   },

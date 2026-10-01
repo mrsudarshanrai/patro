@@ -1,6 +1,11 @@
 import { ad2Bs, datePartsIn, DisplayOptions, formatDate, languageOf } from '../utils';
 import type { CalendarSystem } from '../types/public';
-import type { ComboboxAriaOptions, FormField, ShownRange } from './DatepickerType';
+import type {
+  ComboboxAriaOptions,
+  ComboboxAriaProps,
+  FormField,
+  ShownRange,
+} from './DatepickerType';
 
 const DEFAULT_PLACEHOLDER = {
   single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
@@ -10,7 +15,6 @@ const DEFAULT_PLACEHOLDER = {
 const defaultPlaceholder = (isRange: boolean, calendar: CalendarSystem, display: DisplayOptions) =>
   DEFAULT_PLACEHOLDER[isRange ? 'range' : 'single'][languageOf(calendar, display)];
 
-// "5 Oct – 9 Oct 2026", writing the start's year only when the two years differ.
 const rangeText = (range: ShownRange, calendar: CalendarSystem, display: DisplayOptions) => {
   if (!range.start) return null;
   if (!range.end) return `${formatDate(range.start, calendar, display)} – …`;
@@ -23,7 +27,6 @@ const rangeText = (range: ShownRange, calendar: CalendarSystem, display: Display
   return `${start} – ${formatDate(range.end, calendar, display, { short: true })}`;
 };
 
-// What the hidden native inputs submit: `name`, or `name[start]`/`name[end]` for a range.
 const formFields = (
   name: string | undefined,
   shown: { range: ShownRange | null; adDate: string | null },
@@ -39,7 +42,6 @@ const formFields = (
     : [{ name, value: submitted(shown.adDate) }];
 };
 
-// ARIA shared by both fields (the select-only combobox and the editable text input).
 const comboboxAria = ({
   isOpen,
   popoverId,
@@ -50,8 +52,8 @@ const comboboxAria = ({
   ariaLabel,
   ariaDescribedBy,
   fallbackLabel,
-}: ComboboxAriaOptions) => ({
-  'aria-haspopup': 'dialog' as const,
+}: ComboboxAriaOptions): ComboboxAriaProps => ({
+  'aria-haspopup': 'dialog',
   'aria-expanded': isOpen,
   'aria-controls': isOpen ? popoverId : undefined,
   'aria-invalid': invalid || undefined,

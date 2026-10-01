@@ -2,11 +2,6 @@ import { ChangeEvent, FocusEvent, KeyboardEvent, useState } from 'react';
 import { parseInputDate, toAdDateString, toPatroDate } from '../../utils';
 import type { UseTypedDateOptions } from '../DatepickerType';
 
-/**
- * Typing a date into an `editable` Datepicker. `draft` is the text while it differs from the
- * value; it's committed on Enter or blur, marked invalid on Enter if it isn't an allowed date,
- * and put back to the value on blur or Escape.
- */
 const useTypedDate = ({
   calendar,
   shownAdDate,
@@ -32,7 +27,6 @@ const useTypedDate = ({
     setTypedInvalid(false);
   };
 
-  // Commits the typed text (empty clears); false if it isn't an allowed date.
   const commitDraft = () => {
     if (draft === null) return true;
     const typed = draft.trim();
@@ -62,7 +56,6 @@ const useTypedDate = ({
     }
   };
 
-  // Leaving with text that isn't a date puts the last value back.
   const onTextBlur = (event: FocusEvent<HTMLInputElement>) => {
     if (!commitDraft()) resetDraft();
     onBlur?.(event);
