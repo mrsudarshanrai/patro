@@ -1,5 +1,4 @@
 import {
-  FocusEvent,
   forwardRef,
   KeyboardEvent,
   ReactElement,
@@ -25,10 +24,8 @@ import {
   labelsFor,
   otherSystem,
   formatInputDate,
-  parseInputDate,
   supportedAdDate,
   supportedAdRange,
-  toAdDateString,
   toPatroDate,
   EMPTY_RANGE,
 } from '../utils';
@@ -41,6 +38,7 @@ import type {
 import { useIsClient } from '../hooks/useToday';
 import { useControllableValue } from '../hooks/useControllableValue';
 import { usePopover } from './hooks/usePopover';
+import { useTypedDate } from './hooks/useTypedDate';
 import { comboboxAria, defaultPlaceholder, formFields, rangeText } from './utils';
 
 const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
@@ -186,52 +184,23 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
       setOpen(!isOpen);
     };
 
-    // Typing (editable, single mode). `draft` is the text while it differs from the value.
     const isEditable = editable && !isRange;
-    const [draft, setDraft] = useState<string | null>(null);
-    const [typedInvalid, setTypedInvalid] = useState(false);
-    const { minDate, maxDate, isDateDisabled } = calendarProps;
-    const typedAllowed = (adDate: string) =>
-      (!minDate || adDate >= toAdDateString(minDate)) &&
-      (!maxDate || adDate <= toAdDateString(maxDate)) &&
-      !isDateDisabled?.(toPatroDate(adDate));
-
-    const resetDraft = () => {
-      setDraft(null);
-      setTypedInvalid(false);
+    const openFromKeyboard = () => {
+      setFocusGrid(true);
+      setOpen(true);
     };
-
-    // Commits the typed text (empty clears); false if it isn't an allowed date.
-    const commitDraft = () => {
-      if (draft === null) return true;
-      const typed = draft.trim();
-      const adDate = typed ? parseInputDate(typed, calendar) : null;
-      if (typed && !(adDate && typedAllowed(adDate))) return false;
-      if (adDate !== shownAdDate) commit(adDate ? toPatroDate(adDate) : null);
-      resetDraft();
-      return true;
-    };
-
-    const onTextKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        if (commitDraft()) setOpen(false);
-        else setTypedInvalid(true);
-      } else if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        setFocusGrid(true);
-        setOpen(true);
-      } else if (event.key === 'Escape') {
-        if (isOpen) setOpen(false);
-        else resetDraft();
-      }
-    };
-
-    // Leaving with text that isn't a date puts the last value back.
-    const onTextBlur = (event: FocusEvent<HTMLInputElement>) => {
-      if (!commitDraft()) resetDraft();
-      onBlur?.(event);
-    };
+    const { draft, typedInvalid, onTextChange, onTextKeyDown, onTextBlur } = useTypedDate({
+      calendar,
+      shownAdDate,
+      minDate: calendarProps.minDate,
+      maxDate: calendarProps.maxDate,
+      isDateDisabled: calendarProps.isDateDisabled,
+      commit,
+      isOpen,
+      setOpen,
+      openFromKeyboard,
+      onBlur,
+    });
 
     const onPopperKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
       if (event.key !== 'Escape') return;
@@ -326,10 +295,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
                 disabled={disabled}
                 readOnly={readOnly}
                 {...comboboxAria({ ...aria, invalid: invalid || typedInvalid })}
-                onChange={(event) => {
-                  setDraft(event.target.value);
-                  setTypedInvalid(false);
-                }}
+                onChange={onTextChange}
                 onClick={() => {
                   setFocusGrid(false);
                   setOpen(true);

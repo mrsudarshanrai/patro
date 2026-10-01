@@ -1,6 +1,7 @@
 import type { FocusEvent } from 'react';
 import type {
   CalendarBaseProps,
+  CalendarSystem,
   PatroDate,
   PatroDateRange,
   RangeSelection,
@@ -92,4 +93,19 @@ export interface UsePopoverOptions {
   readOnly: boolean;
   placement: NonNullable<DatepickerBaseProps['placement']>;
   portal: boolean;
+}
+
+export interface UseTypedDateOptions {
+  calendar: CalendarSystem;
+  /** The current value's AD date, if it's in the supported range. */
+  shownAdDate: string | null;
+  minDate: Date | undefined;
+  maxDate: Date | undefined;
+  isDateDisabled: ((date: PatroDate) => boolean) | undefined;
+  commit: (next: PatroDate | null) => void;
+  isOpen: boolean;
+  setOpen: (open: boolean) => void;
+  /** Opens the popover with focus in the day grid. */
+  openFromKeyboard: () => void;
+  onBlur: ((event: FocusEvent<HTMLElement>) => void) | undefined;
 }
