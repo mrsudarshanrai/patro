@@ -1,43 +1,26 @@
 <script setup lang="ts">
-// Mounts the React demo in the browser only; the docs are server-rendered with Vue.
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useData, withBase } from 'vitepress';
-import type { Root } from 'react-dom/client';
+import ReactIsland from './ReactIsland.vue';
 
-const { isDark, theme } = useData();
-const el = ref<HTMLElement>();
-const storybookUrl: string = theme.value.storybookUrl ?? '';
-let root: Root | undefined;
-let render = () => {};
-
-onMounted(async () => {
-  const [{ createElement }, { createRoot }, { HomeDemo }] = await Promise.all([
-    import('react'),
-    import('react-dom/client'),
-    import('./HomeDemo'),
-  ]);
-  root = createRoot(el.value!);
-  render = () => root?.render(createElement(HomeDemo, { theme: isDark.value ? 'dark' : 'light' }));
-  render();
-});
-
-watch(isDark, () => render());
-onBeforeUnmount(() => root?.unmount());
+const storybookUrl: string = useData().theme.value.storybookUrl ?? '';
 </script>
 
 <template>
-  <section class="demo-section">
-    <h2>Try it</h2>
-    <p>
-      Pick a day or a range in either calendar. The Datepicker also takes typed dates, like
-      <code>2083-07-12</code>.
+  <section id="try-it" class="home-section">
+    <p class="home-eyebrow">Playground</p>
+    <h2 class="home-title">Try it</h2>
+    <p class="home-lead">
+      Switch calendars, pick a day or a range, or type a date like <code>2083-07-12</code> into the
+      Datepicker. The panel shows exactly what <code>onChange</code> gives you.
     </p>
-    <div ref="el" class="demo-root" />
-    <p class="demo-more">
+    <div class="playground">
+      <ReactIsland demo="Playground" />
+    </div>
+    <p class="home-more">
       <a v-if="storybookUrl" :href="storybookUrl" target="_blank" rel="noreferrer">
-        More examples in Storybook →
+        Every prop, live, in Storybook →
       </a>
-      <a v-else :href="withBase('/storybook')">More examples in Storybook (coming soon) →</a>
+      <a v-else :href="withBase('/storybook')">Every prop, live, in Storybook (coming soon) →</a>
     </p>
   </section>
 </template>
