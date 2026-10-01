@@ -144,3 +144,29 @@ export interface UseCalendarDataOptions {
   month?: Date;
   onNavigate?: (anchor: string) => void;
 }
+
+export interface ShownRange {
+  start: string | null;
+  end: string | null;
+}
+
+export interface VisibleMonth {
+  first: string;
+  last: string;
+  dates: GridCell[][];
+}
+
+export interface RangeRules {
+  minDays?: number;
+  maxDays?: number;
+  excludeDisabled?: boolean;
+  isDayDisabled: (adDate: string) => boolean;
+}
+
+export interface PresetItem {
+  label: string;
+  disabled: boolean;
+  pressed: boolean;
+  start: string | null;
+  end: string | null;
+}

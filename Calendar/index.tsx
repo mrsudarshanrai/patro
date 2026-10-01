@@ -1,8 +1,22 @@
 import { KeyboardEvent, ReactElement, useEffect, useId, useRef, useState } from 'react';
-import { stepViewAnchor, useCalendarData } from './hooks/useCalendarData';
+import { useCalendarData } from './hooks/useCalendarData';
 import { useToday } from '../hooks/useToday';
 import { useControllableValue } from '../hooks/useControllableValue';
-import type { CalendarProps, CalendarRangeProps, CalendarSingleProps } from './CalendarType';
+import type {
+  CalendarProps,
+  CalendarRangeProps,
+  CalendarSingleProps,
+  PresetItem,
+} from './CalendarType';
+import {
+  activeDay,
+  DAY_STEPS,
+  isValidRangeEnd,
+  resolvePresets,
+  shiftMonths,
+  visibleMonths,
+  YEARS_PER_PAGE,
+} from './utils';
 import { DateRange, RangeSelection, SingleSelection } from '../types/public';
 import { CalendarGrid, cellId } from './components/CalendarGrid';
 import CalendarHeader from './components/CalendarHeader';
@@ -24,22 +38,12 @@ import {
   monthSpan,
   monthTitle,
   overlaps,
-  supportedAdDate,
   supportedAdRange,
   toPatroDate,
   weekday,
   yearSpan,
   EMPTY_RANGE,
 } from '../utils';
-
-const YEARS_PER_PAGE = 12;
-
-const DAY_STEPS: Record<string, number> = {
-  ArrowLeft: -1,
-  ArrowRight: 1,
-  ArrowUp: -7,
-  ArrowDown: 7,
-};
 
 const CalendarComponent = (props: CalendarProps) => {
   const {
@@ -158,41 +162,27 @@ const CalendarComponent = (props: CalendarProps) => {
   const todayAllowed =
     !!todayAdDate && isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
 
-  // The first month comes from the hook; with numberOfMonths, the next ones follow it.
   const monthCount = Math.max(1, Math.floor(numberOfMonths));
   const multi = monthCount > 1;
-  const months = [{ first: firstAdDate, last: lastAdDate, dates }];
-  for (let i = 1; i < monthCount; i++) {
-    const anchor = stepViewAnchor(months[i - 1].first, calendar, 1);
-    // No months past the end of the BS table.
-    if (anchor === months[i - 1].first) break;
-    const [first, last] = monthBounds(calendar, anchor);
-    const grid = getMonthGrid(calendar, anchor, selectedAdDate, isDayDisabled, {
-      weekStartsOn,
-      fixedWeeks,
-      weekendDays,
-      today: todayAdDate,
-    });
-    months.push({ first, last, dates: grid });
-  }
+  const months = visibleMonths(
+    calendar,
+    { first: firstAdDate, last: lastAdDate, dates },
+    monthCount,
+    (anchor) =>
+      getMonthGrid(calendar, anchor, selectedAdDate, isDayDisabled, {
+        weekStartsOn,
+        fixedWeeks,
+        weekendDays,
+        today: todayAdDate,
+      }),
+  );
   const visibleStart = months[0].first;
   const visibleEnd = months[months.length - 1].last;
 
-  const ownDays = months.flatMap((month) => month.dates.flat().filter((cell) => !cell.offset));
-  const enabledDays = ownDays.filter((cell) => !cell.isDisabled);
-  const monthCells = enabledDays.length ? enabledDays : ownDays;
-  const monthStart = monthCells[0].adDate;
-  const monthEnd = monthCells[monthCells.length - 1].adDate;
-  const inView = (adDate?: string) =>
-    !!adDate && adDate >= monthStart && adDate <= monthEnd && !isDayDisabled(adDate);
-  // Keep focus on something visible after month changes: focused, else selected, else today.
-  const activeAdDate =
-    [focusedAdDate, selectedAdDate ?? undefined, todayAdDate ?? undefined].find(inView) ??
-    monthStart;
-
-  const activeMonth = Math.max(
-    0,
-    months.findIndex((month) => activeAdDate >= month.first && activeAdDate <= month.last),
+  const { adDate: activeAdDate, index: activeMonth } = activeDay(
+    months,
+    [focusedAdDate, selectedAdDate, todayAdDate],
+    isDayDisabled,
   );
 
   // preventScroll: a popover may not be positioned yet on its first frame.
@@ -211,14 +201,8 @@ const CalendarComponent = (props: CalendarProps) => {
     }
   }, [activeMonth]);
 
-  const isValidEnd = (start: string, end: string) => {
-    if (end < start) return false;
-    const days = Math.round((Date.parse(end) - Date.parse(start)) / 86_400_000) + 1;
-    if ((minDays && days < minDays) || (maxDays && days > maxDays)) return false;
-    if (!excludeDisabled) return true;
-    for (let day = start; day <= end; day = addDays(day, 1)) if (isDayDisabled(day)) return false;
-    return true;
-  };
+  const isValidEnd = (start: string, end: string) =>
+    isValidRangeEnd(start, end, { minDays, maxDays, excludeDisabled, isDayDisabled });
 
   const commitRange = (start: string, end: string | null) => {
     setValue({ start: adDateToLocalDate(start), end: end ? adDateToLocalDate(end) : null });
@@ -241,38 +225,21 @@ const CalendarComponent = (props: CalendarProps) => {
     commitRange(restart ? adDate : (range.start as string), restart ? null : adDate);
   };
 
-  // Presets resolve on every render so "Today"-style ones stay current and can be disabled.
-  const presets = (props.presets ?? []).map(({ label, value }) => {
-    const resolved = typeof value === 'function' ? value() : value;
-    if (range) {
-      const { start, end } = supportedAdRange(resolved as DateRange);
-      const valid =
-        !!start && !!end && !isDayDisabled(start) && !isDayDisabled(end) && isValidEnd(start, end);
-      return {
-        label,
-        disabled: !valid,
-        pressed: !!start && start === range.start && end === range.end,
-        pick: () => start && commitRange(start, end),
-        first: start,
-      };
-    }
-    const adDate = supportedAdDate(resolved as Date);
-    return {
-      label,
-      disabled: !adDate || isDayDisabled(adDate),
-      pressed: !!adDate && adDate === selectedAdDate,
-      pick: () => adDate && commitDay(adDate),
-      first: adDate,
-    };
+  const presets = resolvePresets(props.presets, {
+    range,
+    selectedAdDate,
+    isDayDisabled,
+    isValidEnd,
   });
 
-  const pickPreset = (preset: (typeof presets)[number]) => {
-    if (preset.disabled || !preset.first) return;
-    const [year, month] = datePartsIn(preset.first, calendar);
+  const pickPreset = (preset: PresetItem) => {
+    if (preset.disabled || !preset.start) return;
+    const [year, month] = datePartsIn(preset.start, calendar);
     goToMonth(year, month);
     setView('days');
-    setFocusedAdDate(preset.first);
-    preset.pick();
+    setFocusedAdDate(preset.start);
+    if (range) commitRange(preset.start, preset.end);
+    else commitDay(preset.start);
   };
 
   const previewEnd =
@@ -363,16 +330,6 @@ const CalendarComponent = (props: CalendarProps) => {
     }
   };
 
-  // Same day `months` away in the displayed calendar, clamped to that month's length.
-  const shiftMonths = (adDate: string, months: number) => {
-    const [year, month, day] = datePartsIn(adDate, calendar);
-    const index = year * 12 + month - 1 + months;
-    const span = monthSpan(calendar, Math.floor(index / 12), (index % 12) + 1);
-    if (!span) return null;
-    const target = addDays(span[0], day - 1);
-    return target > span[1] ? span[1] : target;
-  };
-
   // Scroll only when the day is outside the visible months: onto the first, or the last.
   const moveFocus = (adDate: string | null) => {
     setShowFocusRing(true);
@@ -399,7 +356,7 @@ const CalendarComponent = (props: CalendarProps) => {
       // Shift pages by year, as in the WAI-ARIA date picker pattern.
       event.preventDefault();
       const months = (event.key === 'PageUp' ? -1 : 1) * (event.shiftKey ? 12 : 1);
-      const next = shiftMonths(activeAdDate, months);
+      const next = shiftMonths(activeAdDate, months, calendar);
       moveFocus(next && (next < minAdDate ? minAdDate : next > maxAdDate ? maxAdDate : next));
     } else if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault();
