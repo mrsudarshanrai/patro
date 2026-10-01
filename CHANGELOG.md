@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0-beta
+## 1.0.0-beta.1 (2026-10-02)
 
 First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no announced API; this is a ground-up rewrite and not compatible with them.
 
@@ -29,22 +29,20 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - Server rendering: `'use client'` for React Server Components, "today" read in the browser so hydration never mismatches, and a `today` prop to render it on the server.
 - `patro/utils`: the date conversions without `'use client'`, for server code. An `exports` map, with `patro/style.css` for the stylesheet.
 - `isValidAdDate`/`isValidBsDate`; `ad2Bs` takes a `Date`; both conversions accept Devanagari digits.
-- Exported types: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `CalendarSystem`, `Locale`, `Numerals`.
+- Exported types: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `PatroLabels`, `Preset`, `CalendarSystem`, `Locale`, `Numerals`.
 
 ### Fixed
 
 - AD↔BS conversion was timezone-dependent (off by a day west of UTC) and accepted impossible dates (e.g. Feb 30).
 - The BS month-length table had incorrect values for several years, found by cross-checking against independent sources.
 - The calendar could show the wrong month on first render, and crashed at the edges of the supported date range (AD 1921-04-13 – 2043-04-14).
-
 - Types resolved incorrectly under TypeScript's `node16`/`nodenext` module resolution; they're now bundled per entry, as `.d.ts` and `.d.cts`.
-
 - Clicking the calendar's month arrows inside a `<form>` submitted it.
 - The Datepicker popover stayed put when content above it moved the field, covering it; it now follows the field.
 
 ### Changed
 
 - The popover is positioned with Floating UI (`@floating-ui/dom`) instead of Popper v2 (last released in 2023); about 1 kB smaller.
-
+- The Datepicker field's width is the `--patro-input-width` token (288px by default).
 - Rewrote the day-grid builder, hook, and utils to remove all circular imports.
 - Upgraded the toolchain: Rollup 4, TypeScript 6, ESLint 9 (flat config), Jest 30, Storybook 10, Vite 8.

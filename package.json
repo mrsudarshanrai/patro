@@ -1,7 +1,7 @@
 {
   "name": "patro",
-  "version": "0.1.0-beta",
-  "description": "AD and BS Calendar",
+  "version": "1.0.0-beta.1",
+  "description": "React calendar and datepicker for Nepali Bikram Sambat (BS) and AD dates, with AD ↔ BS conversion",
   "license": "MIT",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -43,15 +43,6 @@
   "engines": {
     "node": ">=18"
   },
-  "keywords": [
-    "ad2bs",
-    "bs2ad",
-    "nepali-calendar",
-    "datepicker",
-    "ad",
-    "bs",
-    "react-datepicker"
-  ],
   "scripts": {
     "build": "rm -rf ./dist && rollup -c --bundleConfigAsCjs && npm run build:css",
     "dev": "rollup -c --bundleConfigAsCjs -w",
@@ -63,7 +54,7 @@
     "test:tz": "node scripts/test-timezones.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run check:package && npm run check:size",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm_config_dry_run=false npm run check:package && npm run check:size",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "build:css": "sass scss/style.scss dist/css/style.css --style=compressed --no-source-map",
     "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints style.css dist/css/style.css",
@@ -139,5 +130,20 @@
   ],
   "dependencies": {
     "@floating-ui/dom": "^1.8.0"
-  }
+  },
+  "keywords": [
+    "nepali-calendar",
+    "bikram-sambat",
+    "nepali-date",
+    "bs",
+    "ad",
+    "ad2bs",
+    "bs2ad",
+    "date-converter",
+    "react",
+    "datepicker",
+    "date-picker",
+    "date-range-picker",
+    "calendar"
+  ]
 }

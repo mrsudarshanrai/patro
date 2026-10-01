@@ -5,10 +5,10 @@ A React calendar and datepicker for the Nepali Bikram Sambat (BS) calendar, with
 ## Install
 
 ```bash
-npm install patro
+npm install patro@beta
 ```
 
-Requires React 18 or 19.
+Requires React 18 or 19. This is a beta: `npm install patro` without `@beta` still gets an old 2023 test build until 1.0 is released.
 
 Import the stylesheet once, wherever your app already loads global CSS:
 
