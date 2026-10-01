@@ -36,7 +36,7 @@ import {
   toAdDateString,
   toPatroDate,
 } from '../utils';
-import { icons } from './icons';
+import { icons } from '../shared/icons';
 import type {
   DatepickerProps,
   DatepickerRangeProps,

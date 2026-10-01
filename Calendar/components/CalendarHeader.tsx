@@ -1,4 +1,4 @@
-import { icons } from '../../Datepicker/icons';
+import { icons } from '../../shared/icons';
 import { ICalendar } from '../types';
 
 const CalendarHeader = (props: ICalendar.CalendarHeaderProps) => {
