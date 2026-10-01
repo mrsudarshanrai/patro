@@ -16,9 +16,6 @@ import { Calendar } from '../Calendar';
 import { ICalendar } from '../Calendar/types';
 import {
   CalendarProps,
-  DatepickerProps,
-  DatepickerRangeProps,
-  DatepickerSingleProps,
   DateRange,
   PatroDate,
   PatroDateRange,
@@ -40,6 +37,11 @@ import {
   toPatroDate,
 } from '../utils';
 import { icons } from './icons';
+import type {
+  DatepickerProps,
+  DatepickerRangeProps,
+  DatepickerSingleProps,
+} from './DatepickerType';
 import { useIsClient } from '../hooks/useToday';
 
 const DEFAULT_PLACEHOLDER = {

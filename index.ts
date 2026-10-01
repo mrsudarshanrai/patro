@@ -8,12 +8,14 @@ export type {
   CalendarSystem,
   DateRange,
   PatroDateRange,
-  DatepickerProps,
-  DatepickerRangeProps,
-  DatepickerSingleProps,
   Locale,
   Numerals,
   PatroDate,
   PatroLabels,
   Preset,
 } from './types/public';
+export type {
+  DatepickerProps,
+  DatepickerRangeProps,
+  DatepickerSingleProps,
+} from './Datepicker/DatepickerType';
