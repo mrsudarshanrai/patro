@@ -5,7 +5,7 @@ import terser from '@rollup/plugin-terser';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import { dts } from 'rollup-plugin-dts';
 
-const entries = { index: './index.ts', utils: './entries/utils.ts' };
+const entries = { index: './package/index.ts', utils: './package/entries/utils.ts' };
 
 // Components use hooks, so React Server Components must treat them as client code.
 // Only the main entry: `patro/utils` stays callable from server code.
