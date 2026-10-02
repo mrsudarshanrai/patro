@@ -1,7 +1,7 @@
 import { forwardRef, ReactElement, RefAttributes, useEffect, useId, useState } from 'react';
 import { Calendar } from '../Calendar';
-import { ICalendar } from '../Calendar/types';
-import { CalendarProps, PatroDate, PatroDateRange } from '../types/public';
+import type { CalendarProps } from '../Calendar/CalendarType';
+import { PatroDate, PatroDateRange } from '../types/public';
 import { formatDate, formatInputDate, labelsFor, otherSystem } from '../utils';
 import type {
   DatepickerProps,
@@ -28,7 +28,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
       defaultValue,
       onChange,
       presets,
-      calendar = ICalendar.CalendarTypeEnum.AD,
+      calendar = 'AD',
       label,
       placeholder,
       theme,

@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
-import { IUseCalendarData } from '../types/IHooks/IUseCalendarData';
 import {
   addDays,
   clampAdDate,
@@ -17,30 +16,24 @@ import {
   toPatroDate,
   ad2Bs,
   bs2Ad,
-} from '../utils';
-import { ICalendar } from '../Calendar/types';
-import { PatroDate } from '../types/public';
-import { MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
+} from '../../utils';
+import type { DayParts, UseCalendarDataOptions, UseCalendarDataResult } from '../CalendarType';
+import type { CalendarSystem } from '../../types/public';
+import { MAX_AD_DATE, START_ENGLISH_DATE } from '../../constants/dateConstants';
 
-/**
- * AD date (pinned to day 1 of whichever calendar system is displayed) to
- * anchor the view on for a given AD year/month/date - day 1 of the AD month
- * in AD mode, or the AD date of day 1 of the containing BS month in BS mode.
- * Pinning to the AD month's day 1 in BS mode would land on the wrong BS
- * month whenever the BS month boundary falls after day 1 of the AD month.
- */
+// In BS mode anchor on the BS month's day 1: the AD month's day 1 can sit in the previous BS month.
 type Bounds = { min: string; max: string };
 const FULL_RANGE: Bounds = { min: START_ENGLISH_DATE, max: MAX_AD_DATE };
 
 const getViewAnchor = (
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   year: number,
   month: number,
   date: number,
   bounds: Bounds = FULL_RANGE,
 ): string => {
   const adDate = clampAdDate(createDateString(year, month, date), bounds.min, bounds.max);
-  if (calendarType === ICalendar.CalendarTypeEnum.BS) {
+  if (calendarType === 'BS') {
     const { year: bsYear, month: bsMonth } = dateString2Obj(ad2Bs(adDate));
     return bs2Ad(createDateString(bsYear, bsMonth, 1));
   }
@@ -48,10 +41,9 @@ const getViewAnchor = (
   return createDateString(clamped.year, clamped.month, 1);
 };
 
-// Whether the neighbouring month has any day inside the bounds.
 const canStep = (
   viewAnchor: string,
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   step: 1 | -1,
   bounds: Bounds = FULL_RANGE,
 ) => {
@@ -59,22 +51,15 @@ const canStep = (
   return step < 0 ? addDays(first, -1) >= bounds.min : addDays(last, 1) <= bounds.max;
 };
 
-/**
- * Given the AD date (pinned to day 1) a calendar view is anchored on, returns
- * the anchor for one month forward/back (`step` = 1 or -1) in whichever
- * calendar system is currently displayed - stepping by a true BS month in BS
- * mode (via the BS year table, through switchYear) rather than by one AD
- * month and re-deriving BS from that, which doesn't reliably move exactly
- * one BS month since BS months run 29-32 days against AD's 28-31.
- */
+// Steps a true BS month in BS mode: one AD month isn't one BS month (28–31 vs 29–32 days).
 const stepViewAnchor = (
   viewAnchor: string,
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   step: 1 | -1,
   bounds: Bounds = FULL_RANGE,
 ): string => {
   if (!canStep(viewAnchor, calendarType, step, bounds)) return viewAnchor;
-  if (calendarType === ICalendar.CalendarTypeEnum.BS) {
+  if (calendarType === 'BS') {
     const { year, month } = dateString2Obj(ad2Bs(viewAnchor));
     const stepped = switchYear(year, month + step);
     return bs2Ad(createDateString(stepped.year, stepped.month, 1));
@@ -84,37 +69,21 @@ const stepViewAnchor = (
   return createDateString(stepped.year, stepped.month, 1);
 };
 
-// Dates outside the supported table range can't be shown, so they count as no selection.
-const ymd = (date: Date): IUseCalendarData.ICurrDate => ({
+// Dates outside the BS table count as no selection.
+const ymd = (date: Date): DayParts => ({
   year: date.getFullYear(),
   month: date.getMonth() + 1,
   date: date.getDate(),
 });
 
-const toSelection = (date: Date): IUseCalendarData.ICurrDate | null => {
+const toSelection = (date: Date): DayParts | null => {
   const selection = ymd(date);
   const adDate = createDateString(selection.year, selection.month, selection.date);
   return isSupportedAdDate(adDate) ? selection : null;
 };
 
-const isSameDay = (a: IUseCalendarData.ICurrDate | null, b: IUseCalendarData.ICurrDate | null) =>
+const isSameDay = (a: DayParts | null, b: DayParts | null) =>
   a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
-
-type Options = {
-  minDate?: Date;
-  maxDate?: Date;
-  isDateDisabled?: (date: PatroDate) => boolean;
-  weekStartsOn?: number;
-  fixedWeeks?: boolean;
-  weekendDays?: number[];
-  /** Today's AD date; null while it isn't known yet (server rendering, hydration). */
-  today?: string | null;
-  /** Month shown when nothing is selected, instead of today's. */
-  defaultMonth?: Date;
-  /** Controlled month: navigation calls `onNavigate` instead of moving the view. */
-  month?: Date;
-  onNavigate?: (anchor: string) => void;
-};
 
 // Placeholder month while neither a selection nor today is known; the calendar hides it.
 const PENDING_ANCHOR = { year: 2000, month: 1, date: 1 };
@@ -126,7 +95,7 @@ const todayParts = (today: string | null) => {
 };
 
 const useCalendarData = (
-  calendarType: ICalendar.calendarType,
+  calendarType: CalendarSystem,
   selectedDate?: Date | null,
   {
     minDate,
@@ -138,24 +107,37 @@ const useCalendarData = (
     today = null,
     defaultMonth,
     month,
-    onNavigate,
-  }: Options = {},
-): IUseCalendarData.IReturn => {
+    onMonthChange,
+  }: UseCalendarDataOptions = {},
+): UseCalendarDataResult => {
   const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
   const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
   const bounds = useMemo(() => ({ min: minAdDate, max: maxAdDate }), [minAdDate, maxAdDate]);
 
-  const [selected, setSelected] = useState<IUseCalendarData.ICurrDate | null>(() =>
+  const [selected, setSelected] = useState<DayParts | null>(() =>
     selectedDate ? toSelection(selectedDate) : null,
   );
-  // Every other date value derives from this AD date, pinned to day 1 of the displayed month.
-  // null until there's a selection or a known today to anchor on.
+  // AD date of the displayed month's day 1; null until a selection or today is known.
   const [viewAnchor, setViewAnchor] = useState<string | null>(() => {
     const fallback = defaultMonth ? ymd(defaultMonth) : today && todayParts(today);
     if (!selectedDate && !fallback) return null;
     const { year, month, date } = selectedDate ? ymd(selectedDate) : fallback;
     return getViewAnchor(calendarType, year, month, date, bounds);
   });
+  // Latest callback in a ref so an inline onMonthChange doesn't refire the effect every render.
+  const onMonthChangeRef = useRef(onMonthChange);
+  useEffect(() => {
+    onMonthChangeRef.current = onMonthChange;
+  });
+  const reportMonth = useCallback(
+    (first: string, last: string) =>
+      onMonthChangeRef.current?.({
+        start: toPatroDate(clampAdDate(first)),
+        end: toPatroDate(clampAdDate(last)),
+      }),
+    [],
+  );
+
   const controlledAnchor = month
     ? getViewAnchor(
         calendarType,
@@ -197,19 +179,28 @@ const useCalendarData = (
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
   }, [selectedTime, defaultMonthTime, calendarType, bounds]);
 
-  // Controlled: ask the owner to move; uncontrolled: move.
   const navigate = useCallback(
     (anchor: string) => {
       if (!controlledAnchor) setViewAnchor(anchor);
-      else if (anchor !== controlledAnchor) onNavigate?.(anchor);
+      else if (anchor !== controlledAnchor) {
+        reportMonth(...(monthBounds(calendarType, anchor) as [string, string]));
+      }
     },
-    [controlledAnchor, onNavigate],
+    [controlledAnchor, reportMonth, calendarType],
   );
 
   const [firstAdDate, lastAdDate] = useMemo(
     () => monthBounds(calendarType, shownAnchor),
     [calendarType, shownAnchor],
   );
+
+  // Uncontrolled: report every month the view moves to. Controlled: navigate reports requests.
+  const shownMonth = useRef(firstAdDate);
+  useEffect(() => {
+    if (shownMonth.current === firstAdDate) return;
+    shownMonth.current = firstAdDate;
+    if (!controlledAnchor) reportMonth(firstAdDate, lastAdDate);
+  }, [firstAdDate, lastAdDate, controlledAnchor, reportMonth]);
 
   const pending = !controlledAnchor && !viewAnchor;
 

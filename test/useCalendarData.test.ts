@@ -1,10 +1,10 @@
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { stepViewAnchor, useCalendarData } from '../hooks/useCalendarData';
-import { ICalendar } from '../Calendar/types';
+import { stepViewAnchor, useCalendarData } from '../Calendar/hooks/useCalendarData';
+import type { CalendarSystem } from '../types/public';
 
 // Effects don't run in renderToString, so this is exactly the first paint.
-const firstRender = (calendarType: ICalendar.calendarType, selectedDate?: Date) => {
+const firstRender = (calendarType: CalendarSystem, selectedDate?: Date) => {
   let result: ReturnType<typeof useCalendarData> | undefined;
   const Probe = (): null => {
     result = useCalendarData(calendarType, selectedDate);

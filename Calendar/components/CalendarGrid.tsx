@@ -1,9 +1,15 @@
-import { IUseCalendarData } from '../../types/IHooks/IUseCalendarData';
-import { DisplayOptions, formatDate, formatNumber, otherSystem, toPatroDate } from '../../utils';
+import {
+  DisplayOptions,
+  formatDate,
+  formatNumber,
+  GridCell,
+  otherSystem,
+  toPatroDate,
+} from '../../utils';
 import { CalendarSystem } from '../../types/public';
-import { ICalendar } from '../types';
+import type { CalendarGridProps } from '../CalendarType';
 
-type Range = NonNullable<ICalendar.CalendarGridProps['range']>;
+type Range = NonNullable<CalendarGridProps['range']>;
 
 // Where a day sits in the selected (or previewed) range.
 const rangeState = (adDate: string, range?: Range) => {
@@ -21,7 +27,7 @@ const rangeState = (adDate: string, range?: Range) => {
 };
 
 const cellClassName = (
-  { isToday, isSelected, isDisabled, isWeekend, offset }: IUseCalendarData.IDates,
+  { isToday, isSelected, isDisabled, isWeekend, offset }: GridCell,
   isFocused: boolean,
   inRange?: ReturnType<typeof rangeState>,
 ) =>
@@ -43,7 +49,7 @@ const cellClassName = (
     .filter(Boolean)
     .join(' ');
 
-const cellLabel = ({ adDate, secondaryDay }: IUseCalendarData.IDates, display: DisplayOptions) => {
+const cellLabel = ({ adDate, secondaryDay }: GridCell, display: DisplayOptions) => {
   const ad = formatDate(adDate, 'AD', display);
   return secondaryDay === null ? ad : `${ad}, ${formatDate(adDate, 'BS', display)}`;
 };
@@ -53,7 +59,7 @@ const number = (value: number | null, system: CalendarSystem, display: DisplayOp
 
 const cellId = (idPrefix: string, adDate: string) => `${idPrefix}-${adDate}`;
 
-const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
+const CalendarGrid = (props: CalendarGridProps) => {
   const {
     dates,
     calendar,
@@ -71,10 +77,10 @@ const CalendarGrid = (props: ICalendar.CalendarGridProps) => {
   } = props;
   return (
     <>
-      {dates.map((days: IUseCalendarData.IDates[], i: number) => {
+      {dates.map((days: GridCell[], i: number) => {
         return (
           <div key={i} className='_patro_dates' role='row'>
-            {days.map((date: IUseCalendarData.IDates, index: number) => {
+            {days.map((date: GridCell, index: number) => {
               const { adDate, day, secondaryDay } = date;
               if (hideOutsideDays && date.offset) {
                 return (

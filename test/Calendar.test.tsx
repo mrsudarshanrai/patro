@@ -5,7 +5,8 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
 import { Datepicker } from '../Datepicker';
-import type { CalendarBaseProps, PatroDate, SingleSelection } from '../types/public';
+import type { CalendarBaseProps } from '../Calendar/CalendarType';
+import type { PatroDate, SingleSelection } from '../types/public';
 import { bs2Ad } from '../utils';
 
 const TODAY = new Date(2026, 9, 29);

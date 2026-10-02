@@ -1,7 +1,7 @@
 import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode } from 'react';
 import type { DisplayOptions } from '../utils';
+import type { CalendarBaseProps } from '../Calendar/CalendarType';
 import type {
-  CalendarBaseProps,
   CalendarSystem,
   DateRange,
   PatroDate,
