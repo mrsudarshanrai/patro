@@ -60,12 +60,23 @@ if (typeof Calendar !== 'function' || ad2Bs('2022-10-24') !== '2079-07-07' || bs
   writeFileSync(
     join(dir, 'types.mts'),
     `
-import { Calendar, Datepicker, type PatroDate, type DatepickerProps } from 'patro';
+import {
+  Calendar,
+  Datepicker,
+  type PatroDate,
+  type DatepickerProps,
+  type DatepickerSingleProps,
+  type DatepickerRangeProps,
+} from 'patro';
 import { ad2Bs } from 'patro/utils';
 const onChange = (value: PatroDate | null) => value?.bs;
 const props: DatepickerProps = { mode: 'range', onChange: ({ start }) => start?.ad };
+const single: DatepickerSingleProps = { editable: true, placement: 'top', valueFormat: 'bs' };
+const range: DatepickerRangeProps = { mode: 'range', minDays: 2, formatValue: ({ start }) => start?.bs ?? '' };
+// @ts-expect-error: placement only takes the documented values.
+const wrong: DatepickerSingleProps = { placement: 'left' };
 const bs: string = ad2Bs(new Date());
-export { Calendar, Datepicker, onChange, props, bs };
+export { Calendar, Datepicker, onChange, props, single, range, wrong, bs };
 `,
   );
   run('node', ['esm.mjs']);

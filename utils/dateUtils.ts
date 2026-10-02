@@ -1,4 +1,7 @@
 import { DEVANAGARI_DIGITS, MAX_AD_DATE, START_ENGLISH_DATE } from '../constants/dateConstants';
+import type { DateRange } from '../types/public';
+
+const EMPTY_RANGE: DateRange = { start: null, end: null };
 
 const getDates = (month: number, year: number) => new Date(year, month, 0).getDate();
 
@@ -78,6 +81,7 @@ const en2NpNumber = (value: string) =>
 const remove1stZero = (value: string) => value.replace(/^0+/, '');
 
 export {
+  EMPTY_RANGE,
   zeroPad,
   createDateString,
   addDays,

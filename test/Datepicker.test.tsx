@@ -4,7 +4,8 @@ import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Datepicker } from '../Datepicker';
-import type { DatepickerBaseProps, PatroDate, SingleSelection } from '../types/public';
+import type { DatepickerBaseProps } from '../Datepicker/DatepickerType';
+import type { PatroDate, SingleSelection } from '../types/public';
 
 const TODAY = new Date(2026, 9, 29);
 
