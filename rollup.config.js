@@ -1,42 +1,61 @@
-// uses peer dependency
-import external from 'rollup-plugin-peer-deps-external'
-// pairs rollup with typescript
-import typescript from 'rollup-plugin-typescript2'
-// resolves third party modules and add in the source
-import resolve from '@rollup/plugin-node-resolve'
-import scss from 'rollup-plugin-scss'
-// uglifying and minizing the budle
-import { terser } from 'rollup-plugin-terser'
-// babel
-import babel from 'rollup-plugin-babel'
+import resolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import { dts } from 'rollup-plugin-dts';
+
+const entries = { index: './package/index.ts', utils: './package/entries/utils.ts' };
+
+// Components use hooks, so React Server Components must treat them as client code.
+// Only the main entry: `patro/utils` stays callable from server code.
+// Added after terser, which drops unknown directives.
+const clientDirective = () => ({
+  name: 'client-directive',
+  renderChunk: (code, chunk) =>
+    chunk.isEntry && chunk.name === 'index' ? { code: `'use client';\n${code}`, map: null } : null,
+});
+
+// One self-contained declaration file per entry, as .d.ts (ESM) and .d.cts (CJS).
+const types = Object.entries(entries).map(([name, input]) => ({
+  input,
+  output: [
+    { file: `dist/${name}.d.ts`, format: 'es' },
+    { file: `dist/${name}.d.cts`, format: 'es' },
+  ],
+  plugins: [dts({ tsconfig: './tsconfig.build.json' })],
+}));
 
 export default [
   {
-    input: './src/index.ts',
+    input: entries,
     output: [
       {
-        file: 'dist/index.esm.js',
-        format: 'esm',
+        dir: 'dist',
+        format: 'es',
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name]-[hash].js',
       },
       {
-        file: 'dist/index.js',
+        // .cjs, not .js: the package is "type": "module", so .js would load as ESM.
+        dir: 'dist',
         format: 'cjs',
+        entryFileNames: '[name].cjs',
+        chunkFileNames: '[name]-[hash].cjs',
       },
     ],
     plugins: [
-      babel({
-        exclude: 'node_modules/**',
-        presets: ['@babel/preset-react'],
-      }),
-      typescript(),
-      external(),
+      peerDepsExternal(),
       resolve(),
-      scss({
-        output: './dist/css/style.css',
-        failOnError: true,
-        outputStyle: 'compressed',
+      commonjs(),
+      typescript({
+        tsconfig: './tsconfig.build.json',
+        declaration: false,
+        emitDeclarationOnly: false,
       }),
-      // terser(),
+      terser(),
+      clientDirective(),
     ],
   },
-]
+  ...types,
+];

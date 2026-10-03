@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:package
+      - run: npm run check:size
+      - run: npm run test:package
+      # Positioning needs a real browser (the runner's Chrome) and Node 22+ for WebSocket.
+      - run: npm run check:popover
+        if: matrix.node != 20
+
+  # The lockfile pins React 18; the peer range also promises 19.
+  react-19:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save react@19 react-dom@19
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:package
+        env:
+          SMOKE_REACT: '19'

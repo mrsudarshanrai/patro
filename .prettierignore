@@ -1,2 +1,4 @@
 dist
-example
+storybook-static
+package-lock.json
+docs

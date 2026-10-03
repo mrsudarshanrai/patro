@@ -1,0 +1,429 @@
+._patro_container {
+  box-sizing: border-box;
+  width: 288px;
+  height: fit-content;
+  padding: 8px 8px 10px;
+  background-color: var(--patro-surface);
+  border-radius: var(--patro-radius-popover);
+  box-shadow: var(--patro-shadow);
+  font-family: var(--patro-font);
+  color: var(--patro-text);
+}
+
+._patro {
+  &_header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 2px 10px 8px;
+    margin: 0;
+
+    &_info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      margin: 0;
+    }
+    &_title {
+      margin: 0;
+      font-size: 15px;
+      line-height: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--patro-text);
+    }
+    &_titleBtn {
+      align-self: flex-start;
+      margin: -2px -6px;
+      padding: 2px 6px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+      &:hover,
+      &:focus-visible {
+        background-color: var(--patro-hover);
+        outline: none;
+      }
+    }
+    &_subtitle {
+      margin: 0;
+      font-size: 12.5px;
+      line-height: 17px;
+      font-weight: 500;
+      font-family: var(--patro-font-devanagari);
+      color: var(--patro-sub);
+    }
+    &_actionBtn {
+      width: 28px;
+      height: 28px;
+      flex: none;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      outline: none;
+      border: 0;
+      border-radius: 8px;
+      background-color: transparent;
+      color: var(--patro-muted);
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--patro-hover);
+        color: var(--patro-text);
+      }
+      &:active {
+        background-color: var(--patro-border);
+        color: var(--patro-text);
+      }
+      &:disabled {
+        background-color: transparent;
+        color: var(--patro-muted);
+        opacity: 0.35;
+        cursor: default;
+      }
+      svg {
+        display: block;
+      }
+    }
+  }
+}
+
+// BS-primary: bigger Devanagari title, smaller AD subtitle.
+._patro_container[data-calendar-type='BS'] ._patro {
+  &_header_title {
+    font-family: var(--patro-font-devanagari);
+    font-size: 17px;
+    line-height: 22px;
+  }
+  &_header_subtitle {
+    font-family: var(--patro-font);
+    font-size: 12px;
+    line-height: 16px;
+  }
+}
+
+._patro_days,
+._patro_dates {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+._patro_days {
+  gap: 2px;
+  margin-bottom: 2px;
+  &_day {
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--patro-muted);
+  }
+  &_day_weekend {
+    color: var(--patro-weekend);
+  }
+}
+._patro_dates {
+  gap: 2px;
+
+  &_date {
+    position: relative;
+    height: 42px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    border-radius: var(--patro-radius-cell);
+    cursor: pointer;
+    color: var(--patro-text);
+    background: transparent;
+    box-shadow: none;
+
+    &_primary {
+      font-size: 14px;
+      line-height: 16px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+      color: inherit;
+    }
+    sub {
+      position: static;
+      font-family: var(--patro-font-devanagari);
+      font-size: 11.5px;
+      line-height: 13px;
+      font-weight: 500;
+      color: var(--patro-sub);
+    }
+  }
+
+  &_current_month_date:hover {
+    background-color: var(--patro-hover);
+  }
+
+  &_weekend {
+    color: var(--patro-weekend);
+  }
+
+  &_date_offset {
+    color: var(--patro-faint);
+    sub {
+      color: var(--patro-faint-sub);
+    }
+  }
+
+  // Today and selected are independent and can co-occur.
+  &_today {
+    color: var(--patro-today);
+    ._patro_dates_date_primary {
+      font-weight: 600;
+    }
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 3px;
+      left: 50%;
+      width: 12px;
+      height: 2px;
+      margin-left: -6px;
+      border-radius: 1px;
+      background: var(--patro-accent);
+    }
+  }
+
+  &_in_range {
+    background-color: var(--patro-range-bg);
+  }
+
+  &_range_preview {
+    background-color: color-mix(in srgb, var(--patro-range-bg) 55%, transparent);
+  }
+
+  &_range_end#{&}_range_preview {
+    outline: 1px dashed var(--patro-accent);
+    outline-offset: -1px;
+  }
+
+  &_current_date {
+    background-color: var(--patro-sel-bg);
+    box-shadow:
+      inset 0 0 0 1px var(--patro-accent),
+      var(--patro-glow);
+    color: var(--patro-sel-text);
+
+    ._patro_dates_date_primary {
+      font-weight: 600;
+    }
+    sub {
+      color: var(--patro-sel-sub);
+    }
+  }
+
+  &_disabled,
+  &_disabled:hover {
+    color: var(--patro-disabled);
+    background-color: transparent;
+    cursor: default;
+    sub {
+      color: var(--patro-disabled);
+    }
+  }
+
+  &_focused {
+    box-shadow: inset 0 0 0 2px var(--patro-accent);
+  }
+
+  &_current_date#{&}_focused {
+    box-shadow:
+      inset 0 0 0 2px var(--patro-accent),
+      var(--patro-glow);
+  }
+}
+
+._patro_grid {
+  outline: none;
+}
+
+// Same height as the weekday row plus six week rows, so switching views doesn't resize.
+._patro_picker {
+  height: 288px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+
+  &_item {
+    padding: 0 4px;
+    border: 0;
+    border-radius: var(--patro-radius-cell);
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--patro-text);
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      outline: none;
+    }
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--patro-accent);
+    }
+    &[aria-current='true'] {
+      background-color: var(--patro-sel-bg);
+      box-shadow: inset 0 0 0 1px var(--patro-accent);
+      color: var(--patro-sel-text);
+      font-weight: 600;
+    }
+    &:disabled {
+      background: transparent;
+      color: var(--patro-disabled);
+      cursor: default;
+    }
+  }
+}
+
+._patro_container[data-calendar-type='BS'] ._patro_picker_item {
+  font-family: var(--patro-font-devanagari);
+  font-size: 14px;
+}
+
+._patro_presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 2px 0;
+
+  &_item {
+    padding: 3px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--patro-border);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--patro-text);
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      outline: none;
+    }
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--patro-accent);
+    }
+    &[aria-pressed='true'] {
+      background-color: var(--patro-sel-bg);
+      box-shadow: inset 0 0 0 1px var(--patro-accent);
+      color: var(--patro-sel-text);
+    }
+    &:disabled {
+      background: transparent;
+      color: var(--patro-disabled);
+      cursor: default;
+    }
+  }
+}
+
+._patro_footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 8px;
+
+  &_today {
+    padding: 4px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--patro-today);
+    cursor: pointer;
+    &:hover,
+    &:focus-visible {
+      background-color: var(--patro-hover);
+      outline: none;
+    }
+    &:disabled {
+      color: var(--patro-disabled);
+      background: transparent;
+      cursor: default;
+    }
+  }
+}
+
+// Devanagari digits draw shorter than Latin ones, so these sizes match AD mode's big/small look.
+._patro_container[data-calendar-type='BS'] ._patro_dates_date {
+  // Latin digits sit low in their line; lift the stack so the AD day clears the today marker.
+  box-sizing: border-box;
+  padding-bottom: 6px;
+  &_primary {
+    font-family: var(--patro-font-devanagari);
+    font-size: 18px;
+    line-height: 18px;
+  }
+  sub {
+    font-family: var(--patro-font);
+    font-size: 10px;
+    line-height: 10px;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Server-rendered without a value or `today`: keep the size, hide the placeholder month.
+._patro_container[aria-busy='true'] {
+  ._patro_header_info,
+  ._patro_grid ._patro_dates_date {
+    visibility: hidden;
+  }
+}
+
+// dayContent: the top-left corner is free in both the AD and BS layouts.
+._patro_dates_content {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  display: flex;
+  gap: 2px;
+  font-size: 9px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+// numberOfMonths: months side by side, wrapping on narrow screens.
+._patro_container_multi {
+  width: max-content;
+  max-width: 100%;
+}
+._patro_months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+._patro_month {
+  width: 272px;
+  min-width: 0;
+}
+._patro_header_spacer {
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+// Empty but still a gridcell, so rows keep their cells for assistive tech.
+._patro_dates_hidden {
+  pointer-events: none;
+}
