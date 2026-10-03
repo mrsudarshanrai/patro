@@ -368,15 +368,18 @@
 
 // Devanagari digits draw shorter than Latin ones, so these sizes match AD mode's big/small look.
 ._patro_container[data-calendar-type='BS'] ._patro_dates_date {
+  // Latin digits sit low in their line; lift the stack so the AD day clears the today marker.
+  box-sizing: border-box;
+  padding-bottom: 6px;
   &_primary {
     font-family: var(--patro-font-devanagari);
     font-size: 18px;
-    line-height: 20px;
+    line-height: 18px;
   }
   sub {
     font-family: var(--patro-font);
     font-size: 10px;
-    line-height: 12px;
+    line-height: 10px;
     font-variant-numeric: tabular-nums;
   }
 }
