@@ -4,7 +4,7 @@
 
 # patro
 
-A React calendar and datepicker for the Nepali Bikram Sambat (BS) calendar, with built-in AD (Gregorian) ↔ BS date conversion utilities.
+A React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS) dates. Show either calendar with the other one's date on every day, pick single dates or ranges, and convert between AD and BS with the built-in utilities.
 
 ## Install
 

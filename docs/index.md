@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: patro
-  text: Nepali and English dates for React
-  tagline: A calendar and datepicker for Bikram Sambat and Gregorian dates. Accessible, ready for real forms and server rendering, with AD ↔ BS conversion built in.
+  text: AD and BS dates for React
+  tagline: A calendar and datepicker for Gregorian and Bikram Sambat dates, side by side. Accessible, ready for real forms and server rendering, with AD ↔ BS conversion built in.
   actions:
     - theme: brand
       text: Get started

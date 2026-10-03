@@ -6,7 +6,7 @@ const storybookUrl = '';
 
 export default defineConfig({
   title: 'patro',
-  description: 'A React AD ↔ BS (Bikram Sambat) calendar and datepicker',
+  description: 'React calendar and datepicker for Gregorian (AD) and Bikram Sambat (BS) dates',
   lastUpdated: true,
   cleanUrls: true,
   head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/patro-logo.svg' }]],
