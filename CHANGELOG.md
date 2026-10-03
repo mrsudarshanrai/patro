@@ -42,6 +42,7 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 
 ### Changed
 
+- BS day cells mirror the AD layout: the BS day on top, the AD day underneath (it used to sit in the top-right corner).
 - The popover is positioned with Floating UI (`@floating-ui/dom`) instead of Popper v2 (last released in 2023); about 1 kB smaller.
 - The Datepicker field's width is the `--patro-input-width` token (288px by default).
 - Rewrote the day-grid builder, hook, and utils to remove all circular imports.

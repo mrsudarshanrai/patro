@@ -366,24 +366,15 @@
   }
 }
 
-// BS-primary: secondary moves to a top-right corner label, primary becomes
-// the big Devanagari number - same DOM order, repositioned via CSS only.
 ._patro_container[data-calendar-type='BS'] ._patro_dates_date {
   &_primary {
-    order: 2;
     font-family: var(--patro-font-devanagari);
-    font-size: 17px;
-    line-height: 20px;
-  }
-  &:has(sub) ._patro_dates_date_primary {
-    margin-top: 7px;
+    font-size: 16px;
+    line-height: 18px;
   }
   sub {
-    order: 1;
-    position: absolute;
-    top: 3px;
-    right: 5px;
     font-family: var(--patro-font);
+    font-variant-numeric: tabular-nums;
   }
 }
 
