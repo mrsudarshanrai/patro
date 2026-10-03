@@ -56,7 +56,7 @@
     "build-storybook": "storybook build",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm_config_dry_run=false npm run check:package && npm run check:size",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "build:css": "sass scss/style.scss dist/css/style.css --style=compressed --no-source-map",
+    "build:css": "sass package/scss/style.scss dist/css/style.css --style=compressed --no-source-map",
     "check:package": "publint && attw --pack . --profile node16 --exclude-entrypoints style.css dist/css/style.css",
     "test:package": "node scripts/smoke-package.mjs",
     "check:size": "node scripts/check-size.mjs",

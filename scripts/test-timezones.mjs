@@ -10,7 +10,7 @@ const timezones = [
 ];
 
 for (const tz of timezones) {
-  const { status } = spawnSync('npx', ['jest', 'test/timezone.test.ts'], {
+  const { status } = spawnSync('npx', ['jest', 'package/test/timezone.test.ts'], {
     stdio: 'inherit',
     env: { ...process.env, TZ: tz },
     shell: process.platform === 'win32',
