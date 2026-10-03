@@ -1,0 +1,22 @@
+{
+  "name": "patro-docs",
+  "version": "0.0.0",
+  "description": "Documentation site for the patro npm package",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "devDependencies": {
+    "vitepress": "^1.6.4",
+    "vue": "^3.5.43"
+  },
+  "private": true,
+  "dependencies": {
+    "patro": "file:..",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
