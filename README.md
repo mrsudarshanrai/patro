@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/public/patro-logo.svg" alt="patro logo" width="96" height="96">
+</p>
+
 # patro
 
 A React calendar and datepicker for the Nepali Bikram Sambat (BS) calendar, with built-in AD (Gregorian) ↔ BS date conversion utilities.

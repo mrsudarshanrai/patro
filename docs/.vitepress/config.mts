@@ -9,6 +9,7 @@ export default defineConfig({
   description: 'A React AD ↔ BS (Bikram Sambat) calendar and datepicker',
   lastUpdated: true,
   cleanUrls: true,
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/patro-logo.svg' }]],
 
   vite: {
     // The home page demo is React (TSX) inside this Vue site.
@@ -19,6 +20,7 @@ export default defineConfig({
   },
 
   themeConfig: {
+    logo: '/patro-logo.svg',
     // @ts-expect-error: a custom key, read by the home page demo.
     storybookUrl,
     nav: [
