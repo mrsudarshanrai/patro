@@ -3,5 +3,6 @@
   "framework": null,
   "installCommand": "npm ci && npm ci --prefix docs",
   "buildCommand": "npm run build && npm run build --prefix docs && npm run build-storybook -- -o docs/.vitepress/dist/storybook",
-  "outputDirectory": "docs/.vitepress/dist"
+  "outputDirectory": "docs/.vitepress/dist",
+  "redirects": [{ "source": "/storybook", "destination": "/storybook/", "permanent": true }]
 }
