@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const command = 'npm i patro@beta';
+const command = 'npm i patrojs@beta';
 const copied = ref(false);
 
 const copy = async () => {

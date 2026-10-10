@@ -8,17 +8,17 @@ The main entry is marked `'use client'`, so you can import `Calendar` and `Datep
 
 ```tsx
 // app/page.tsx: a Server Component
-import { Datepicker } from 'patro';
+import { Datepicker } from 'patrojs';
 
 export default function Page() {
   return <Datepicker label='Date' />;
 }
 ```
 
-`'use client'` also means calling the conversion functions from the main entry inside a Server Component fails: you'd get a client reference, not the function. For server code, import them from `patro/utils`, which isn't marked:
+`'use client'` also means calling the conversion functions from the main entry inside a Server Component fails: you'd get a client reference, not the function. For server code, import them from `patrojs/utils`, which isn't marked:
 
 ```tsx
-import { ad2Bs } from 'patro/utils';
+import { ad2Bs } from 'patrojs/utils';
 
 export default function Page() {
   return <p>Today is {ad2Bs(new Date())} BS</p>;

@@ -18,7 +18,7 @@ import type {
   CalendarSystem,
   Locale,
   Numerals,
-} from 'patro';
+} from 'patrojs';
 ```
 
 ## `PatroDate`

@@ -3,21 +3,21 @@
 ## Install
 
 ```bash
-npm install patro@beta
+npm install patrojs@beta
 ```
 
-Requires React 18 or 19. This is a beta: `npm install patro` without `@beta` still gets an old 2023 test build until 1.0 is released.
+Requires React 18 or 19. This is a beta release.
 
 Import the stylesheet once, wherever your app already loads global CSS:
 
 ```js
-import 'patro/style.css';
+import 'patrojs/style.css';
 ```
 
 ## Calendar
 
 ```tsx
-import { Calendar } from 'patro';
+import { Calendar } from 'patrojs';
 
 function App() {
   return <Calendar calendar='BS' onChange={(value) => console.log(value?.ad, value?.bs)} />;
@@ -27,7 +27,7 @@ function App() {
 ## Datepicker
 
 ```tsx
-import { Datepicker } from 'patro';
+import { Datepicker } from 'patrojs';
 
 function App() {
   return <Datepicker label='Date' onChange={(value) => console.log(value?.ad)} />;
