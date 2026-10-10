@@ -1,7 +1,7 @@
 import { h } from 'vue';
 import DefaultTheme from 'vitepress/theme';
 import type { Theme } from 'vitepress';
-import 'patro/style.css';
+import 'patrojs/style.css';
 import './custom.css';
 import HeroBadge from './HeroBadge.vue';
 import HeroInstall from './HeroInstall.vue';

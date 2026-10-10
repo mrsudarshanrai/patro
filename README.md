@@ -2,22 +2,22 @@
   <img src="docs/public/patro-logo.svg" alt="patro logo" width="96" height="96">
 </p>
 
-# patro
+# patrojs
 
 A React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS) dates. Show either calendar with the other one's date on every day, pick single dates or ranges, and convert between AD and BS with the built-in utilities.
 
 ## Install
 
 ```bash
-npm install patro@beta
+npm install patrojs@beta
 ```
 
-Requires React 18 or 19. This is a beta: `npm install patro` without `@beta` still gets an old 2023 test build until 1.0 is released.
+Requires React 18 or 19. This is a beta release.
 
 Import the stylesheet once, wherever your app already loads global CSS:
 
 ```js
-import 'patro/style.css';
+import 'patrojs/style.css';
 ```
 
 ## Usage
@@ -25,7 +25,7 @@ import 'patro/style.css';
 ### Calendar
 
 ```tsx
-import { Calendar } from 'patro';
+import { Calendar } from 'patrojs';
 
 function App() {
   return <Calendar calendar='BS' onChange={(value) => console.log(value?.ad, value?.bs)} />;
@@ -35,7 +35,7 @@ function App() {
 ### Datepicker
 
 ```tsx
-import { Datepicker } from 'patro';
+import { Datepicker } from 'patrojs';
 
 function App() {
   return <Datepicker label='Date' onChange={(value) => console.log(value?.ad)} />;
@@ -196,7 +196,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 The AD ↔ BS conversion functions used internally are also exported directly, if you just need date math without the UI:
 
 ```ts
-import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patro';
+import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patrojs';
 
 ad2Bs('2022-10-24'); // '2079-07-07'
 ad2Bs(new Date(2022, 9, 24)); // '2079-07-07' (read in local time)
@@ -206,7 +206,7 @@ bs2Ad('२०७९-०७-०७'); // '2022-10-24'
 isValidBsDate('2080-01-32'); // false
 ```
 
-They're also available from `patro/utils`, which, unlike the main entry, isn't marked `'use client'`, so React Server Components and other server code can call them.
+They're also available from `patrojs/utils`, which, unlike the main entry, isn't marked `'use client'`, so React Server Components and other server code can call them.
 
 Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad` throw a `RangeError` for a malformed, impossible (e.g. `'2026-02-30'`) or unsupported date, and a `TypeError` for a non-string; `isValidAdDate`/`isValidBsDate` return a boolean instead, e.g. for form validation.
 

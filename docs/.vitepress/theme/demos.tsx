@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Calendar, Datepicker, type PatroDate, type PatroDateRange } from 'patro';
+import { Calendar, Datepicker, type PatroDate, type PatroDateRange } from 'patrojs';
 
 type Theme = { theme: 'light' | 'dark' };
 type Mode = 'single' | 'range';

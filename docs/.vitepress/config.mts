@@ -16,7 +16,7 @@ export default defineConfig({
     esbuild: { jsx: 'automatic' },
     // patro is linked from the parent repo, which has its own React; use one copy.
     resolve: { dedupe: ['react', 'react-dom'] },
-    optimizeDeps: { include: ['react', 'react-dom/client', 'patro'] },
+    optimizeDeps: { include: ['react', 'react-dom/client', 'patrojs'] },
   },
 
   themeConfig: {

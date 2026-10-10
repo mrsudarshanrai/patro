@@ -6,7 +6,7 @@ Pass `defaultValue` (or nothing: no selection) and the component keeps track of 
 
 ```tsx
 import { useState } from 'react';
-import { Datepicker } from 'patro';
+import { Datepicker } from 'patrojs';
 
 const [value, setValue] = useState<Date | null>(null);
 
