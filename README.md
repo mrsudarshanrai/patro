@@ -6,6 +6,8 @@
 
 A React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS) dates. Show either calendar with the other one's date on every day, pick single dates or ranges, and convert between AD and BS with the built-in utilities.
 
+**[Documentation](https://patro.sudarshanrai.com.np)** · **[Storybook](https://patro.sudarshanrai.com.np/storybook/)** · **[npm](https://www.npmjs.com/package/patrojs)**
+
 ## Install
 
 ```bash
@@ -212,11 +214,23 @@ Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad`
 
 Supported range: AD `1921-04-13` through `2043-04-14` (BS `1978-01-01` through `2099-12-31`).
 
-## Development
+## Contributing
+
+Bug reports, ideas and pull requests are welcome. For anything bigger than a small fix, please [open an issue](https://github.com/mrsudarshanrai/patro/issues) first so we can agree on the approach.
 
 ```bash
 npm ci
-npm run storybook   # visually exercise Calendar/Datepicker
+npm run storybook   # try your change on Calendar/Datepicker at localhost:6006
+npm run lint
+npm run typecheck
 npm test
 npm run build
 ```
+
+Library source, tests and stories live in `package/`; the docs site is in `docs/`. Commits run ESLint and Prettier on staged files, and CI runs the full checks on every pull request.
+
+Changes to the BS date table (`package/constants/dateConstants.ts`) need a source for the new dates, added as a test in `package/test/dateTable.test.ts`.
+
+## License
+
+[MIT](LICENSE) © Sudarshan Rai
