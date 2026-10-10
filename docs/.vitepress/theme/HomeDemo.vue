@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { useData, withBase } from 'vitepress';
 import ReactIsland from './ReactIsland.vue';
-
-const storybookUrl: string = useData().theme.value.storybookUrl ?? '';
 </script>
 
 <template>
@@ -17,10 +14,7 @@ const storybookUrl: string = useData().theme.value.storybookUrl ?? '';
       <ReactIsland demo="Playground" />
     </div>
     <p class="home-more">
-      <a v-if="storybookUrl" :href="storybookUrl" target="_blank" rel="noreferrer">
-        Every prop, live, in Storybook →
-      </a>
-      <a v-else :href="withBase('/storybook')">Every prop, live, in Storybook (coming soon) →</a>
+      <a href="/storybook/" target="_blank">Every prop, live, in Storybook →</a>
     </p>
   </section>
 </template>

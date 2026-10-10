@@ -1,9 +1,5 @@
 import { defineConfig } from 'vitepress';
 
-// Where Storybook is hosted, e.g. 'https://patro-storybook.example.com'. Empty until it's deployed:
-// "more examples" links then go to the /storybook page, which says it's coming soon.
-const storybookUrl = '';
-
 export default defineConfig({
   title: 'patro',
   description: 'React calendar and datepicker for Gregorian (AD) and Bikram Sambat (BS) dates',
@@ -21,13 +17,12 @@ export default defineConfig({
 
   themeConfig: {
     logo: '/patro-logo.svg',
-    // @ts-expect-error: a custom key, read by the home page demo.
-    storybookUrl,
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Reference', link: '/reference/props' },
-      { text: 'Storybook', link: '/storybook' },
-      { text: 'npm', link: 'https://www.npmjs.com/package/patro' },
+      // Storybook is a separate app built into /storybook/; _self makes it a full page load.
+      { text: 'Storybook', link: '/storybook/', target: '_self' },
+      { text: 'npm', link: 'https://www.npmjs.com/package/patrojs' },
     ],
 
     sidebar: [
