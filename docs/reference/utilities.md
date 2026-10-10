@@ -3,7 +3,7 @@
 The conversion functions the components use internally are also exported, if you just need date math without any UI:
 
 ```ts
-import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patro';
+import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patrojs';
 
 ad2Bs('2022-10-24'); // '2079-07-07'
 ad2Bs(new Date(2022, 9, 24)); // '2079-07-07' (read in local time)
@@ -23,10 +23,10 @@ isValidBsDate('2080-01-32'); // false
 
 ## On the server
 
-The main `patro` entry is marked `'use client'` for its components. In React Server Components or other server code, import the same functions from `patro/utils`, which isn't:
+The main `patrojs` entry is marked `'use client'` for its components. In React Server Components or other server code, import the same functions from `patrojs/utils`, which isn't:
 
 ```ts
-import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patro/utils';
+import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patrojs/utils';
 ```
 
 ## Supported range

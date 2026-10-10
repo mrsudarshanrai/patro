@@ -24,7 +24,7 @@ In range mode, `value`/`defaultValue` are `{ start: Date | null; end: Date | nul
 
 ```tsx
 import { useState } from 'react';
-import type { DateRange } from 'patro';
+import type { DateRange } from 'patrojs';
 
 const [range, setRange] = useState<DateRange>({ start: null, end: null });
 

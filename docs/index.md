@@ -49,7 +49,7 @@ features:
 ### <span class="step">1</span>Install
 
 ```bash
-npm i patro@beta
+npm i patrojs@beta
 ```
 
 </div>
@@ -58,7 +58,7 @@ npm i patro@beta
 ### <span class="step">2</span>Add the styles
 
 ```js
-import 'patro/style.css';
+import 'patrojs/style.css';
 ```
 
 </div>
@@ -67,7 +67,7 @@ import 'patro/style.css';
 ### <span class="step">3</span>Pick a date
 
 ```tsx
-import { Datepicker } from 'patro';
+import { Datepicker } from 'patrojs';
 
 <Datepicker calendar='BS' />
 ```
