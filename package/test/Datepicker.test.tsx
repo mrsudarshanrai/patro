@@ -111,6 +111,20 @@ test('Escape inside the calendar closes the popover and returns focus to the inp
   expect(input).toHaveFocus();
 });
 
+test('Escape in the open popover is claimed before a surrounding dialog sees it', async () => {
+  const { user, input } = setup();
+  const seen: boolean[] = [];
+  const record = (event: KeyboardEvent) => seen.push(event.defaultPrevented);
+  document.addEventListener('keydown', record, true);
+  await user.click(input);
+  screen.getByRole('grid').focus();
+  await user.keyboard('{Escape}');
+  await user.keyboard('{Escape}');
+  document.removeEventListener('keydown', record, true);
+
+  expect(seen).toEqual([true, false]);
+});
+
 describe('empty state (defaultValue={null})', () => {
   test('shows the placeholder, then the picked date', async () => {
     const { user, input, container } = setup({ defaultValue: null });

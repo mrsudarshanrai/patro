@@ -37,6 +37,22 @@ test('AD calendar shows the defaultValue month with selected, today and offset c
   expect(cell(container, '2026-11-01')).toHaveClass('_patro_dates_next_month_date_offset');
 });
 
+test('today is announced with aria-current, other days are not', () => {
+  const { container } = render(<Calendar defaultValue={null} />);
+  const current = container.querySelectorAll('[aria-current="date"]');
+  expect(current).toHaveLength(1);
+  expect(current[0]).toHaveClass('_patro_dates_today');
+});
+
+test('lang follows the calendar language unless locale is set', () => {
+  const { container, rerender } = render(<Calendar calendar='BS' />);
+  expect(container.firstChild).toHaveAttribute('lang', 'ne');
+  rerender(<Calendar calendar='AD' />);
+  expect(container.firstChild).toHaveAttribute('lang', 'en');
+  rerender(<Calendar calendar='BS' locale='en' />);
+  expect(container.firstChild).toHaveAttribute('lang', 'en');
+});
+
 test('AD header subtitle names the two BS months the AD month spans', () => {
   const subtitle = (date: Date) =>
     render(<Calendar defaultValue={date} />).container.querySelector('._patro_header_subtitle')
@@ -890,6 +906,44 @@ describe('month and year quick navigation', () => {
     await user.click(titleButton());
     await user.keyboard('{Escape}');
     expect(title(container)).toBe('October 2026');
+  });
+
+  test('focus follows a keyboard pick: year to the month grid, month to the day grid', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await user.click(titleButton());
+    await user.click(titleButton());
+    const year = screen.getByRole('button', { name: '2024' });
+    year.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('button', { name: 'January' })).toHaveFocus();
+
+    await user.keyboard('{ArrowRight}{Enter}');
+    expect(title(container)).toBe('February 2024');
+    expect(screen.getByRole('grid')).toHaveFocus();
+  });
+
+  test('Escape from the picker returns focus to the day grid', async () => {
+    const user = userEvent.setup();
+    render(<Calendar defaultValue={TODAY} />);
+    await user.click(titleButton());
+    screen.getByRole('button', { name: 'October' }).focus();
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('grid')).toHaveFocus();
+  });
+
+  test('Escape in the picker is claimed, in the days view it is not', async () => {
+    const user = userEvent.setup();
+    render(<Calendar defaultValue={TODAY} />);
+    const seen: boolean[] = [];
+    const record = (event: KeyboardEvent) => seen.push(event.defaultPrevented);
+    document.addEventListener('keydown', record, true);
+    await user.click(titleButton());
+    await user.keyboard('{Escape}');
+    await user.keyboard('{Escape}');
+    document.removeEventListener('keydown', record, true);
+
+    expect(seen).toEqual([true, false]);
   });
 
   test('Today button jumps to and selects today', async () => {
