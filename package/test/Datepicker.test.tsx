@@ -3,6 +3,7 @@ import '@testing-library/jest-dom';
 import { createRef } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Calendar } from '../Calendar';
 import { Datepicker } from '../Datepicker';
 import type { DatepickerBaseProps } from '../Datepicker/DatepickerType';
 import type { PatroDate, SingleSelection } from '../types/public';
@@ -576,5 +577,36 @@ describe('editable', () => {
     await user.click(screen.getByRole('button', { name: 'Choose a date' }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(container.querySelector('input[name="dob"]')).toHaveValue('2026-10-29');
+  });
+});
+
+describe('pass-through props', () => {
+  test('data-*, inputClassName and aria-labelledby reach the field', () => {
+    render(
+      <>
+        <span id='external'>Check-in</span>
+        <Datepicker data-testid='dob' inputClassName='form-input' aria-labelledby='external' />
+      </>,
+    );
+    const field = screen.getByTestId('dob');
+    expect(field).toHaveAttribute('role', 'combobox');
+    expect(field).toHaveClass('_patro_datepicker_input', 'form-input');
+    expect(screen.getByRole('combobox', { name: 'Check-in' })).toBe(field);
+  });
+
+  test('editable: data-* and inputMode go on the text input, the class on its box', () => {
+    render(
+      <Datepicker editable data-testid='dob' inputClassName='form-input' inputMode='numeric' />,
+    );
+    const input = screen.getByTestId('dob');
+    expect(input.tagName).toBe('INPUT');
+    expect(input).toHaveAttribute('inputmode', 'numeric');
+    expect(input.parentElement).toHaveClass('form-input');
+  });
+
+  test('Calendar puts data-* on its root', () => {
+    const { container } = render(<Calendar data-testid='cal' data-section='booking' />);
+    expect(container.firstElementChild).toHaveAttribute('data-testid', 'cal');
+    expect(container.firstElementChild).toHaveAttribute('data-section', 'booking');
   });
 });

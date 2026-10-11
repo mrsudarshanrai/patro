@@ -182,3 +182,10 @@ describe('typed dates', () => {
     expect(formatInputDate('2026-10-29', 'BS', { numerals: 'latin' })).toBe('2083-07-12');
   });
 });
+
+test('isValidAdDate accepts a Date like ad2Bs does', () => {
+  expect(isValidAdDate(new Date(2026, 9, 15))).toBe(true);
+  expect(isValidAdDate(new Date(1900, 0, 1))).toBe(false);
+  expect(isValidAdDate(new Date(NaN))).toBe(false);
+  expect(() => ad2Bs(new Date(NaN))).toThrow('Invalid Date.');
+});
