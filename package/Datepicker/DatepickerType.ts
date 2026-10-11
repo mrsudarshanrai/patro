@@ -1,5 +1,6 @@
-import type { ChangeEvent, FocusEvent, KeyboardEvent, ReactNode } from 'react';
+import type { ChangeEvent, FocusEvent, HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
 import type { DisplayOptions } from '../utils';
+import type { DataAttributes } from '../shared/dataAttributes';
 import type { CalendarBaseProps } from '../Calendar/CalendarType';
 import type {
   CalendarSystem,
@@ -42,7 +43,13 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   id?: string;
   autoFocus?: boolean;
   'aria-label'?: string;
+  /** Labels the field with other elements, e.g. a `<legend>` or a table header, instead of `label`. */
+  'aria-labelledby'?: string;
   'aria-describedby'?: string;
+  /** Extra class names for the field, e.g. a form library's input class. */
+  inputClassName?: string;
+  /** Mobile keyboard for the `editable` text input, e.g. 'numeric'. */
+  inputMode?: HTMLAttributes<HTMLInputElement>['inputMode'];
   onFocus?: (event: FocusEvent<HTMLElement>) => void;
   onBlur?: (event: FocusEvent<HTMLElement>) => void;
   /** Popover position relative to the input. Defaults to 'bottom-start'. */
@@ -86,6 +93,7 @@ export interface ComboboxAriaOptions {
   label: string | undefined;
   labelId: string;
   ariaLabel: string | undefined;
+  ariaLabelledBy: string | undefined;
   ariaDescribedBy: string | undefined;
   fallbackLabel: string;
 }
@@ -145,6 +153,8 @@ export interface ComboboxFieldProps extends PopoverControls {
   fieldRef: (node: HTMLDivElement | null) => void;
   id: string;
   aria: ComboboxAriaProps;
+  attributes: DataAttributes;
+  className: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   invalid: boolean;
@@ -159,6 +169,9 @@ export interface EditableFieldProps extends PopoverControls {
   inputRef: (node: HTMLElement | null) => void;
   id: string;
   aria: ComboboxAriaProps;
+  attributes: DataAttributes;
+  className: string | undefined;
+  inputMode: DatepickerBaseProps['inputMode'];
   popoverId: string;
   toggleLabel: string;
   text: string;

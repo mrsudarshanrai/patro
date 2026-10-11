@@ -7,6 +7,8 @@ const ComboboxField = ({
   fieldRef,
   id,
   aria,
+  attributes,
+  className,
   disabled,
   readOnly,
   invalid,
@@ -38,11 +40,13 @@ const ComboboxField = ({
         '_patro_datepicker_input',
         invalid && '_patro_datepicker_input_invalid',
         clearable && '_patro_datepicker_input_clearable',
+        className,
       ]
         .filter(Boolean)
         .join(' ')}
       role='combobox'
       tabIndex={disabled ? -1 : 0}
+      {...attributes}
       {...aria}
       aria-disabled={disabled || undefined}
       aria-readonly={readOnly || undefined}

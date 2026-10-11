@@ -1,6 +1,7 @@
 import { ReactElement, useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useClaimEscape } from '../hooks/useClaimEscape';
 import { useToday } from '../hooks/useToday';
+import { splitDataAttributes } from '../shared/dataAttributes';
 import {
   datePartsIn,
   DisplayOptions,
@@ -209,6 +210,7 @@ const CalendarComponent = (props: CalendarProps) => {
   return (
     <div
       ref={rootRef}
+      {...splitDataAttributes(props).data}
       className={['_patro_container _patro', multi && '_patro_container_multi', className]
         .filter(Boolean)
         .join(' ')}

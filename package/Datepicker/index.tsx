@@ -19,6 +19,7 @@ import { EditableField } from './components/EditableField';
 import { FieldValue } from './components/FieldValue';
 import { NativeInputs } from './components/NativeInputs';
 import { Popover } from './components/Popover';
+import { splitDataAttributes } from '../shared/dataAttributes';
 
 const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -50,7 +51,10 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       id,
       autoFocus = false,
       'aria-label': ariaLabel,
+      'aria-labelledby': ariaLabelledBy,
       'aria-describedby': ariaDescribedBy,
+      inputClassName,
+      inputMode,
       onFocus,
       onBlur,
       placement = 'bottom-start',
@@ -58,8 +62,9 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       portalContainer,
       className,
       style,
-      ...calendarProps
+      ...rest
     } = props;
+    const { data: dataAttributes, rest: calendarProps } = splitDataAttributes(rest);
     const text = labelsFor(calendar, { locale, numerals }, props.labels);
     const generatedId = useId();
     const inputId = id ?? generatedId;
@@ -135,6 +140,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       label,
       labelId,
       ariaLabel,
+      ariaLabelledBy,
       ariaDescribedBy,
       fallbackLabel: text.chooseDate,
     };
@@ -183,6 +189,9 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
               inputRef={setFieldNode}
               id={inputId}
               aria={comboboxAria({ ...aria, invalid: invalid || typed.typedInvalid })}
+              attributes={dataAttributes}
+              className={inputClassName}
+              inputMode={inputMode}
               popoverId={popoverId}
               toggleLabel={text.chooseDate}
               text={
@@ -209,6 +218,8 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
               fieldRef={setFieldAndAnchor}
               id={inputId}
               aria={comboboxAria({ ...aria, invalid })}
+              attributes={dataAttributes}
+              className={inputClassName}
               disabled={disabled}
               readOnly={readOnly}
               invalid={invalid}
