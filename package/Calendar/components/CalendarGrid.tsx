@@ -84,7 +84,7 @@ const CalendarGrid = (props: CalendarGridProps) => {
               const { adDate, day, secondaryDay } = date;
               if (hideOutsideDays && date.offset) {
                 return (
-                  <p
+                  <div
                     key={i + index}
                     role='gridcell'
                     className='_patro_dates_date _patro_dates_hidden'
@@ -97,7 +97,7 @@ const CalendarGrid = (props: CalendarGridProps) => {
               const extraLabel = patroDate && dayLabel?.(patroDate);
               const content = patroDate && dayContent?.(patroDate);
               return (
-                <p
+                <div
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
                   aria-selected={inRange ? inRange.ariaSelected : date.isSelected}
@@ -125,7 +125,7 @@ const CalendarGrid = (props: CalendarGridProps) => {
                   {content != null && content !== false && (
                     <span className='_patro_dates_content'>{content}</span>
                   )}
-                </p>
+                </div>
               );
             })}
           </div>

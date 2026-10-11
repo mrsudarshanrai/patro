@@ -17,7 +17,7 @@ const CalendarHeader = (props: CalendarHeaderProps) => {
     showNext = true,
   } = props;
   return (
-    <header className='_patro_header'>
+    <div className='_patro_header'>
       {showPrev ? (
         <button
           type='button'
@@ -43,9 +43,9 @@ const CalendarHeader = (props: CalendarHeaderProps) => {
             {title}
           </button>
         ) : (
-          <p className='_patro_header_title'>{title}</p>
+          <div className='_patro_header_title'>{title}</div>
         )}
-        <p className='_patro_header_subtitle'>{subtitle}</p>
+        <div className='_patro_header_subtitle'>{subtitle}</div>
       </div>
       {showNext ? (
         <button
@@ -60,7 +60,7 @@ const CalendarHeader = (props: CalendarHeaderProps) => {
       ) : (
         <span className='_patro_header_spacer' />
       )}
-    </header>
+    </div>
   );
 };
 
