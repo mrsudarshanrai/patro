@@ -4,6 +4,7 @@ import {
   computePosition,
   detectOverflow,
   flip,
+  getOverflowAncestors,
   hide,
   offset,
   shift,
@@ -20,9 +21,18 @@ const SCREEN_PADDING = 8;
 const keepTopOnScreen: Middleware = {
   name: 'keepTopOnScreen',
   fn: async (state) => {
-    const { top } = await detectOverflow(state, { padding: SCREEN_PADDING });
+    const { top } = await detectOverflow(state, {
+      padding: SCREEN_PADDING,
+      boundary: document.documentElement,
+    });
     return top > 0 ? { y: state.y + top } : {};
   },
+};
+
+// A popover positioned inside the field's scroll container scrolls and clips with it, so it never floats detached.
+const scrollsWithField = (anchor: Element, popover: HTMLElement) => {
+  const container = getOverflowAncestors(anchor).find((node) => node instanceof Element);
+  return !!container && !!popover.offsetParent && container.contains(popover.offsetParent);
 };
 
 const usePopover = ({
@@ -88,7 +98,9 @@ const usePopover = ({
         ],
       }).then(({ x, y, middlewareData }) => {
         Object.assign(popover.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
-        popover.toggleAttribute('data-detached', !!middlewareData.hide?.referenceHidden);
+        const detached =
+          !!middlewareData.hide?.referenceHidden && !scrollsWithField(anchor, popover);
+        popover.toggleAttribute('data-detached', detached);
       });
     });
   }, [isOpen, anchor, popover, placement, portal]);

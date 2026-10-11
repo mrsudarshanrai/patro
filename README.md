@@ -239,6 +239,7 @@ npm run storybook   # try your change on Calendar/Datepicker at localhost:6006
 npm run lint
 npm run typecheck
 npm test
+npm run test:e2e    # real-browser tests (npx playwright install chromium firefox, once)
 npm run build
 ```
 
