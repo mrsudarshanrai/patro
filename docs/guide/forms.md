@@ -118,7 +118,7 @@ A native form reset (a `type='reset'` button or `form.reset()`) puts the Datepic
 
 ## Inside dialogs
 
-Escape closes only the popover, so a surrounding dialog stays open. A modal dialog keeps focus and clicks inside itself, so a popover portalled to `document.body` can't be used there. Leave `portal` off, or, if the dialog clips the popover, portal it into the dialog itself:
+Escape closes only the popover, so a surrounding dialog stays open. A modal dialog keeps focus and clicks inside itself, so a popover portalled to `document.body` can't be used there. Leave `portal` off, or, if a scrolling area inside the dialog cuts the popover off, portal it into the dialog's content element:
 
 ```tsx
 const [content, setContent] = useState<HTMLDivElement | null>(null);
