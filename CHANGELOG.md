@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0-beta.3 (unreleased)
+
+### Added
+
+- Every date prop accepts an AD `'YYYY-MM-DD'` string as well as a `Date`: `value`, `defaultValue`, `minDate`, `maxDate`, `defaultMonth`, `month`, `today` and `presets`, including range ends. Strings are safe to pass from Server Components, where a `Date` arrives a day early for visitors west of the server. New types: `DateInput`, `DateRangeInput`.
+- `portalContainer` on `Datepicker`: render the popover into a given element, e.g. a modal dialog's content.
+- `Datepicker` passes `data-*` attributes, `aria-labelledby`, `inputClassName` and `inputMode` to its field; `Calendar` puts `data-*` attributes on its root.
+- A native form reset puts the `Datepicker` back to its `defaultValue` and calls `onChange`.
+- Arrow keys past the edge, and PageUp/PageDown, page through the year grid (12 years) and the month grid (a year).
+- `isValidAdDate` accepts a `Date`, like `ad2Bs`.
+
+### Fixed
+
+- An invalid `Date` or date string counts as no date, with a console warning in development, instead of opening the calendar on its last supported month. A value outside the supported range warns too.
+- `ad2Bs(new Date(NaN))` throws `Invalid Date.` instead of reporting `"NaN-aN-aN"`.
+
 ## 1.0.0-beta.2 (unreleased)
 
 ### Fixed
