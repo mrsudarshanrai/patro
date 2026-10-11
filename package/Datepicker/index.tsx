@@ -10,6 +10,7 @@ import type {
 } from './DatepickerType';
 import { useDatepickerValue } from './hooks/useDatepickerValue';
 import { useFieldRef } from './hooks/useFieldRef';
+import { useFormReset } from './hooks/useFormReset';
 import { usePopover } from './hooks/usePopover';
 import { useTypedDate } from './hooks/useTypedDate';
 import { comboboxAria, formFields } from './utils';
@@ -75,8 +76,16 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
     const portalled = portal || portalContainer !== undefined;
     const isRange = mode === 'range';
     const isEditable = editable && !isRange;
-    const { selectedRange, selectedDate, shownAdDate, shownRange, hasValue, commit, commitRange } =
-      useDatepickerValue({ isRange, value, defaultValue, onChange });
+    const {
+      selectedRange,
+      selectedDate,
+      shownAdDate,
+      shownRange,
+      hasValue,
+      commit,
+      commitRange,
+      resetToDefault,
+    } = useDatepickerValue({ isRange, value, defaultValue, onChange });
 
     const { isOpen, setOpen, setAnchor, setPopover, rootRef, onFocusLeave } = usePopover({
       open,
@@ -87,6 +96,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       placement,
       portal: portalled,
     });
+    useFormReset(rootRef, resetToDefault);
     const [focusGrid, setFocusGrid] = useState(false);
     const popoverControls = {
       isOpen,

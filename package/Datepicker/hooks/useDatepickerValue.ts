@@ -1,4 +1,4 @@
-import { EMPTY_RANGE, supportedAdDate, supportedAdRange } from '../../utils';
+import { EMPTY_RANGE, supportedAdDate, supportedAdRange, toPatroDate } from '../../utils';
 import { useControllableValue } from '../../hooks/useControllableValue';
 import type {
   DateInput,
@@ -37,7 +37,26 @@ const useDatepickerValue = ({
 
   const hasValue = shownRange ? !!shownRange.start : !!shownAdDate;
 
-  return { selectedRange, selectedDate, shownAdDate, shownRange, hasValue, commit, commitRange };
+  const resetToDefault = () => {
+    if (isRange) {
+      const { start, end } = supportedAdRange((defaultValue as DateRangeInput) ?? EMPTY_RANGE);
+      commitRange({ start: start && toPatroDate(start), end: end && toPatroDate(end) });
+    } else {
+      const adDate = supportedAdDate(defaultValue as DateInput | null | undefined);
+      commit(adDate && toPatroDate(adDate));
+    }
+  };
+
+  return {
+    selectedRange,
+    selectedDate,
+    shownAdDate,
+    shownRange,
+    hasValue,
+    commit,
+    commitRange,
+    resetToDefault,
+  };
 };
 
 export { useDatepickerValue };
