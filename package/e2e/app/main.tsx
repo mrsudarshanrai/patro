@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { Dialog as HeadlessDialog, DialogPanel } from '@headlessui/react';
 import { Calendar, Datepicker, type DatepickerSingleProps } from '../../index';
@@ -12,32 +12,42 @@ const Picker = (props: DatepickerSingleProps) => (
   <Datepicker label='Date' defaultOpen today={today} {...props} />
 );
 
+// ?container portals the popover into the dialog itself.
+const DialogPicker = ({ container }: { container: Element | null }) => (
+  <Picker {...(params.has('container') && { portalContainer: container })} />
+);
+
 const NativeDialog = () => {
-  useEffect(() => (document.getElementById('dialog') as HTMLDialogElement).showModal(), []);
+  const [dialog, setDialog] = useState<HTMLDialogElement | null>(null);
+  useEffect(() => dialog?.showModal(), [dialog]);
   return (
-    <dialog id='dialog'>
-      <Picker />
+    <dialog id='dialog' ref={setDialog}>
+      <DialogPicker container={dialog} />
     </dialog>
   );
 };
 
-const RadixHost = () => (
-  <RadixDialog.Root defaultOpen>
-    <RadixDialog.Portal>
-      <RadixDialog.Content id='dialog' aria-describedby={undefined}>
-        <RadixDialog.Title>Booking</RadixDialog.Title>
-        <Picker />
-      </RadixDialog.Content>
-    </RadixDialog.Portal>
-  </RadixDialog.Root>
-);
+const RadixHost = () => {
+  const [content, setContent] = useState<HTMLDivElement | null>(null);
+  return (
+    <RadixDialog.Root defaultOpen>
+      <RadixDialog.Portal>
+        <RadixDialog.Content id='dialog' ref={setContent} aria-describedby={undefined}>
+          <RadixDialog.Title>Booking</RadixDialog.Title>
+          <DialogPicker container={content} />
+        </RadixDialog.Content>
+      </RadixDialog.Portal>
+    </RadixDialog.Root>
+  );
+};
 
 const HeadlessHost = () => {
   const [open, setOpen] = useState(true);
+  const [panel, setPanel] = useState<HTMLElement | null>(null);
   return (
     <HeadlessDialog open={open} onClose={() => setOpen(false)}>
-      <DialogPanel id='dialog'>
-        <Picker />
+      <DialogPanel id='dialog' ref={setPanel}>
+        <DialogPicker container={panel} />
       </DialogPanel>
     </HeadlessDialog>
   );
@@ -144,5 +154,14 @@ const scenarios: Record<string, () => ReactElement> = {
   ),
 };
 
-const Scenario = scenarios[params.get('s') ?? ''] ?? (() => <p>Unknown scenario</p>);
-createRoot(document.getElementById('root') as HTMLElement).render(<Scenario />);
+const root = document.getElementById('root') as HTMLElement;
+if (params.get('s') === 'hydrate') {
+  const { html, props } = window.serverRender;
+  root.innerHTML = html;
+  hydrateRoot(root, <Datepicker {...props} />, {
+    onRecoverableError: (error) => window.hydrationErrors.push(String(error)),
+  });
+} else {
+  const Scenario = scenarios[params.get('s') ?? ''] ?? (() => <p>Unknown scenario</p>);
+  createRoot(root).render(<Scenario />);
+}
