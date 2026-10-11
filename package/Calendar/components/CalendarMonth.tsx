@@ -35,7 +35,7 @@ const CalendarMonth = ({
       nextLabel={header.nextLabel}
     />
     {isFirst && view !== 'days' ? (
-      <CalendarPicker items={pickerItems} label={header.title} onPick={onPick} />
+      <CalendarPicker key={header.title} items={pickerItems} label={header.title} onPick={onPick} />
     ) : (
       <div
         {...grid}
