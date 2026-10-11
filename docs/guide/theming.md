@@ -17,7 +17,7 @@ Dark is an explicit opt-in, not automatic (it does **not** follow `prefers-color
 
 ## Overriding individual tokens
 
-Any token can be overridden per instance via `style`, or globally via your own CSS targeting `._patro`.
+Any token can be overridden per instance via `style`, or globally via your own CSS targeting `._patro`. Set tokens on `._patro` itself: the component defines every token there, so a value set on `:root` or another ancestor never reaches it.
 
 ```tsx
 <Calendar style={{ '--patro-accent': 'teal' } as React.CSSProperties} />

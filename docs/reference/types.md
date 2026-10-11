@@ -1,6 +1,6 @@
 # Types
 
-All exported from `patro`:
+All exported from `patrojs`:
 
 ```ts
 import type {

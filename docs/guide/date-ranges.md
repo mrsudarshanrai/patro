@@ -50,13 +50,15 @@ All optional:
 Picking an end that breaks a rule starts a new range at that day instead, and the hover preview only appears for valid ends.
 
 ```tsx
+const booked = new Set(['2026-11-03', '2026-11-04']);
+
 <Datepicker
   mode='range'
   minDays={3}
   maxDays={15}
   isDateDisabled={({ ad }) => booked.has(ad)}
   excludeDisabled
-/>
+/>;
 ```
 
 ## Two months side by side
@@ -69,7 +71,7 @@ Picking an end that breaks a rule starts a new range at that day instead, and th
 
 ## Presets
 
-`presets` adds quick-pick buttons under the grid. In range mode each value is a `DateRange`, or a function returning one, read when clicked:
+`presets` adds quick-pick buttons under the grid. In range mode each value is a `DateRange`, or a function returning one, read when the button renders and when it's clicked:
 
 ```tsx
 const addDays = (date: Date, days: number) =>

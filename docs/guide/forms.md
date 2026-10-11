@@ -65,7 +65,49 @@ const [submitted, setSubmitted] = useState(false);
 | `readOnly` | Focusable, shows its value, but can't be changed |
 | `id`, `aria-label`, `aria-describedby` | Passed straight to the input for label/description wiring |
 | `onFocus` / `onBlur` | For "touched" tracking with form libraries |
-| `ref` | Forwarded to the focusable field (the text input when `editable`), for `react-hook-form`-style registration or manual focus management |
+| `ref` | Forwarded to the focusable field (the text input when `editable`), e.g. for a form library's focus-on-error |
+
+## Form libraries
+
+`onChange` receives a `PatroDate`, not a DOM event, so a form library's `register()` spread doesn't work. Connect it as a controlled field instead.
+
+**react-hook-form**, with `Controller`:
+
+```tsx
+<Controller
+  name='dob'
+  control={control}
+  rules={{ required: true }}
+  render={({ field, fieldState }) => (
+    <Datepicker
+      ref={field.ref}
+      value={field.value}
+      onChange={(picked) => field.onChange(picked?.date ?? null)}
+      onBlur={field.onBlur}
+      invalid={!!fieldState.error}
+    />
+  )}
+/>
+```
+
+**Formik**: set the value and the touched state by name, since the blur event's target isn't a named input:
+
+```tsx
+<Datepicker
+  value={formik.values.dob}
+  onChange={(picked) => formik.setFieldValue('dob', picked?.date ?? null)}
+  onBlur={() => formik.setFieldTouched('dob')}
+  invalid={!!(formik.touched.dob && formik.errors.dob)}
+/>
+```
+
+## Storing dates
+
+`PatroDate.date` is local midnight of the picked day. `JSON.stringify` and `toISOString()` turn it into a UTC instant, which reads as the previous day for anyone east of UTC: in Nepal, 15 Oct becomes `2026-10-14T18:15:00.000Z`. To store or send a date, use the `ad` (or `bs`) string, the same `'YYYY-MM-DD'` value a native form submits.
+
+## Inside dialogs
+
+Escape closes only the popover, so a surrounding dialog stays open. Leave `portal` off inside a modal dialog: a modal keeps focus and clicks inside itself, so a popover rendered in `document.body` can't be used.
 
 ## Layout
 
