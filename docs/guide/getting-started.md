@@ -52,6 +52,21 @@ Both start with **nothing selected**, showing the current month. Pass `defaultVa
 
 (In range mode it's `{ start: PatroDate | null; end: PatroDate | null }` instead; see [Date ranges](./date-ranges).)
 
+## Testing
+
+Jest can't load CSS, so map the stylesheet import to an empty module:
+
+```js
+// jest.config.js
+moduleNameMapper: { '\\.css$': '<rootDir>/test/styleMock.js' }, // styleMock.js: module.exports = {};
+```
+
+Pass `today` to pin the date, so tests and screenshots don't change from day to day:
+
+```tsx
+<Calendar today={new Date(2026, 9, 29)} />
+```
+
 ## Next
 
 - [Controlled vs uncontrolled](./controlled-uncontrolled): how the value and the displayed month are managed

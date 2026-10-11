@@ -1,6 +1,24 @@
 # Changelog
 
-## 1.0.0-beta.1 (2026-10-02)
+## 1.0.0-beta.2 (unreleased)
+
+### Fixed
+
+- `patrojs/style.css` no longer resets `font-weight` on the whole page; it only applies inside the components.
+- Escape in the Datepicker popover, or in the month/year picker, no longer also closes a surrounding dialog (native `<dialog>`, Radix, Headless UI).
+- The popover stays reachable on small screens: two months stack instead of overflowing a phone, its top edge stays on screen, and it hides once its field scrolls out of view.
+- `--patro-input-width: 100%` now fills the form column; it used to make the field narrower.
+- Focus returns to the calendar after picking a month or a year, or pressing Escape in the picker.
+- Days a timezone skipped (Kiribati, 31 Dec 1994) no longer break month lengths or crash the calendar.
+- Host page styles for `header`, `p` and `svg` no longer reach the calendar header, day cells or icons, and the header is no longer announced as a page banner.
+- `patrojs/utils` types resolve under TypeScript's `node10` module resolution.
+
+### Changed
+
+- Today is announced with `aria-current="date"`, and the component roots carry a `lang` attribute for their language.
+- Apps that import only `Calendar` no longer bundle the Datepicker and Floating UI (about 10 kB gzipped smaller).
+
+## 1.0.0-beta.1 (2026-10-10)
 
 First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no announced API; this is a ground-up rewrite and not compatible with them.
 
@@ -27,7 +45,7 @@ First real release. `0.0.1`–`0.0.4-beta` were early test publishes with no ann
 - `Datepicker` form integration: `name`, `valueFormat`, `required`, `disabled`, `readOnly`, `invalid`, `clearable`, controlled `open`/`onOpenChange`, `placement`, `portal`, a forwarded `ref`.
 - `className`/`style` on both components, including `--patro-*` CSS custom property overrides.
 - Server rendering: `'use client'` for React Server Components, "today" read in the browser so hydration never mismatches, and a `today` prop to render it on the server.
-- `patro/utils`: the date conversions without `'use client'`, for server code. An `exports` map, with `patro/style.css` for the stylesheet.
+- `patrojs/utils`: the date conversions without `'use client'`, for server code. An `exports` map, with `patrojs/style.css` for the stylesheet.
 - `isValidAdDate`/`isValidBsDate`; `ad2Bs` takes a `Date`; both conversions accept Devanagari digits.
 - Exported types: `CalendarProps`, `DatepickerProps`, `PatroDate`, `DateRange`, `PatroDateRange`, `PatroLabels`, `Preset`, `CalendarSystem`, `Locale`, `Numerals`.
 

@@ -23,7 +23,7 @@
 | `defaultMonth` | `Date` | today's month | Month shown when nothing is selected, e.g. decades back for a date of birth. |
 | `month` | `Date` | - | Controlled displayed month. Navigation only calls `onMonthChange`: `onMonthChange={({ start }) => setMonth(start.date)}`. |
 | `showTodayButton` | `boolean` | `false` | Show a "Today" button that jumps to and selects today. |
-| `presets` | `{ label: string; value: Date \| DateRange \| (() => …) }[]` | - | Quick picks under the grid, e.g. `{ label: 'Next 7 days', value: () => ({ start: new Date(), end: addDays(new Date(), 6) }) }`. `Date` in single mode, `DateRange` in range mode; functions are read when clicked. Presets that break the bounds or range rules are disabled; the one matching the value is marked pressed. |
+| `presets` | `{ label: string; value: Date \| DateRange \| (() => …) }[]` | - | Quick picks under the grid, e.g. `{ label: 'Next 7 days', value: () => ({ start: new Date(), end: addDays(new Date(), 6) }) }`. `Date` in single mode, `DateRange` in range mode; functions are read when the button renders and when it's clicked. Presets that break the bounds or range rules are disabled; the one matching the value is marked pressed. |
 | `today` | `Date` | visitor's clock | The current date. See [Server rendering](../guide/server-rendering). |
 | `labels` | `Partial<PatroLabels>` | display language | Override accessible names and button text (`previousMonth`, `nextMonth`, `today`, `chooseDate`, `clear`, …). Defaults follow `locale`: English or Nepali. |
 | `autoFocus` | `boolean` | `false` | Focus the day grid on mount. On `Datepicker` it focuses the input instead. |
@@ -62,7 +62,7 @@ Picking an end that breaks one starts a new range there. See [Date ranges](../gu
 | `open` / `defaultOpen` | `boolean` | - / `false` | Controlled / initial popover state. |
 | `onOpenChange` | `(open: boolean) => void` | - | Called when the popover wants to open or close. |
 | `placement` | `'bottom-start' \| 'bottom-end' \| 'top-start' \| 'top-end' \| 'bottom' \| 'top'` | `'bottom-start'` | Popover position. |
-| `portal` | `boolean` | `false` | Render the popover in `document.body` (escapes `overflow: hidden`). Theme it with the `theme` prop; ancestor `data-theme` won't reach it. |
+| `portal` | `boolean` | `false` | Render the popover in `document.body` (escapes `overflow: hidden`). Leave it off inside modal dialogs, which block clicks and focus outside themselves. Theme it with the `theme` prop; ancestor `data-theme` won't reach it. |
 | `name` | `string` | - | Submits the date with native forms. |
 | `valueFormat` | `'ad' \| 'bs'` | `'ad'` | Submitted format, `'YYYY-MM-DD'`. |
 | `required` | `boolean` | `false` | Blocks native form submission while empty. |

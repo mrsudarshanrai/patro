@@ -1,6 +1,8 @@
 ._patro_datepicker {
   display: inline-flex;
   flex-direction: column;
+  width: var(--patro-input-width);
+  max-width: 100%;
   font-family: var(--patro-font);
 
   &_label {
@@ -160,11 +162,9 @@
     }
   }
 
-  // The field's width lives here, so the absolutely placed clear button always sits on the input.
   &_control {
     position: relative;
-    width: var(--patro-input-width);
-    max-width: 100%;
+    width: 100%;
   }
 
   &_clear {
@@ -216,6 +216,10 @@
 ._patro_datepicker_popper {
   z-index: 1000;
   width: max-content;
+
+  &[data-detached] {
+    visibility: hidden;
+  }
 }
 
 ._patro_datepicker[data-calendar-type='BS'] ._patro_datepicker_input_placeholder {

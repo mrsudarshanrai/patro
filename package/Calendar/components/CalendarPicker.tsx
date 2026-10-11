@@ -6,7 +6,7 @@ type Item = { value: number; label: string; disabled: boolean; current: boolean 
 type Props = {
   items: Item[];
   label: string;
-  onPick: (value: number) => void;
+  onPick: (value: number, fromKeyboard: boolean) => void;
 };
 
 const COLUMNS = 3;
@@ -59,7 +59,7 @@ const CalendarPicker = ({ items, label, onPick }: Props) => {
           tabIndex={index === tabStop ? 0 : -1}
           aria-current={item.current || undefined}
           disabled={item.disabled}
-          onClick={() => onPick(item.value)}
+          onClick={(event) => onPick(item.value, event.detail === 0)}
           onKeyDown={(event) => onKeyDown(event, index)}
           onFocus={() => setFocused(index)}
         >

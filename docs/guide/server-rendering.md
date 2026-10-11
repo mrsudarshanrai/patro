@@ -20,10 +20,13 @@ export default function Page() {
 ```tsx
 import { ad2Bs } from 'patrojs/utils';
 
-export default function Page() {
-  return <p>Today is {ad2Bs(new Date())} BS</p>;
+export default async function Page() {
+  const event = await getEvent();
+  return <p>Held on {ad2Bs(event.date)} BS</p>; // event.date: '2026-10-29'
 }
 ```
+
+Convert dates you already have, like stored ones. `ad2Bs(new Date())` on the server gives the server's today, which isn't the visitor's (see below).
 
 ## "Today" and hydration
 
@@ -35,10 +38,26 @@ So patro reads today **in the browser**:
 - Without one, the server renders the calendar's frame with the month left blank (`aria-busy`), and the browser fills it in on hydration: no mismatch, no layout shift.
 - A `portal` popover is only created in the browser, since there's no `document.body` on the server.
 
-To render the month on the server too, pass `today`, e.g. a date you computed on the server for the visitor's timezone:
+## Passing dates from a Server Component
+
+A `Date` crosses from a Server Component to the browser as a UTC instant, and the browser reads it back in its own timezone. For a visitor west of the server that's the previous day: the field shows and submits 14 Oct instead of 15 Oct, and hydration mismatches.
+
+So pass dates across as `'YYYY-MM-DD'` strings and build the `Date` in a Client Component:
 
 ```tsx
-<Calendar today={visitorToday} />
+'use client';
+import { Datepicker } from 'patrojs';
+
+const toLocalDate = (ad: string) => {
+  const [year, month, day] = ad.split('-').map(Number);
+  return new Date(year, month - 1, day);
+};
+
+export function DobField({ dob }: { dob: string | null }) {
+  return <Datepicker name='dob' defaultValue={dob ? toLocalDate(dob) : null} />;
+}
 ```
+
+The same goes for `value`, `minDate`, `maxDate`, `defaultMonth` and `today`. To render the month on the server too, pass `today` this way, e.g. the visitor's date worked out from a timezone cookie.
 
 `today` is also handy for pinning dates in tests and screenshots. After hydration, "today" keeps up with the clock, moving on at midnight.

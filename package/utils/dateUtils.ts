@@ -3,9 +3,10 @@ import type { DateRange } from '../types/public';
 
 const EMPTY_RANGE: DateRange = { start: null, end: null };
 
-const getDates = (month: number, year: number) => new Date(year, month, 0).getDate();
+const getDates = (month: number, year: number) => new Date(Date.UTC(year, month, 0)).getUTCDate();
 
-const getMonthFirstDay = (month: number, year: number) => new Date(year, month - 1, 1).getDay();
+const getMonthFirstDay = (month: number, year: number) =>
+  new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
 
 const switchYear = (year: number, month: number) => {
   if (month > 12) return { year: +year + 1, month: 1 };

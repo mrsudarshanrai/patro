@@ -232,7 +232,7 @@ export interface CalendarMonthProps {
   isLast: boolean;
   view: PickerView;
   pickerItems: PickerItem[];
-  onPick: (value: number) => void;
+  onPick: (value: number, fromKeyboard: boolean) => void;
   grid: ReturnType<ReturnType<typeof useGridFocus>['gridProps']>;
   weekdays: CalendarDaysProps;
   days: CalendarGridProps;

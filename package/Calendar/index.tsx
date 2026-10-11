@@ -1,4 +1,5 @@
-import { ReactElement, useId, useState } from 'react';
+import { ReactElement, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useClaimEscape } from '../hooks/useClaimEscape';
 import { useToday } from '../hooks/useToday';
 import {
   datePartsIn,
@@ -6,6 +7,7 @@ import {
   getMonthGrid,
   isSupportedAdDate,
   labelsFor,
+  languageOf,
   monthRange,
   monthTitle,
 } from '../utils';
@@ -110,6 +112,10 @@ const CalendarComponent = (props: CalendarProps) => {
     goToMonth,
   });
 
+  const rootRef = useRef<HTMLDivElement>(null);
+  const containsNode = useCallback((node: Node) => !!rootRef.current?.contains(node), []);
+  useClaimEscape(view !== 'days', containsNode);
+
   const monthCount = Math.max(1, Math.floor(numberOfMonths));
   const multi = monthCount > 1;
   const months = visibleMonths(
@@ -128,7 +134,7 @@ const CalendarComponent = (props: CalendarProps) => {
   const isValidEnd = (start: string, end: string) =>
     isValidRangeEnd(start, end, { minDays, maxDays, excludeDisabled, isDayDisabled });
 
-  const { activeAdDate, setFocusedAdDate, showFocusRing, gridProps } = useGridFocus({
+  const { activeAdDate, setFocusedAdDate, showFocusRing, gridProps, focusGrid } = useGridFocus({
     calendar,
     months,
     selectedAdDate,
@@ -141,6 +147,19 @@ const CalendarComponent = (props: CalendarProps) => {
     autoFocus,
     idPrefix,
     onSelect: (adDate) => onSelect(adDate),
+  });
+
+  const pendingFocus = useRef<{ fromKeyboard: boolean }>(null);
+  const changeViewKeepingFocus = (fromKeyboard: boolean, change: () => void) => {
+    pendingFocus.current = { fromKeyboard };
+    change();
+  };
+  useEffect(() => {
+    if (!pendingFocus.current) return;
+    const { fromKeyboard } = pendingFocus.current;
+    pendingFocus.current = null;
+    if (view === 'days') focusGrid(fromKeyboard);
+    else rootRef.current?.querySelector<HTMLElement>('._patro_picker [tabindex="0"]')?.focus();
   });
 
   const onSelect = (adDate: string) => {
@@ -189,10 +208,12 @@ const CalendarComponent = (props: CalendarProps) => {
 
   return (
     <div
+      ref={rootRef}
       className={['_patro_container _patro', multi && '_patro_container_multi', className]
         .filter(Boolean)
         .join(' ')}
       style={style}
+      lang={languageOf(calendar, display)}
       data-calendar-type={calendar}
       data-theme={theme}
       // Month unknown until the browser's today is (server render / hydration); CSS hides the placeholder.
@@ -200,7 +221,7 @@ const CalendarComponent = (props: CalendarProps) => {
       onKeyDown={(event) => {
         if (view === 'days' || event.key !== 'Escape') return;
         event.stopPropagation();
-        setView('days');
+        changeViewKeepingFocus(true, () => setView('days'));
       }}
     >
       <div className='_patro_months'>
@@ -221,7 +242,9 @@ const CalendarComponent = (props: CalendarProps) => {
               isLast={index === months.length - 1}
               view={view}
               pickerItems={pickerItems}
-              onPick={onPick}
+              onPick={(value, fromKeyboard) =>
+                changeViewKeepingFocus(fromKeyboard, () => onPick(value))
+              }
               grid={gridProps(index)}
               weekdays={{ calendar, display, weekStartsOn, weekendDays }}
               days={{

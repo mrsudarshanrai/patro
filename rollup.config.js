@@ -53,7 +53,7 @@ export default [
         declaration: false,
         emitDeclarationOnly: false,
       }),
-      terser(),
+      terser({ format: { preserve_annotations: true } }),
       clientDirective(),
     ],
   },

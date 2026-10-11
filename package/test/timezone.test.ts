@@ -14,6 +14,12 @@ describe(`in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`, () => {
     expect(ad2Bs('2026-10-29')).toBe('2083-07-12');
   });
 
+  test('month lengths ignore days a timezone skipped', () => {
+    expect(ad2Bs('1994-12-15')).toBe('2051-08-29');
+    expect(ad2Bs('1994-12-31')).toBe('2051-09-16');
+    expect(bs2Ad(ad2Bs('1994-12-31'))).toBe('1994-12-31');
+  });
+
   test('adDateToLocalDate keeps the same calendar day locally', () => {
     const date = adDateToLocalDate('2026-10-29');
     expect([date.getFullYear(), date.getMonth() + 1, date.getDate()]).toEqual([2026, 10, 29]);

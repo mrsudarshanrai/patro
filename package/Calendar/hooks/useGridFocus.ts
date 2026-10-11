@@ -107,7 +107,12 @@ const useGridFocus = ({
     },
   });
 
-  return { activeAdDate, setFocusedAdDate, showFocusRing, gridProps };
+  const focusGrid = (fromKeyboard: boolean) => {
+    pointerDown.current = !fromKeyboard;
+    gridRefs.current[activeMonth]?.focus({ preventScroll: true });
+  };
+
+  return { activeAdDate, setFocusedAdDate, showFocusRing, gridProps, focusGrid };
 };
 
 export { useGridFocus };

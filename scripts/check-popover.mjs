@@ -34,6 +34,11 @@ const s = new URLSearchParams(location.search).get('s');
 const picker = (props) =>
   h(Datepicker, { label: 'Date', defaultOpen: true, today: new Date(2026, 9, 29), ...props });
 
+const DialogHost = () => {
+  useEffect(() => document.getElementById('dialog').showModal(), []);
+  return h('dialog', { id: 'dialog' }, picker());
+};
+
 const App = () => {
   const [banner, setBanner] = useState(false);
   useEffect(() => { window.shiftLayout = () => setBanner(true); }, []);
@@ -63,6 +68,28 @@ const App = () => {
       return h('div', { style: { padding: 8 } }, picker({ defaultOpen: false }));
     case 'top-end':
       return h('div', { style: { padding: '420px 8px 8px 300px' } }, picker({ placement: 'top-end' }));
+    case 'phone-two-months':
+      return h('div', { style: { padding: 8 } }, picker({ mode: 'range', numberOfMonths: 2 }));
+    case 'short-viewport':
+      return h('div', { style: { padding: '150px 8px 0' } }, picker());
+    case 'scroll-away':
+      return h('div', { id: 'scroller', style: { height: 200, overflow: 'auto', margin: 8 } },
+        picker(), h('div', { style: { height: 900 } }));
+    case 'dialog':
+      return h(DialogHost);
+    case 'host-page':
+      return h(
+        'div',
+        null,
+        h(
+          'style',
+          null,
+          'svg { width: 32px; height: 32px } .column ._patro_datepicker { --patro-input-width: 100% }',
+        ),
+        h('h1', null, 'Heading'),
+        h('strong', null, 'bold'),
+        h('div', { className: 'column', style: { width: 600 } }, picker({ defaultOpen: false })),
+      );
   }
 };
 createRoot(document.getElementById('root')).render(h(App));
@@ -122,7 +149,7 @@ try {
   });
 
   const failures = [];
-  const check = async (scenario, step, expect) => {
+  const check = async (scenario, step, expect, { scrollsBelow = false } = {}) => {
     const geometry = await cdp.evaluate(`(() => {
       const field = document.querySelector('._patro_datepicker_input').getBoundingClientRect();
       const pop = document.querySelector('._patro_datepicker_popper').getBoundingClientRect();
@@ -135,7 +162,7 @@ try {
     const problems = [];
     if (below !== 6 && above !== 6)
       problems.push(`not 6px from the field (below ${below}, above ${above})`);
-    if (pop.left < 0 || pop.right > vw || pop.top < 0 || pop.bottom > vh)
+    if (pop.left < 0 || pop.right > vw || pop.top < 0 || (!scrollsBelow && pop.bottom > vh))
       problems.push('off screen');
     if (opacity !== '1') problems.push(`still transparent (opacity ${opacity})`);
     if (expect) problems.push(...expect(field, pop));
@@ -144,10 +171,16 @@ try {
     console.log(`${problems.length ? 'FAIL' : 'ok  '} ${label}`);
   };
 
-  const open = async (scenario) => {
+  const open = async (scenario, ready = '._patro_datepicker_popper') => {
     await cdp.send('Page.navigate', { url: `${origin}/?s=${scenario}` });
-    await cdp.waitFor('!!document.querySelector("._patro_datepicker_popper")');
+    await cdp.waitFor(`!!document.querySelector(${JSON.stringify(ready)})`);
     await sleep(150);
+  };
+
+  const pressKey = async (key, code, windowsVirtualKeyCode) => {
+    for (const type of ['keyDown', 'keyUp']) {
+      await cdp.send('Input.dispatchKeyEvent', { type, key, code, windowsVirtualKeyCode });
+    }
   };
 
   for (const scenario of ['right', 'bottom', 'top-end', 'portal-right']) {
@@ -196,14 +229,7 @@ try {
   await cdp.send('Page.navigate', { url: `${origin}/?s=keyboard` });
   await cdp.waitFor('!!document.querySelector("._patro_datepicker_input")');
   await cdp.evaluate('document.querySelector("._patro_datepicker_input").focus()');
-  for (const type of ['keyDown', 'keyUp']) {
-    await cdp.send('Input.dispatchKeyEvent', {
-      type,
-      key: 'ArrowDown',
-      code: 'ArrowDown',
-      windowsVirtualKeyCode: 40,
-    });
-  }
+  await pressKey('ArrowDown', 'ArrowDown', 40);
   await sleep(300);
   await check('keyboard', 'opened with ArrowDown');
   const focused = await cdp.evaluate('document.activeElement.getAttribute("role")');
@@ -223,6 +249,70 @@ try {
   await cdp.evaluate('window.scrollTo(0, 30)');
   await sleep(300);
   await check('portal-scroll', 'after scrolling the page');
+
+  const viewport = (width, height) =>
+    cdp.send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+
+  await viewport(375, 667);
+  await open('phone-two-months');
+  await check('phone-two-months', '375px wide', undefined, { scrollsBelow: true });
+  const pageScrollsSideways = await cdp.evaluate(
+    'document.documentElement.scrollWidth > document.documentElement.clientWidth',
+  );
+  if (pageScrollsSideways) failures.push('phone-two-months: the page scrolls sideways');
+
+  // Fits neither above nor below: stays below, where the page can scroll to it.
+  await viewport(667, 375);
+  await open('short-viewport');
+  await check('short-viewport', 'landscape phone', undefined, { scrollsBelow: true });
+
+  await viewport(700, 700);
+  await open('scroll-away');
+  await cdp.evaluate('document.getElementById("scroller").scrollTop = 400');
+  await sleep(300);
+  const hiddenAfterScroll = await cdp.evaluate(
+    'getComputedStyle(document.querySelector("._patro_datepicker_popper")).visibility === "hidden"',
+  );
+  console.log(
+    `${hiddenAfterScroll ? 'ok  ' : 'FAIL'} scroll-away (hidden once the field scrolls out)`,
+  );
+  if (!hiddenAfterScroll)
+    failures.push('scroll-away: popover still visible after its field scrolled out');
+
+  await open('dialog');
+  await cdp.evaluate('document.querySelector("[role=grid]").focus()');
+  await pressKey('Escape', 'Escape', 27);
+  await sleep(300);
+  const afterEscape = await cdp.evaluate(`({
+    dialogOpen: document.getElementById('dialog').open,
+    popoverOpen: !!document.querySelector('._patro_datepicker_popper'),
+  })`);
+  const escapeOk = afterEscape.dialogOpen && !afterEscape.popoverOpen;
+  console.log(`${escapeOk ? 'ok  ' : 'FAIL'} dialog (Escape closes only the popover)`);
+  if (!escapeOk) failures.push(`dialog: after Escape ${JSON.stringify(afterEscape)}`);
+
+  await open('host-page', '._patro_datepicker');
+  const weights = await cdp.evaluate(
+    '["h1", "strong"].map((tag) => getComputedStyle(document.querySelector(tag)).fontWeight)',
+  );
+  const hostUntouched = weights.every((weight) => Number(weight) >= 700);
+  console.log(`${hostUntouched ? 'ok  ' : 'FAIL'} host-page (headings keep their weight)`);
+  if (!hostUntouched) failures.push(`host-page: h1/strong font-weight ${weights.join('/')}`);
+
+  const field = await cdp.evaluate(`({
+    width: document.querySelector('._patro_datepicker_input').getBoundingClientRect().width,
+    icon: document.querySelector('._patro_datepicker_input svg').getBoundingClientRect().width,
+  })`);
+  const fieldOk = field.width === 600 && field.icon === 16;
+  console.log(
+    `${fieldOk ? 'ok  ' : 'FAIL'} host-page (100% width fills the column, icons keep size)`,
+  );
+  if (!fieldOk) failures.push(`host-page: field ${JSON.stringify(field)}`);
 
   cdp.close();
   if (failures.length) {
