@@ -1,7 +1,8 @@
 import type { CSSProperties, ReactNode } from 'react';
 import type {
   CalendarSystem,
-  DateRange,
+  DateInput,
+  DateRangeInput,
   Locale,
   Numerals,
   PatroDate,
@@ -14,6 +15,8 @@ import type { PickerItem, PickerView } from './components/CalendarPicker';
 import type { useGridFocus } from './hooks/useGridFocus';
 
 export interface CalendarBaseProps {
+  /** `data-*` attributes such as `data-testid`, set on the root (on a Datepicker, on its field). */
+  [dataAttribute: `data-${string}`]: string | number | boolean | undefined;
   /** Calendar system to display. Defaults to 'AD'. */
   calendar?: CalendarSystem;
   /** Show the other calendar's date on each day. Defaults to true. */
@@ -24,9 +27,9 @@ export interface CalendarBaseProps {
   numerals?: Numerals;
   theme?: 'light' | 'dark';
   /** Earliest selectable day. */
-  minDate?: Date;
+  minDate?: DateInput;
   /** Latest selectable day. */
-  maxDate?: Date;
+  maxDate?: DateInput;
   /** Return true to disable a day, e.g. weekends or holidays. */
   isDateDisabled?: (date: PatroDate) => boolean;
   /** First day of the week, 0 = Sunday (default) … 6 = Saturday. */
@@ -44,12 +47,12 @@ export interface CalendarBaseProps {
   /** Called when the displayed month changes, with its first and last day. */
   onMonthChange?: (month: { start: PatroDate; end: PatroDate }) => void;
   /** Month to show when nothing is selected, e.g. decades back for a date of birth. Defaults to today's. */
-  defaultMonth?: Date;
+  defaultMonth?: DateInput;
   /**
    * Controlled displayed month (any day in it). Navigation then only calls `onMonthChange`,
    * e.g. `onMonthChange={({ start }) => setMonth(start.date)}`.
    */
-  month?: Date;
+  month?: DateInput;
   /** Show a "Today" button that jumps to and selects today. */
   showTodayButton?: boolean;
   /**
@@ -57,7 +60,7 @@ export interface CalendarBaseProps {
    * Defaults to the visitor's clock, read in the browser. Pass it when server rendering
    * without a value to render the month on the server too, or to pin it in tests.
    */
-  today?: Date;
+  today?: DateInput;
   /** Override accessible names and button text, e.g. for a language other than English or Nepali. */
   labels?: Partial<PatroLabels>;
   /** Months shown side by side, e.g. 2 for picking a stay. Other months' days are hidden then. */
@@ -136,15 +139,15 @@ export interface UseCalendarDataResult {
 }
 
 export interface UseCalendarDataOptions {
-  minDate?: Date;
-  maxDate?: Date;
+  minDate?: DateInput;
+  maxDate?: DateInput;
   isDateDisabled?: (date: PatroDate) => boolean;
   weekStartsOn?: number;
   fixedWeeks?: boolean;
   weekendDays?: number[];
   today?: string | null;
-  defaultMonth?: Date;
-  month?: Date;
+  defaultMonth?: DateInput;
+  month?: DateInput;
   onMonthChange?: CalendarBaseProps['onMonthChange'];
 }
 
@@ -176,8 +179,8 @@ export interface PresetItem {
 
 export interface UseCalendarValueOptions {
   isRange: boolean;
-  value: Date | DateRange | null | undefined;
-  defaultValue: Date | DateRange | null | undefined;
+  value: DateInput | DateRangeInput | null | undefined;
+  defaultValue: DateInput | DateRangeInput | null | undefined;
   onChange: SingleSelection['onChange'] | RangeSelection['onChange'];
 }
 

@@ -1,4 +1,4 @@
-import { KeyboardEvent, useRef, useState } from 'react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { CalendarSystem } from '../../types/public';
 
 type Item = { value: number; label: string; disabled: boolean; current: boolean };
@@ -7,6 +7,10 @@ type Props = {
   items: Item[];
   label: string;
   onPick: (value: number, fromKeyboard: boolean) => void;
+  canPage: (step: -1 | 1) => boolean;
+  onPage: (step: -1 | 1, focusIndex: number) => void;
+  focusOnMount: number | undefined;
+  onMountFocused: () => void;
 };
 
 const COLUMNS = 3;
@@ -18,7 +22,15 @@ const STEPS: Record<string, number> = {
 };
 
 // 3x4 grid of months or years, same height as the day grid. One Tab stop; arrow keys move.
-const CalendarPicker = ({ items, label, onPick }: Props) => {
+const CalendarPicker = ({
+  items,
+  label,
+  onPick,
+  canPage,
+  onPage,
+  focusOnMount,
+  onMountFocused,
+}: Props) => {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
   const [focused, setFocused] = useState<number>();
   const enabled = (index: number) => !!items[index] && !items[index].disabled;
@@ -27,18 +39,38 @@ const CalendarPicker = ({ items, label, onPick }: Props) => {
   const tabStop =
     focused !== undefined && enabled(focused) ? focused : current >= 0 ? current : firstEnabled;
 
+  const mountFocus =
+    focusOnMount === undefined ? undefined : enabled(focusOnMount) ? focusOnMount : tabStop;
+  useEffect(() => {
+    if (mountFocus === undefined) return;
+    buttons.current[mountFocus]?.focus();
+    onMountFocused();
+  }, [mountFocus, onMountFocused]);
+
   const focus = (index: number) => {
     setFocused(index);
     buttons.current[index]?.focus();
+  };
+
+  const page = (step: -1 | 1, focusIndex: number) => {
+    if (canPage(step)) onPage(step, focusIndex);
   };
 
   const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const step = STEPS[event.key];
     if (step !== undefined) {
       event.preventDefault();
-      let next = index + step;
+      const target = index + step;
+      if (target < 0 || target >= items.length) {
+        page(step < 0 ? -1 : 1, (target + items.length) % items.length);
+        return;
+      }
+      let next = target;
       while (next >= 0 && next < items.length && !enabled(next)) next += step;
       if (enabled(next)) focus(next);
+    } else if (event.key === 'PageUp' || event.key === 'PageDown') {
+      event.preventDefault();
+      page(event.key === 'PageUp' ? -1 : 1, index);
     } else if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault();
       const order = items.map((_, i) => i).filter(enabled);

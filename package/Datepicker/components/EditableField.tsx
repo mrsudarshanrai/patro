@@ -6,6 +6,9 @@ const EditableField = ({
   inputRef,
   id,
   aria,
+  attributes,
+  className,
+  inputMode,
   popoverId,
   toggleLabel,
   text,
@@ -32,6 +35,7 @@ const EditableField = ({
       invalid && '_patro_datepicker_input_invalid',
       clearable && '_patro_datepicker_input_clearable',
       disabled && '_patro_datepicker_input_disabled',
+      className,
     ]
       .filter(Boolean)
       .join(' ')}
@@ -44,10 +48,12 @@ const EditableField = ({
       role='combobox'
       autoComplete='off'
       spellCheck={false}
+      inputMode={inputMode}
       value={text}
       placeholder={placeholder}
       disabled={disabled}
       readOnly={readOnly}
+      {...attributes}
       {...aria}
       onChange={onTextChange}
       onClick={() => onOpen(false)}

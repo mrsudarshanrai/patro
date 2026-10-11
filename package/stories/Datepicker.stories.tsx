@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { Datepicker, type DateRange, type PatroDate } from '../index';
@@ -366,4 +367,155 @@ const LayoutShiftDemo = () => {
 export const LayoutShift: Story = {
   name: 'Layout shift while open',
   render: () => <LayoutShiftDemo />,
+};
+
+const StringState = () => {
+  const [dob, setDob] = useState<string | null>('2000-05-14');
+  return (
+    <div>
+      <Datepicker
+        label='Date of birth'
+        calendar='BS'
+        value={dob}
+        minDate='1940-01-01'
+        maxDate='2010-12-31'
+        onChange={(picked) => setDob(picked?.ad ?? null)}
+        clearable
+      />
+      <Readout label='state (a string, as stored in a database)'>{JSON.stringify(dob)}</Readout>
+    </div>
+  );
+};
+
+export const StringDates: Story = {
+  name: 'String dates',
+  render: () => (
+    <div>
+      <p className='story-note'>
+        Every date prop takes an AD <code>&apos;YYYY-MM-DD&apos;</code> string as well as a{' '}
+        <code>Date</code>, so state kept as strings needs no conversion, and Server Components can
+        pass dates safely.
+      </p>
+      <StringState />
+    </div>
+  ),
+};
+
+const DialogWithPicker = ({ container }: { container: boolean }) => {
+  const [content, setContent] = useState<HTMLDivElement | null>(null);
+  return (
+    <Dialog.Root>
+      <Dialog.Trigger className='story-button'>
+        {container ? 'With portalContainer' : 'Without portalContainer'}
+      </Dialog.Trigger>
+      <Dialog.Portal>
+        <Dialog.Overlay className='story-overlay' />
+        <Dialog.Content ref={setContent} className='story-dialog' aria-describedby={undefined}>
+          <Dialog.Title className='story-dialog-title'>Book a stay</Dialog.Title>
+          <div className='story-dialog-body'>
+            <Datepicker label='Check-in' {...(container && { portalContainer: content })} />
+            <p className='story-note'>
+              This area scrolls, so it clips anything that sticks out of it.
+            </p>
+          </div>
+          <Dialog.Close className='story-button'>Close</Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
+  );
+};
+
+export const PortalContainer: Story = {
+  name: 'portalContainer (inside a modal)',
+  render: () => (
+    <div>
+      <p className='story-note'>
+        Inside a modal, a scrolling area cuts the popover off. <code>portal</code> can&apos;t help
+        (the modal blocks clicks outside itself), so portal it into the dialog&apos;s content
+        instead. Escape closes the popover first, then the dialog.
+      </p>
+      <div className='story-row'>
+        <DialogWithPicker container={false} />
+        <DialogWithPicker container />
+      </div>
+    </div>
+  ),
+};
+
+export const FieldProps: Story = {
+  name: 'Field props: data-*, aria-labelledby, inputClassName, inputMode',
+  render: () => (
+    <fieldset className='story-fieldset'>
+      <legend id='checkin-legend'>Check-in date</legend>
+      <Datepicker
+        aria-labelledby='checkin-legend'
+        data-testid='checkin'
+        inputClassName='story-input-custom'
+        editable
+        inputMode='numeric'
+      />
+      <p className='story-note'>
+        Named by the <code>legend</code>, found in tests with{' '}
+        <code>getByTestId(&apos;checkin&apos;)</code>, styled by your own class, and a numeric
+        keyboard on phones.
+      </p>
+    </fieldset>
+  ),
+};
+
+const ResettableForm = () => {
+  const [submitted, setSubmitted] = useState('');
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitted(JSON.stringify(Object.fromEntries(new FormData(event.currentTarget)), null, 2));
+  };
+  return (
+    <form onSubmit={onSubmit}>
+      <Datepicker label='Date' name='date' defaultValue='2026-10-15' />
+      <p className='story-actions'>
+        <button type='submit' className='story-button'>
+          Submit
+        </button>
+        <button type='reset' className='story-button'>
+          Reset
+        </button>
+      </p>
+      {submitted && <Readout label='submitted'>{submitted}</Readout>}
+    </form>
+  );
+};
+
+export const FormReset: Story = {
+  name: 'Native form reset',
+  render: () => (
+    <div>
+      <p className='story-note'>
+        Pick another day, then press Reset: the field goes back to its <code>defaultValue</code> and{' '}
+        <code>onChange</code> is called.
+      </p>
+      <ResettableForm />
+    </div>
+  ),
+};
+
+export const InvalidDates: Story = {
+  name: 'Invalid dates',
+  render: () => (
+    <div className='story-row'>
+      <div>
+        <p className='story-note'>
+          <code>value=&apos;15/10/2026&apos;</code>: not a date, so the field is empty and a warning
+          is logged in development.
+        </p>
+        <Datepicker label='Malformed' value='15/10/2026' />
+      </div>
+      <div>
+        <p className='story-note'>
+          <code>value=&apos;1900-01-01&apos;</code>: outside the supported range (1921–2043),
+          treated the same way.
+        </p>
+        <Datepicker label='Unsupported' value='1900-01-01' />
+      </div>
+    </div>
+  ),
 };

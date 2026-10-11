@@ -12,7 +12,9 @@ import type {
   DatepickerRangeProps,
   PatroDate,
   PatroDateRange,
+  DateInput,
   DateRange,
+  DateRangeInput,
   Preset,
   PatroLabels,
   CalendarSystem,
@@ -36,11 +38,24 @@ interface PatroDate {
 }
 ```
 
-## `DateRange` / `PatroDateRange`
+## `DateInput`
 
-Range-mode `value`/`defaultValue` and `onChange` payload, respectively:
+What every date prop accepts: a `Date` (its local calendar day), or an AD `'YYYY-MM-DD'` string in Latin or Devanagari digits. A string that isn't a real date counts as no date, with a console warning in development.
 
 ```ts
+type DateInput = Date | string;
+```
+
+## `DateRangeInput` / `DateRange` / `PatroDateRange`
+
+Range-mode `value`/`defaultValue` take a `DateRangeInput`; `onChange` gives a `PatroDateRange`. `DateRange` is the same shape with `Date`s only, handy for your own state:
+
+```ts
+interface DateRangeInput {
+  start: DateInput | null;
+  end: DateInput | null;
+}
+
 interface DateRange {
   start: Date | null;
   end: Date | null;
@@ -54,7 +69,7 @@ interface PatroDateRange {
 
 ## `Preset<T>`
 
-A `presets` entry: `Preset<Date>` in single mode, `Preset<DateRange>` in range mode. A function value is read when rendered and clicked, so relative presets stay current.
+A `presets` entry: `Preset<DateInput>` in single mode, `Preset<DateRangeInput>` in range mode. A function value is read when rendered and clicked, so relative presets stay current.
 
 ```ts
 interface Preset<T> {

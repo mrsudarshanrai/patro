@@ -1144,3 +1144,196 @@ describe('range mode', () => {
     expect(classesOf(container, '2026-10-06')).toContain('_patro_dates_in_range');
   });
 });
+
+describe('string dates', () => {
+  test('value, minDate and maxDate accept AD strings', () => {
+    const { container } = render(
+      <Calendar value='2026-10-12' minDate='2026-10-05' maxDate='2026-10-20' />,
+    );
+    expect(title(container)).toBe('October 2026');
+    expect(cell(container, '2026-10-12')).toHaveClass('_patro_dates_current_date');
+    expect(cell(container, '2026-10-04')).toHaveClass('_patro_dates_disabled');
+    expect(cell(container, '2026-10-05')).not.toHaveClass('_patro_dates_disabled');
+    expect(cell(container, '2026-10-21')).toHaveClass('_patro_dates_disabled');
+  });
+
+  test('Devanagari digits work too', () => {
+    const { container } = render(<Calendar defaultValue='२०२६-१०-१२' />);
+    expect(cell(container, '2026-10-12')).toHaveClass('_patro_dates_current_date');
+  });
+
+  test('defaultMonth, month and today accept strings', () => {
+    const { container, rerender } = render(
+      <Calendar defaultMonth='2024-02-10' today='2024-02-14' />,
+    );
+    expect(title(container)).toBe('February 2024');
+    expect(cell(container, '2024-02-14')).toHaveClass('_patro_dates_today');
+    rerender(<Calendar month='2025-07-01' />);
+    expect(title(container)).toBe('July 2025');
+  });
+
+  test('a string value reports the same PatroDate as a Date would', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    render(<Calendar defaultValue='2026-10-12' onChange={onChange} />);
+    await user.click(screen.getByRole('gridcell', { name: /^13 October 2026/ }));
+    expect(onChange).toHaveBeenCalledWith({
+      date: new Date(2026, 9, 13),
+      ad: '2026-10-13',
+      bs: '2083-06-27',
+    });
+  });
+
+  test('ranges and presets accept strings', () => {
+    const { container } = render(
+      <Calendar
+        mode='range'
+        defaultValue={{ start: '2026-10-10', end: '2026-10-14' }}
+        presets={[{ label: 'Diwali week', value: { start: '2026-11-08', end: '2026-11-14' } }]}
+      />,
+    );
+    expect(cell(container, '2026-10-10')).toHaveClass('_patro_dates_range_start');
+    expect(cell(container, '2026-10-12')).toHaveClass('_patro_dates_in_range');
+    expect(cell(container, '2026-10-14')).toHaveClass('_patro_dates_range_end');
+    expect(screen.getByRole('button', { name: 'Diwali week' })).toBeEnabled();
+  });
+
+  test('an impossible or malformed string counts as no date', () => {
+    const { container, rerender } = render(<Calendar value='2026-02-30' />);
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+    expect(title(container)).toBe('October 2026');
+    rerender(<Calendar value='15/10/2026' minDate='not a date' />);
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+    expect(container.querySelector('._patro_dates_disabled')).toBeNull();
+  });
+
+  test('Datepicker shows and submits a string value', () => {
+    const { container } = render(
+      <form>
+        <Datepicker name='d' value='2026-10-15' />
+      </form>,
+    );
+    expect(screen.getByRole('combobox')).toHaveTextContent('15 October 2026');
+    expect(container.querySelector('input[name="d"]')).toHaveValue('2026-10-15');
+  });
+});
+
+describe('paging the month and year grids', () => {
+  const openYears = async (user: ReturnType<typeof userEvent.setup>) => {
+    const titleButton = () => screen.getByRole('button', { name: /choose (month|year)/i });
+    await user.click(titleButton());
+    await user.click(titleButton());
+  };
+
+  test('ArrowUp past the top row and PageUp move to earlier years, keeping focus', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await openYears(user);
+    expect(title(container)).toBe('2016 – 2027');
+    screen.getByRole('button', { name: '2017' }).focus();
+
+    await user.keyboard('{ArrowUp}');
+    expect(title(container)).toBe('2004 – 2015');
+    expect(screen.getByRole('button', { name: '2014' })).toHaveFocus();
+
+    await user.keyboard('{PageUp}');
+    expect(title(container)).toBe('1992 – 2003');
+    expect(screen.getByRole('button', { name: '2002' })).toHaveFocus();
+
+    await user.keyboard('{PageDown}{PageDown}');
+    expect(title(container)).toBe('2016 – 2027');
+    expect(screen.getByRole('button', { name: '2026' })).toHaveFocus();
+  });
+
+  test('ArrowLeft from January goes to December of the year before', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={TODAY} />);
+    await user.click(screen.getByRole('button', { name: /choose month/i }));
+    screen.getByRole('button', { name: 'January' }).focus();
+    await user.keyboard('{ArrowLeft}');
+    expect(title(container)).toBe('2025');
+    expect(screen.getByRole('button', { name: 'December' })).toHaveFocus();
+  });
+
+  test('stops at the supported range', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar defaultValue={new Date(1925, 0, 1)} />);
+    await openYears(user);
+    const before = title(container);
+    screen
+      .getAllByRole('button')
+      .find((button) => button.tabIndex === 0)
+      ?.focus();
+    await user.keyboard('{PageUp}');
+    expect(title(container)).toBe(before);
+  });
+});
+
+describe('native form reset', () => {
+  test('puts the Datepicker back to its defaultValue and reports it', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    const { container } = render(
+      <form>
+        <Datepicker name='d' defaultValue='2026-10-12' onChange={onChange} />
+        <button type='reset'>Reset</button>
+      </form>,
+    );
+    await user.click(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('gridcell', { name: /^20 October 2026/ }));
+    expect(container.querySelector('input[name="d"]')).toHaveValue('2026-10-20');
+
+    await user.click(screen.getByRole('button', { name: 'Reset' }));
+    expect(container.querySelector('input[name="d"]')).toHaveValue('2026-10-12');
+    expect(screen.getByRole('combobox')).toHaveTextContent('12 October 2026');
+    expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ ad: '2026-10-12' }));
+  });
+
+  test('a range Datepicker resets to empty', async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <form>
+        <Datepicker
+          mode='range'
+          name='stay'
+          defaultValue={{ start: '2026-10-10', end: '2026-10-12' }}
+        />
+        <button type='reset'>Reset</button>
+      </form>,
+    );
+    await user.click(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('gridcell', { name: /^20 October 2026/ }));
+    await user.click(screen.getByRole('button', { name: 'Reset' }));
+    expect(container.querySelector('input[name="stay[start]"]')).toHaveValue('2026-10-10');
+    expect(container.querySelector('input[name="stay[end]"]')).toHaveValue('2026-10-12');
+  });
+});
+
+describe('invalid dates', () => {
+  test('warn once in development and count as no date', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { container, rerender } = render(<Calendar value='2026-13-01' />);
+    rerender(<Calendar value='2026-13-01' />);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toMatch(/"2026-13-01" isn't a date/);
+    expect(title(container)).toBe('October 2026');
+    warn.mockRestore();
+  });
+
+  test('an Invalid Date opens on today’s month, not the end of the range', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { container } = render(<Calendar value={new Date(NaN)} />);
+    expect(title(container)).toBe('October 2026');
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/an Invalid Date isn't a date/));
+    warn.mockRestore();
+  });
+
+  test('a value outside the supported range warns', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    render(<Datepicker value='1900-01-01' />);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/1900-01-01 is outside the supported range/),
+    );
+    warn.mockRestore();
+  });
+});

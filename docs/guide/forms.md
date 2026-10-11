@@ -63,7 +63,8 @@ const [submitted, setSubmitted] = useState(false);
 | --- | --- |
 | `disabled` | Can't be focused or opened |
 | `readOnly` | Focusable, shows its value, but can't be changed |
-| `id`, `aria-label`, `aria-describedby` | Passed straight to the input for label/description wiring |
+| `id`, `aria-label`, `aria-labelledby`, `aria-describedby` | Passed straight to the input for label/description wiring |
+| `data-*`, `inputClassName`, `inputMode` | Test ids, your form library's input class, the mobile keyboard for `editable` |
 | `onFocus` / `onBlur` | For "touched" tracking with form libraries |
 | `ref` | Forwarded to the focusable field (the text input when `editable`), e.g. for a form library's focus-on-error |
 
@@ -103,11 +104,29 @@ const [submitted, setSubmitted] = useState(false);
 
 ## Storing dates
 
-`PatroDate.date` is local midnight of the picked day. `JSON.stringify` and `toISOString()` turn it into a UTC instant, which reads as the previous day for anyone east of UTC: in Nepal, 15 Oct becomes `2026-10-14T18:15:00.000Z`. To store or send a date, use the `ad` (or `bs`) string, the same `'YYYY-MM-DD'` value a native form submits.
+`PatroDate.date` is local midnight of the picked day. `JSON.stringify` and `toISOString()` turn it into a UTC instant, which reads as the previous day for anyone east of UTC: in Nepal, 15 Oct becomes `2026-10-14T18:15:00.000Z`. To store or send a date, use the `ad` (or `bs`) string, the same `'YYYY-MM-DD'` value a native form submits. Date props take those strings back as they are:
+
+```tsx
+const [dob, setDob] = useState<string | null>('2000-05-14');
+
+<Datepicker value={dob} onChange={(picked) => setDob(picked?.ad ?? null)} />;
+```
+
+## Resetting
+
+A native form reset (a `type='reset'` button or `form.reset()`) puts the Datepicker back to its `defaultValue` and calls `onChange` with it.
 
 ## Inside dialogs
 
-Escape closes only the popover, so a surrounding dialog stays open. Leave `portal` off inside a modal dialog: a modal keeps focus and clicks inside itself, so a popover rendered in `document.body` can't be used.
+Escape closes only the popover, so a surrounding dialog stays open. A modal dialog keeps focus and clicks inside itself, so a popover portalled to `document.body` can't be used there. Leave `portal` off, or, if a scrolling area inside the dialog cuts the popover off, portal it into the dialog's content element:
+
+```tsx
+const [content, setContent] = useState<HTMLDivElement | null>(null);
+
+<Dialog.Content ref={setContent}>
+  <Datepicker portalContainer={content} />
+</Dialog.Content>;
+```
 
 ## Layout
 

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import { version } from '../../package.json';
 
 export default defineConfig({
   title: 'patro',
@@ -22,7 +23,16 @@ export default defineConfig({
       { text: 'Reference', link: '/reference/props' },
       // Storybook is a separate app built into /storybook/; _self makes it a full page load.
       { text: 'Storybook', link: '/storybook/', target: '_self' },
-      { text: 'npm', link: 'https://www.npmjs.com/package/patrojs' },
+      {
+        text: `v${version}`,
+        items: [
+          {
+            text: 'Changelog',
+            link: 'https://github.com/mrsudarshanrai/patro/blob/main/CHANGELOG.md',
+          },
+          { text: 'npm', link: 'https://www.npmjs.com/package/patrojs' },
+        ],
+      },
     ],
 
     sidebar: [

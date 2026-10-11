@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
-import { createDateString, getToday, toAdDateString } from '../utils';
+import { createDateString, getToday, toInputAdDate } from '../utils';
+import type { DateInput } from '../types/public';
 
 const currentAdDate = () => {
   const { year, month, date } = getToday();
@@ -30,9 +31,9 @@ const noSubscription = () => (): void => undefined;
  * Today's AD date, or null while server rendering and hydrating: the server's
  * "today" (often UTC) can differ from the visitor's, which would break hydration.
  */
-const useToday = (today?: Date): string | null => {
+const useToday = (today?: DateInput): string | null => {
   const live = useSyncExternalStore(subscribe, currentAdDate, (): null => null);
-  return today ? toAdDateString(today) : live;
+  return toInputAdDate(today) ?? live;
 };
 
 /** False while server rendering and hydrating, true after. */

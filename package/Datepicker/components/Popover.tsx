@@ -7,11 +7,12 @@ type Props = {
   id: string;
   label: string;
   portal: boolean;
+  container: Element | null | undefined;
   onEscape: () => void;
   children: ReactNode;
 };
 
-const Popover = ({ popoverRef, id, label, portal, onEscape, children }: Props) => {
+const Popover = ({ popoverRef, id, label, portal, container, onEscape, children }: Props) => {
   const isClient = useIsClient();
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') onEscape();
@@ -32,7 +33,7 @@ const Popover = ({ popoverRef, id, label, portal, onEscape, children }: Props) =
   );
   // No document.body on the server; the portal appears after hydration.
   if (!portal) return popover;
-  return isClient ? createPortal(popover, document.body) : null;
+  return isClient ? createPortal(popover, container ?? document.body) : null;
 };
 
 export { Popover };

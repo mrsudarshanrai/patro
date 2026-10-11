@@ -50,6 +50,7 @@ const comboboxAria = ({
   label,
   labelId,
   ariaLabel,
+  ariaLabelledBy,
   ariaDescribedBy,
   fallbackLabel,
 }: ComboboxAriaOptions): ComboboxAriaProps => ({
@@ -58,8 +59,8 @@ const comboboxAria = ({
   'aria-controls': isOpen ? popoverId : undefined,
   'aria-invalid': invalid || undefined,
   'aria-required': required || undefined,
-  'aria-label': ariaLabel ?? (label ? undefined : fallbackLabel),
-  'aria-labelledby': !ariaLabel && label ? labelId : undefined,
+  'aria-label': ariaLabel ?? (label || ariaLabelledBy ? undefined : fallbackLabel),
+  'aria-labelledby': ariaLabelledBy ?? (!ariaLabel && label ? labelId : undefined),
   'aria-describedby': ariaDescribedBy,
 });
 
