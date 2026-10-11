@@ -67,16 +67,21 @@ import {
   type DatepickerProps,
   type DatepickerSingleProps,
   type DatepickerRangeProps,
+  type DateInput,
+  type DateRangeInput,
 } from 'patrojs';
 import { ad2Bs } from 'patrojs/utils';
 const onChange = (value: PatroDate | null) => value?.bs;
 const props: DatepickerProps = { mode: 'range', onChange: ({ start }) => start?.ad };
 const single: DatepickerSingleProps = { editable: true, placement: 'top', valueFormat: 'bs' };
+const fromStrings: DatepickerSingleProps = { value: '2026-10-15', minDate: '2026-01-01', today: new Date() };
+const day: DateInput = '2026-10-15';
+const stay: DateRangeInput = { start: '2026-10-15', end: new Date() };
 const range: DatepickerRangeProps = { mode: 'range', minDays: 2, formatValue: ({ start }) => start?.bs ?? '' };
 // @ts-expect-error: placement only takes the documented values.
 const wrong: DatepickerSingleProps = { placement: 'left' };
 const bs: string = ad2Bs(new Date());
-export { Calendar, Datepicker, onChange, props, single, range, wrong, bs };
+export { Calendar, Datepicker, onChange, props, single, range, wrong, bs, fromStrings, day, stay };
 `,
   );
   run('node', ['esm.mjs']);
