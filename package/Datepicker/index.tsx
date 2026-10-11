@@ -2,7 +2,7 @@ import { forwardRef, ReactElement, RefAttributes, useEffect, useId, useState } f
 import { Calendar } from '../Calendar';
 import type { CalendarProps } from '../Calendar/CalendarType';
 import { PatroDate, PatroDateRange } from '../types/public';
-import { formatDate, formatInputDate, labelsFor, otherSystem } from '../utils';
+import { formatDate, formatInputDate, labelsFor, languageOf, otherSystem } from '../utils';
 import type {
   DatepickerProps,
   DatepickerRangeProps,
@@ -164,6 +164,7 @@ const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
         onBlur={onFocusLeave}
         className={['_patro_datepicker _patro', className].filter(Boolean).join(' ')}
         style={style}
+        lang={languageOf(calendar, display)}
         data-calendar-type={calendar}
         data-theme={theme}
       >

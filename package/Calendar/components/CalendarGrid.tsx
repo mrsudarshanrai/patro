@@ -101,6 +101,7 @@ const CalendarGrid = (props: CalendarGridProps) => {
                   id={cellId(idPrefix, adDate)}
                   role='gridcell'
                   aria-selected={inRange ? inRange.ariaSelected : date.isSelected}
+                  aria-current={date.isToday ? 'date' : undefined}
                   aria-disabled={date.isDisabled || undefined}
                   aria-label={[cellLabel(date, display), extraLabel].filter(Boolean).join(', ')}
                   title={adDate}
