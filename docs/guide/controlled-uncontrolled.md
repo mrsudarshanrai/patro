@@ -15,6 +15,8 @@ const [value, setValue] = useState<Date | null>(null);
 
 `null` means nothing is selected; `Datepicker` then shows its placeholder, and `Calendar` shows the current month with no day highlighted.
 
+`value` can also be an AD `'YYYY-MM-DD'` string, so state kept as strings works as it is: `value={dob}` with `onChange={(picked) => setDob(picked?.ad ?? null)}`.
+
 Once you pass `value` (even `null`), the component is controlled: clicking a day still fires `onChange`, but the displayed selection only changes when you update `value` yourself.
 
 ## The displayed month

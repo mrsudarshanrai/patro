@@ -40,24 +40,20 @@ So patro reads today **in the browser**:
 
 ## Passing dates from a Server Component
 
-A `Date` crosses from a Server Component to the browser as a UTC instant, and the browser reads it back in its own timezone. For a visitor west of the server that's the previous day: the field shows and submits 14 Oct instead of 15 Oct, and hydration mismatches.
+A `Date` crosses from a Server Component to the browser as a UTC instant, and the browser reads it back in its own timezone. For a visitor west of the server that's the previous day: the field would show and submit 14 Oct instead of 15 Oct, and hydration would mismatch.
 
-So pass dates across as `'YYYY-MM-DD'` strings and build the `Date` in a Client Component:
+So pass dates as `'YYYY-MM-DD'` strings. Every date prop accepts one, and a string means the same day everywhere:
 
 ```tsx
-'use client';
+// app/profile/page.tsx: a Server Component
 import { Datepicker } from 'patrojs';
 
-const toLocalDate = (ad: string) => {
-  const [year, month, day] = ad.split('-').map(Number);
-  return new Date(year, month - 1, day);
-};
-
-export function DobField({ dob }: { dob: string | null }) {
-  return <Datepicker name='dob' defaultValue={dob ? toLocalDate(dob) : null} />;
+export default async function Page() {
+  const user = await getUser(); // user.dob: '2000-05-14'
+  return <Datepicker name='dob' defaultValue={user.dob} maxDate='2010-12-31' />;
 }
 ```
 
-The same goes for `value`, `minDate`, `maxDate`, `defaultMonth` and `today`. To render the month on the server too, pass `today` this way, e.g. the visitor's date worked out from a timezone cookie.
+The same goes for `value`, `minDate`, `maxDate`, `defaultMonth`, `month` and `today`. To render the month on the server too, pass `today` as a string, e.g. the visitor's date worked out from a timezone cookie.
 
 `today` is also handy for pinning dates in tests and screenshots. After hydration, "today" keeps up with the clock, moving on at midnight.
