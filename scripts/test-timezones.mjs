@@ -7,6 +7,7 @@ const timezones = [
   'America/New_York',
   'America/Los_Angeles',
   'Pacific/Auckland',
+  'Pacific/Kiritimati',
 ];
 
 for (const tz of timezones) {
