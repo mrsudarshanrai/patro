@@ -1,7 +1,29 @@
 import { FocusEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
+import {
+  autoUpdate,
+  computePosition,
+  detectOverflow,
+  flip,
+  hide,
+  offset,
+  shift,
+  size,
+  type Middleware,
+} from '@floating-ui/dom';
+import { useClaimEscape } from '../../hooks/useClaimEscape';
 import { useControllableValue } from '../../hooks/useControllableValue';
 import type { UsePopoverOptions } from '../DatepickerType';
+
+const SCREEN_PADDING = 8;
+
+// The page can scroll down to a popover that runs past the bottom, never up past the top.
+const keepTopOnScreen: Middleware = {
+  name: 'keepTopOnScreen',
+  fn: async (state) => {
+    const { top } = await detectOverflow(state, { padding: SCREEN_PADDING });
+    return top > 0 ? { y: state.y + top } : {};
+  },
+};
 
 const usePopover = ({
   open,
@@ -38,6 +60,12 @@ const usePopover = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOpen, anchor, popover, setOpen]);
 
+  const containsNode = useCallback(
+    (node: Node) => !!(rootRef.current?.contains(node) || popover?.contains(node)),
+    [popover],
+  );
+  useClaimEscape(isOpen, containsNode);
+
   // autoUpdate also follows layout shifts, not just scroll and resize.
   useEffect(() => {
     if (!anchor || !popover || !isOpen) return;
@@ -45,9 +73,22 @@ const usePopover = ({
       computePosition(anchor, popover, {
         placement,
         strategy: portal ? 'fixed' : 'absolute',
-        middleware: [offset(6), flip(), shift({ padding: 8 })],
-      }).then(({ x, y }) => {
+        middleware: [
+          offset(6),
+          flip({ padding: SCREEN_PADDING, fallbackStrategy: 'initialPlacement' }),
+          shift({ padding: SCREEN_PADDING, crossAxis: portal }),
+          keepTopOnScreen,
+          size({
+            padding: SCREEN_PADDING,
+            apply: ({ availableWidth }: { availableWidth: number }) => {
+              popover.style.maxWidth = `${availableWidth}px`;
+            },
+          }),
+          hide(),
+        ],
+      }).then(({ x, y, middlewareData }) => {
         Object.assign(popover.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
+        popover.toggleAttribute('data-detached', !!middlewareData.hide?.referenceHidden);
       });
     });
   }, [isOpen, anchor, popover, placement, portal]);
