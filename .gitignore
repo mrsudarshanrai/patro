@@ -26,3 +26,7 @@ firebase-debug.log*
 
 # storybook
 storybook-static
+
+# Playwright
+test-results/
+playwright-report/

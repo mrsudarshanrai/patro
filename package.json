@@ -67,7 +67,7 @@
     "check:package": "publint && attw --pack . --exclude-entrypoints style.css dist/css/style.css",
     "test:package": "node scripts/smoke-package.mjs",
     "check:size": "node scripts/check-size.mjs",
-    "check:popover": "node scripts/check-popover.mjs"
+    "test:e2e": "playwright test"
   },
   "peerDependencies": {
     "react": "^18.2.0 || ^19.0.0",
@@ -76,6 +76,9 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^9.39.5",
+    "@headlessui/react": "^2.2.10",
+    "@playwright/test": "^1.64.0",
+    "@radix-ui/react-dialog": "^1.2.0",
     "@rollup/plugin-commonjs": "^29.0.3",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
