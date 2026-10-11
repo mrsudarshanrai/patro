@@ -49,6 +49,11 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end' | 'bottom' | 'top';
   /** Render the popover in `document.body`, e.g. to escape `overflow: hidden` parents. */
   portal?: boolean;
+  /**
+   * Element to render the popover into instead of `document.body`; setting it turns `portal` on.
+   * Inside a modal dialog, pass the dialog's content element: a modal blocks clicks and focus outside itself.
+   */
+  portalContainer?: Element | null;
 }
 
 export type DatepickerSingleProps = DatepickerBaseProps &

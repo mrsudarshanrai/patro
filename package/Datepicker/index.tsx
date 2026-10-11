@@ -55,6 +55,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       onBlur,
       placement = 'bottom-start',
       portal = false,
+      portalContainer,
       className,
       style,
       ...calendarProps
@@ -66,6 +67,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
     const popoverId = `${inputId}-popover`;
     const display = { locale, numerals };
 
+    const portalled = portal || portalContainer !== undefined;
     const isRange = mode === 'range';
     const isEditable = editable && !isRange;
     const { selectedRange, selectedDate, shownAdDate, shownRange, hasValue, commit, commitRange } =
@@ -78,7 +80,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       disabled,
       readOnly,
       placement,
-      portal,
+      portal: portalled,
     });
     const [focusGrid, setFocusGrid] = useState(false);
     const popoverControls = {
@@ -240,7 +242,8 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
             popoverRef={setPopover}
             id={popoverId}
             label={text.chooseDate}
-            portal={portal}
+            portal={portalled}
+            container={portalContainer}
             onEscape={() => {
               setOpen(false);
               field?.focus();
