@@ -23,7 +23,11 @@ export default tseslint.config(
     rules: {
       'react/react-in-jsx-scope': 'off',
       camelcase: ['error', { allow: ['preserve_annotations'] }],
-      'spaced-comment': ['error', 'always', { block: { markers: ['#__PURE__'] } }],
+      'spaced-comment': [
+        'error',
+        'always',
+        { line: { markers: ['/'] }, block: { markers: ['#__PURE__'] } },
+      ],
       quotes: ['warn', 'single'],
       '@typescript-eslint/no-namespace': 'off',
       'no-duplicate-imports': 'error',

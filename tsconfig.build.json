@@ -10,6 +10,8 @@
     "docs",
     "package/test",
     "package/stories",
+    "package/e2e",
+    "playwright.config.ts",
     "scripts",
     ".storybook"
   ]

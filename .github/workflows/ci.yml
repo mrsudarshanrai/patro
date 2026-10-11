@@ -25,9 +25,24 @@ jobs:
       - run: npm run check:package
       - run: npm run check:size
       - run: npm run test:package
-      # Positioning needs a real browser (the runner's Chrome) and Node 22+ for WebSocket.
-      - run: npm run check:popover
-        if: matrix.node != 20
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
 
   # The lockfile pins React 18; the peer range also promises 19.
   react-19:
