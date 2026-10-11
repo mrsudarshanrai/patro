@@ -22,8 +22,8 @@ export default tseslint.config(
     settings: { react: { version: 'detect' } },
     rules: {
       'react/react-in-jsx-scope': 'off',
-      camelcase: 'error',
-      'spaced-comment': 'error',
+      camelcase: ['error', { allow: ['preserve_annotations'] }],
+      'spaced-comment': ['error', 'always', { block: { markers: ['#__PURE__'] } }],
       quotes: ['warn', 'single'],
       '@typescript-eslint/no-namespace': 'off',
       'no-duplicate-imports': 'error',

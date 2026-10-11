@@ -20,7 +20,7 @@ import { FieldValue } from './components/FieldValue';
 import { NativeInputs } from './components/NativeInputs';
 import { Popover } from './components/Popover';
 
-const DatepickerComponent = forwardRef<HTMLElement, DatepickerProps>(
+const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
     const {
       mode,
