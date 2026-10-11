@@ -39,18 +39,25 @@ const evaluateNepaliDate = (daysElapsed: number) => {
   return createDateString(year, month, remaining + 1);
 };
 
+const dateInputToString = (adDate: string | Date) => {
+  if (!(adDate instanceof Date)) return adDate;
+  if (Number.isNaN(adDate.getTime())) throw new RangeError('Invalid Date.');
+  return toAdDateString(adDate);
+};
+
 /** AD 'YYYY-MM-DD' (or a `Date`, read in local time) to BS 'YYYY-MM-DD'. Throws for invalid or unsupported dates. */
 const ad2Bs = (adDate: string | Date) => {
-  const input = adDate instanceof Date ? toAdDateString(adDate) : adDate;
+  const input = dateInputToString(adDate);
   const daysDifference = Math.round(
     (toUtcMs(validateAdDate(input)) - toUtcMs(START_ENGLISH_DATE)) / 86400000,
   );
   return evaluateNepaliDate(daysDifference);
 };
 
-const isValidAdDate = (adDate: string) => {
+/** Whether an AD 'YYYY-MM-DD' (or a `Date`) is a real, supported date. */
+const isValidAdDate = (adDate: string | Date) => {
   try {
-    validateAdDate(adDate);
+    validateAdDate(dateInputToString(adDate));
     return true;
   } catch {
     return false;

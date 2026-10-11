@@ -60,8 +60,15 @@ const clampAdDate = (adDate: string, min = START_ENGLISH_DATE, max = MAX_AD_DATE
 const toAdDateString = (date: Date) =>
   createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
-// Any real day, supported by the BS table or not, so a far-off minDate still clamps.
-const toInputDate = (input: DateInput | null | undefined): Date | null => {
+const warned = new Set<string>();
+const warnOnce = (message: string) => {
+  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') return;
+  if (warned.has(message)) return;
+  warned.add(message);
+  console.warn(`patrojs: ${message}`);
+};
+
+const parseDateInput = (input: DateInput): Date | null => {
   if (input instanceof Date) return Number.isNaN(input.getTime()) ? null : input;
   if (typeof input !== 'string') return null;
   try {
@@ -72,6 +79,18 @@ const toInputDate = (input: DateInput | null | undefined): Date | null => {
   }
 };
 
+// Any real day, supported by the BS table or not, so a far-off minDate still clamps.
+const toInputDate = (input: DateInput | null | undefined): Date | null => {
+  if (input === null || input === undefined) return null;
+  const date = parseDateInput(input);
+  if (!date) {
+    warnOnce(
+      `${input instanceof Date ? 'an Invalid Date' : JSON.stringify(input)} isn't a date; expected a Date or an AD 'YYYY-MM-DD' string. It's treated as no date.`,
+    );
+  }
+  return date;
+};
+
 const toInputAdDate = (input: DateInput | null | undefined) => {
   const date = toInputDate(input);
   return date && toAdDateString(date);
@@ -79,7 +98,13 @@ const toInputAdDate = (input: DateInput | null | undefined) => {
 
 const supportedAdDate = (input: DateInput | null | undefined) => {
   const adDate = toInputAdDate(input);
-  return adDate && isSupportedAdDate(adDate) ? adDate : null;
+  if (adDate && !isSupportedAdDate(adDate)) {
+    warnOnce(
+      `${adDate} is outside the supported range (${START_ENGLISH_DATE} to ${MAX_AD_DATE}), so it's treated as no date.`,
+    );
+    return null;
+  }
+  return adDate;
 };
 
 // A range given end-first is treated as the same range, start-first.
