@@ -399,6 +399,7 @@ export const Keyboard: Story = {
             ['Home / End', 'Start / end of the week'],
             ['Enter / Space', 'Select'],
             ['Month title, then arrows', 'Month and year grids'],
+            ['PageUp / PageDown in the grids', 'Previous / next year, or 12 years'],
             ['Escape', 'Back to the days'],
           ].map(([key, action]) => (
             <tr key={key}>
@@ -410,4 +411,16 @@ export const Keyboard: Story = {
       </table>
     </div>
   ),
+};
+
+export const StringDates: Story = {
+  name: 'String dates',
+  args: {
+    calendar: 'BS',
+    defaultValue: '2026-10-15',
+    minDate: '2026-10-05',
+    maxDate: '2026-11-20',
+    today: '2026-10-12',
+  },
+  render: (args) => <Calendar {...(args as object)} />,
 };
