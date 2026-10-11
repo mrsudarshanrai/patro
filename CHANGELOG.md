@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0-beta.3 (unreleased)
+## 1.0.0-beta.3 (2026-10-11)
 
 ### Added
 
@@ -16,7 +16,7 @@
 - An invalid `Date` or date string counts as no date, with a console warning in development, instead of opening the calendar on its last supported month. A value outside the supported range warns too.
 - `ad2Bs(new Date(NaN))` throws `Invalid Date.` instead of reporting `"NaN-aN-aN"`.
 
-## 1.0.0-beta.2 (unreleased)
+## 1.0.0-beta.2 (2026-10-11)
 
 ### Fixed
 
