@@ -220,3 +220,55 @@
   background: #f3f5fe;
   font-size: 13px;
 }
+
+.story-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.35);
+}
+
+.story-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 340px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  transform: translate(-50%, -50%);
+}
+
+.story-dialog-title {
+  margin: 0 0 12px;
+  font:
+    600 16px Inter,
+    system-ui,
+    sans-serif;
+}
+
+.story-fieldset {
+  max-width: 340px;
+  padding: 12px 16px;
+  border: 1px solid #cfd3e5;
+  border-radius: 8px;
+}
+
+.story-fieldset legend {
+  padding: 0 4px;
+  font:
+    600 13px Inter,
+    system-ui,
+    sans-serif;
+}
+
+.story-input-custom {
+  box-shadow: inset 0 0 0 2px #0f766e !important;
+}
+
+.story-dialog-body {
+  position: relative;
+  max-height: 140px;
+  margin-bottom: 12px;
+  overflow: auto;
+}
