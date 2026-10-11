@@ -3,7 +3,8 @@ import type { DisplayOptions } from '../utils';
 import type { CalendarBaseProps } from '../Calendar/CalendarType';
 import type {
   CalendarSystem,
-  DateRange,
+  DateInput,
+  DateRangeInput,
   PatroDate,
   PatroDateRange,
   RangeSelection,
@@ -97,8 +98,8 @@ export interface UsePopoverOptions {
 export interface UseTypedDateOptions {
   calendar: CalendarSystem;
   shownAdDate: string | null;
-  minDate: Date | undefined;
-  maxDate: Date | undefined;
+  minDate: DateInput | undefined;
+  maxDate: DateInput | undefined;
   isDateDisabled: ((date: PatroDate) => boolean) | undefined;
   commit: (next: PatroDate | null) => void;
   isOpen: boolean;
@@ -170,7 +171,7 @@ export interface EditableFieldProps extends PopoverControls {
 
 export interface UseDatepickerValueOptions {
   isRange: boolean;
-  value: Date | DateRange | null | undefined;
-  defaultValue: Date | DateRange | null | undefined;
+  value: DateInput | DateRangeInput | null | undefined;
+  defaultValue: DateInput | DateRangeInput | null | undefined;
   onChange: DatepickerSingleProps['onChange'] | DatepickerRangeProps['onChange'];
 }

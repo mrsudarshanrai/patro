@@ -8,7 +8,7 @@ import {
   supportedAdRange,
 } from '../utils';
 import { stepViewAnchor } from './hooks/useCalendarData';
-import type { CalendarSystem, DateRange, Preset } from '../types/public';
+import type { CalendarSystem, DateInput, DateRangeInput, Preset } from '../types/public';
 import type { PresetItem, RangeRules, ShownRange, VisibleMonth } from './CalendarType';
 
 const YEARS_PER_PAGE = 12;
@@ -83,7 +83,7 @@ const activeDay = (
 
 // Presets resolve on every render so "Today"-style ones stay current and can be disabled.
 const resolvePresets = (
-  presets: Preset<Date>[] | Preset<DateRange>[] | undefined,
+  presets: Preset<DateInput>[] | Preset<DateRangeInput>[] | undefined,
   {
     range,
     selectedAdDate,
@@ -99,7 +99,7 @@ const resolvePresets = (
   (presets ?? []).map(({ label, value }) => {
     const resolved = typeof value === 'function' ? value() : value;
     if (range) {
-      const { start, end } = supportedAdRange(resolved as DateRange);
+      const { start, end } = supportedAdRange(resolved as DateRangeInput);
       const valid =
         !!start && !!end && !isDayDisabled(start) && !isDayDisabled(end) && isValidEnd(start, end);
       return {
@@ -110,7 +110,7 @@ const resolvePresets = (
         end,
       };
     }
-    const adDate = supportedAdDate(resolved as Date);
+    const adDate = supportedAdDate(resolved as DateInput);
     return {
       label,
       disabled: !adDate || isDayDisabled(adDate),

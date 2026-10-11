@@ -3,7 +3,9 @@ export * from './Datepicker';
 export { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from './utils';
 export type {
   CalendarSystem,
+  DateInput,
   DateRange,
+  DateRangeInput,
   PatroDateRange,
   Locale,
   Numerals,

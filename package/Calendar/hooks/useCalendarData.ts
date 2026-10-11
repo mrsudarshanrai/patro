@@ -12,7 +12,8 @@ import {
   monthSpan,
   overlaps,
   switchYear,
-  toAdDateString,
+  toInputAdDate,
+  toInputDate,
   toPatroDate,
   ad2Bs,
   bs2Ad,
@@ -110,8 +111,12 @@ const useCalendarData = (
     onMonthChange,
   }: UseCalendarDataOptions = {},
 ): UseCalendarDataResult => {
-  const minAdDate = minDate ? clampAdDate(toAdDateString(minDate)) : START_ENGLISH_DATE;
-  const maxAdDate = maxDate ? clampAdDate(toAdDateString(maxDate)) : MAX_AD_DATE;
+  const minInput = toInputAdDate(minDate);
+  const maxInput = toInputAdDate(maxDate);
+  const minAdDate = minInput ? clampAdDate(minInput) : START_ENGLISH_DATE;
+  const maxAdDate = maxInput ? clampAdDate(maxInput) : MAX_AD_DATE;
+  const defaultMonthDate = toInputDate(defaultMonth);
+  const monthDate = toInputDate(month);
   const bounds = useMemo(() => ({ min: minAdDate, max: maxAdDate }), [minAdDate, maxAdDate]);
 
   const [selected, setSelected] = useState<DayParts | null>(() =>
@@ -119,7 +124,7 @@ const useCalendarData = (
   );
   // AD date of the displayed month's day 1; null until a selection or today is known.
   const [viewAnchor, setViewAnchor] = useState<string | null>(() => {
-    const fallback = defaultMonth ? ymd(defaultMonth) : today && todayParts(today);
+    const fallback = defaultMonthDate ? ymd(defaultMonthDate) : today && todayParts(today);
     if (!selectedDate && !fallback) return null;
     const { year, month, date } = selectedDate ? ymd(selectedDate) : fallback;
     return getViewAnchor(calendarType, year, month, date, bounds);
@@ -138,12 +143,12 @@ const useCalendarData = (
     [],
   );
 
-  const controlledAnchor = month
+  const controlledAnchor = monthDate
     ? getViewAnchor(
         calendarType,
-        month.getFullYear(),
-        month.getMonth() + 1,
-        month.getDate(),
+        monthDate.getFullYear(),
+        monthDate.getMonth() + 1,
+        monthDate.getDate(),
         bounds,
       )
     : null;
@@ -165,7 +170,7 @@ const useCalendarData = (
   });
 
   const selectedTime = selectedDate?.getTime();
-  const defaultMonthTime = defaultMonth?.getTime();
+  const defaultMonthTime = defaultMonthDate?.getTime();
   useEffect(() => {
     const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
     const next = requested ? toSelection(requested) : null;

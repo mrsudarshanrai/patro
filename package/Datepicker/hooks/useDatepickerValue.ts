@@ -1,7 +1,8 @@
 import { EMPTY_RANGE, supportedAdDate, supportedAdRange } from '../../utils';
 import { useControllableValue } from '../../hooks/useControllableValue';
 import type {
-  DateRange,
+  DateInput,
+  DateRangeInput,
   PatroDate,
   PatroDateRange,
   RangeSelection,
@@ -15,11 +16,12 @@ const useDatepickerValue = ({
   defaultValue,
   onChange,
 }: UseDatepickerValueOptions) => {
-  const [currentValue, setValue] = useControllableValue<Date | DateRange | null>(value, () =>
-    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
+  const [currentValue, setValue] = useControllableValue<DateInput | DateRangeInput | null>(
+    value,
+    () => (defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null),
   );
-  const selectedRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
-  const selectedDate = selectedRange ? null : (currentValue as Date | null);
+  const selectedRange = isRange ? ((currentValue as DateRangeInput | null) ?? EMPTY_RANGE) : null;
+  const selectedDate = selectedRange ? null : (currentValue as DateInput | null);
   const shownAdDate = supportedAdDate(selectedDate);
   const shownRange = selectedRange && supportedAdRange(selectedRange);
 

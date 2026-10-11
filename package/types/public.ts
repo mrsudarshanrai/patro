@@ -2,6 +2,9 @@ export type CalendarSystem = 'AD' | 'BS';
 export type Locale = 'en' | 'ne';
 export type Numerals = 'latin' | 'devanagari';
 
+/** A day: a `Date` (its local calendar day), or an AD `'YYYY-MM-DD'` string in Latin or Devanagari digits. */
+export type DateInput = Date | string;
+
 export interface PatroDate {
   /** Local midnight of the selected day. */
   date: Date;
@@ -35,6 +38,12 @@ export interface DateRange {
   end: Date | null;
 }
 
+/** A range given to `value`, `defaultValue` or `presets`: either end a `Date` or an AD `'YYYY-MM-DD'` string. */
+export interface DateRangeInput {
+  start: DateInput | null;
+  end: DateInput | null;
+}
+
 export interface PatroDateRange {
   start: PatroDate | null;
   end: PatroDate | null;
@@ -50,21 +59,21 @@ export interface SingleSelection {
   /** Pick one day. The default. */
   mode?: 'single';
   /** Controlled selection. `null` = nothing selected. */
-  value?: Date | null;
+  value?: DateInput | null;
   /** Initial selection when uncontrolled. Defaults to nothing selected. */
-  defaultValue?: Date | null;
+  defaultValue?: DateInput | null;
   onChange?: (value: PatroDate | null) => void;
   /** Quick picks under the grid, e.g. `[{ label: 'Today', value: () => new Date() }]`. */
-  presets?: Preset<Date>[];
+  presets?: Preset<DateInput>[];
 }
 
 export interface RangeSelection {
   /** Pick a start day, then an end day. */
   mode: 'range';
   /** Controlled range. */
-  value?: DateRange;
+  value?: DateRangeInput;
   /** Initial range when uncontrolled. Defaults to empty. */
-  defaultValue?: DateRange;
+  defaultValue?: DateRangeInput;
   /** Called on every pick, so `end` is `null` while only the start is chosen. */
   onChange?: (value: PatroDateRange) => void;
   /** Fewest days a range can span, counting both ends. Picking a closer end starts a new range there. */
@@ -74,5 +83,5 @@ export interface RangeSelection {
   /** Ranges can't contain disabled days; picking an end past one starts a new range there. */
   excludeDisabled?: boolean;
   /** Quick picks under the grid, e.g. "This week" or "Next 7 days". */
-  presets?: Preset<DateRange>[];
+  presets?: Preset<DateRangeInput>[];
 }

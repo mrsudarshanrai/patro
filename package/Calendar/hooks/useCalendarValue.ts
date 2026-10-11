@@ -1,18 +1,30 @@
 import { useControllableValue } from '../../hooks/useControllableValue';
-import { adDateToLocalDate, EMPTY_RANGE, supportedAdRange, toPatroDate } from '../../utils';
-import type { DateRange, RangeSelection, SingleSelection } from '../../types/public';
+import {
+  adDateToLocalDate,
+  EMPTY_RANGE,
+  supportedAdRange,
+  toInputDate,
+  toPatroDate,
+} from '../../utils';
+import type {
+  DateInput,
+  DateRangeInput,
+  RangeSelection,
+  SingleSelection,
+} from '../../types/public';
 import type { UseCalendarValueOptions } from '../CalendarType';
 
 const useCalendarValue = ({ isRange, value, defaultValue, onChange }: UseCalendarValueOptions) => {
-  const [currentValue, setValue] = useControllableValue<Date | DateRange | null>(value, () =>
-    defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null,
+  const [currentValue, setValue] = useControllableValue<DateInput | DateRangeInput | null>(
+    value,
+    () => (defaultValue !== undefined ? defaultValue : isRange ? EMPTY_RANGE : null),
   );
-  const currentRange = isRange ? ((currentValue as DateRange | null) ?? EMPTY_RANGE) : null;
+  const currentRange = isRange ? ((currentValue as DateRangeInput | null) ?? EMPTY_RANGE) : null;
   const range = currentRange && supportedAdRange(currentRange);
   // In range mode the start anchors the view, like a single selection would.
   const selectedDate = range
     ? range.start && adDateToLocalDate(range.start)
-    : (currentValue as Date | null);
+    : toInputDate(currentValue as DateInput | null);
 
   const commitRange = (start: string, end: string | null) => {
     setValue({ start: adDateToLocalDate(start), end: end ? adDateToLocalDate(end) : null });

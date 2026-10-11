@@ -1,5 +1,5 @@
 import { ChangeEvent, FocusEvent, KeyboardEvent, useState } from 'react';
-import { parseInputDate, toAdDateString, toPatroDate } from '../../utils';
+import { parseInputDate, toInputAdDate, toPatroDate } from '../../utils';
 import type { UseTypedDateOptions } from '../DatepickerType';
 
 const useTypedDate = ({
@@ -17,9 +17,11 @@ const useTypedDate = ({
   const [draft, setDraft] = useState<string | null>(null);
   const [typedInvalid, setTypedInvalid] = useState(false);
 
+  const minAdDate = toInputAdDate(minDate);
+  const maxAdDate = toInputAdDate(maxDate);
   const allowed = (adDate: string) =>
-    (!minDate || adDate >= toAdDateString(minDate)) &&
-    (!maxDate || adDate <= toAdDateString(maxDate)) &&
+    (!minAdDate || adDate >= minAdDate) &&
+    (!maxAdDate || adDate <= maxAdDate) &&
     !isDateDisabled?.(toPatroDate(adDate));
 
   const resetDraft = () => {
