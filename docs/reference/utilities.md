@@ -14,6 +14,38 @@ isValidAdDate('2026-02-29'); // false
 isValidBsDate('2080-01-32'); // false
 ```
 
+## BS date helpers
+
+Date math and display in Bikram Sambat, without converting back and forth yourself:
+
+```ts
+import {
+  getBsToday,
+  daysInBsMonth,
+  getBsWeekday,
+  addBsDays,
+  addBsMonths,
+  addBsYears,
+  bsDaysBetween,
+  formatBsDate,
+} from 'patrojs';
+
+getBsToday(); // '2083-07-12' (this device's clock)
+daysInBsMonth(2083, 3); // 32 (Asar)
+getBsWeekday('2083-07-12'); // 4 (0 = Sunday … 6 = Saturday)
+
+addBsDays('2083-07-12', -12); // '2083-06-31'
+addBsMonths('2083-03-32', 1); // '2083-04-31' (clamped: Shrawan has 31 days)
+addBsYears('2067-06-25', 16) <= getBsToday(); // true: born 2067-06-25, now 16 or older
+bsDaysBetween('2083-07-01', '2083-07-12'); // 11
+
+formatBsDate('2083-06-25'); // '२५ आश्विन २०८३'
+formatBsDate('2083-06-25', { weekday: true }); // 'आइतवार, २५ आश्विन २०८३'
+formatBsDate('2083-06-25', { locale: 'en' }); // '25 Asoj 2083'
+```
+
+They take BS dates in Latin or Devanagari digits, return Latin `'YYYY-MM-DD'` strings, and throw a `RangeError` for invalid dates or results outside the supported range. `formatBsDate` defaults to Nepali names and Devanagari digits; set `locale: 'en'` for English, and `numerals` to choose the digits separately. All of them are in `patrojs/utils` too.
+
 ## Input and errors
 
 - Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs` also takes a `Date`, read in local time.
@@ -26,7 +58,7 @@ isValidBsDate('2080-01-32'); // false
 The main `patrojs` entry is marked `'use client'` for its components. In React Server Components or other server code, import the same functions from `patrojs/utils`, which isn't:
 
 ```ts
-import { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from 'patrojs/utils';
+import { ad2Bs, bs2Ad, formatBsDate } from 'patrojs/utils';
 ```
 
 ## Supported range

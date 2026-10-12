@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.0-beta.4 (2026-10-12)
+
+### Added
+
+- BS date helpers, from `patrojs` and `patrojs/utils`: `getBsToday`, `daysInBsMonth`, `getBsWeekday`, `addBsDays`, `addBsMonths`, `addBsYears` (days clamped to the target month), `bsDaysBetween` and `formatBsDate` (e.g. `'आइतवार, २५ आश्विन २०८३'` or `'25 Asoj 2083'`). New type: `FormatBsDateOptions`.
+
+### Fixed
+
+- A `Datepicker` with `portal` or `portalContainer` no longer closes itself when opened from the keyboard; focus stays on the day grid, so it now works by keyboard inside modals.
+- Scrolling the page no longer hides the popover, so the last week of a two-month popover on a phone can be reached. It still hides when its field scrolls out of a scrolling container.
+- Range-only props (`minDays`, `maxDays`) are type errors again without `mode='range'`. `data-*` attributes still type-check.
+
+### Changed
+
+- Each day's accessible name is in one language, the calendar's (or `locale`/`numerals` when set), matching the root's `lang`: an AD calendar announces "12 October 2026, 26 Asoj 2083", a BS calendar "२६ आश्विन २०८३, १२ अक्टोबर २०२६". Visible text is unchanged.
+
 ## 1.0.0-beta.3 (2026-10-11)
 
 ### Added

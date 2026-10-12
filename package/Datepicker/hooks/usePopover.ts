@@ -47,8 +47,18 @@ const usePopover = ({
   const [openValue, setOpenValue] = useControllableValue(open, () => defaultOpen);
   const isOpen = !disabled && !readOnly && openValue;
   const [anchor, setAnchor] = useState<HTMLDivElement | null>(null);
-  const [popover, setPopover] = useState<HTMLDivElement | null>(null);
+  const [popover, setPopoverState] = useState<HTMLDivElement | null>(null);
+
+  const popoverRef = useRef<HTMLDivElement | null>(null);
+  const setPopover = useCallback((node: HTMLDivElement | null) => {
+    popoverRef.current = node;
+    setPopoverState(node);
+  }, []);
   const rootRef = useRef<HTMLDivElement>(null);
+  const insidePicker = useCallback(
+    (node: Node) => !!(rootRef.current?.contains(node) || popoverRef.current?.contains(node)),
+    [],
+  );
 
   const setOpen = useCallback(
     (next: boolean) => {
@@ -63,18 +73,14 @@ const usePopover = ({
     if (!isOpen) return;
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (popover?.contains(target) || anchor?.contains(target)) return;
+      if (popoverRef.current?.contains(target) || anchor?.contains(target)) return;
       setOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, anchor, popover, setOpen]);
+  }, [isOpen, anchor, setOpen]);
 
-  const containsNode = useCallback(
-    (node: Node) => !!(rootRef.current?.contains(node) || popover?.contains(node)),
-    [popover],
-  );
-  useClaimEscape(isOpen, containsNode);
+  useClaimEscape(isOpen, insidePicker);
 
   // autoUpdate also follows layout shifts, not just scroll and resize.
   useEffect(() => {
@@ -94,7 +100,7 @@ const usePopover = ({
               popover.style.maxWidth = `${availableWidth}px`;
             },
           }),
-          hide(),
+          hide({ rootBoundary: 'document' }),
         ],
       }).then(({ x, y, middlewareData }) => {
         Object.assign(popover.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
@@ -108,8 +114,7 @@ const usePopover = ({
   // React bubbles blur out of portals, so this also sees the portalled popover.
   const onFocusLeave = (event: FocusEvent<HTMLDivElement>) => {
     const next = event.relatedTarget as Node | null;
-    if (!isOpen || !next) return;
-    if (rootRef.current?.contains(next) || popover?.contains(next)) return;
+    if (!isOpen || !next || insidePicker(next)) return;
     setOpen(false);
   };
 

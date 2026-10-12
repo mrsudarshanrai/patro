@@ -1,11 +1,25 @@
 export * from './Calendar';
 export * from './Datepicker';
-export { ad2Bs, bs2Ad, isValidAdDate, isValidBsDate } from './utils';
+export {
+  ad2Bs,
+  bs2Ad,
+  isValidAdDate,
+  isValidBsDate,
+  getBsToday,
+  daysInBsMonth,
+  getBsWeekday,
+  addBsDays,
+  addBsMonths,
+  addBsYears,
+  bsDaysBetween,
+  formatBsDate,
+} from './utils';
 export type {
   CalendarSystem,
   DateInput,
   DateRange,
   DateRangeInput,
+  FormatBsDateOptions,
   PatroDateRange,
   Locale,
   Numerals,

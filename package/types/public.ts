@@ -5,6 +5,16 @@ export type Numerals = 'latin' | 'devanagari';
 /** A day: a `Date` (its local calendar day), or an AD `'YYYY-MM-DD'` string in Latin or Devanagari digits. */
 export type DateInput = Date | string;
 
+/** Options for `formatBsDate`. */
+export interface FormatBsDateOptions {
+  /** Month and weekday names: 'ne' (default) or 'en'. */
+  locale?: Locale;
+  /** Digits: Devanagari by default for 'ne', Latin for 'en'. */
+  numerals?: Numerals;
+  /** Start with the weekday, e.g. 'शनिवार, २५ आश्विन २०८३'. */
+  weekday?: boolean;
+}
+
 export interface PatroDate {
   /** Local midnight of the selected day. */
   date: Date;

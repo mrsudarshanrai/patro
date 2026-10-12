@@ -12,9 +12,12 @@ const Picker = (props: DatepickerSingleProps) => (
   <Datepicker label='Date' defaultOpen today={today} {...props} />
 );
 
-// ?container portals the popover into the dialog itself.
+// ?container portals the popover into the dialog itself; ?closed starts it closed.
 const DialogPicker = ({ container }: { container: Element | null }) => (
-  <Picker {...(params.has('container') && { portalContainer: container })} />
+  <Picker
+    defaultOpen={!params.has('closed')}
+    {...(params.has('container') && { portalContainer: container })}
+  />
 );
 
 const NativeDialog = () => {
@@ -138,7 +141,7 @@ const scenarios: Record<string, () => ReactElement> = {
   ),
   closed: () => (
     <div style={{ padding: 8 }}>
-      <Picker defaultOpen={false} name='date' />
+      <Picker defaultOpen={false} name='date' portal={params.has('portal')} />
     </div>
   ),
   'native-dialog': NativeDialog,
