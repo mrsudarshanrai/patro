@@ -31,7 +31,7 @@ try {
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { Calendar, Datepicker, ad2Bs } from 'patrojs';
-import { bs2Ad, isValidBsDate } from 'patrojs/utils';
+import { bs2Ad, isValidBsDate, addBsYears, formatBsDate } from 'patrojs/utils';
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 
@@ -39,6 +39,7 @@ const require = createRequire(import.meta.url);
 const check = (ok, what) => { if (!ok) throw new Error('ESM: ' + what); };
 check(ad2Bs('2022-10-24') === '2079-07-07', 'ad2Bs');
 check(bs2Ad('2079-07-07') === '2022-10-24' && isValidBsDate('2080-01-31'), 'patrojs/utils');
+check(addBsYears('2067-06-25', 16) === '2083-06-25' && formatBsDate('2083-06-25', { locale: 'en' }) === '25 Asoj 2083', 'BS helpers');
 check(renderToString(createElement(Calendar, { today: new Date(2026, 9, 29) })).includes('October 2026'), 'Calendar SSR');
 check(renderToString(createElement(Datepicker, { defaultOpen: true, portal: true })).includes('_patro_datepicker'), 'Datepicker SSR');
 check(readFileSync(require.resolve('patrojs/style.css'), 'utf8').includes('._patro'), 'patro/style.css');
@@ -70,7 +71,7 @@ import {
   type DateInput,
   type DateRangeInput,
 } from 'patrojs';
-import { ad2Bs } from 'patrojs/utils';
+import { ad2Bs, formatBsDate, type FormatBsDateOptions } from 'patrojs/utils';
 const onChange = (value: PatroDate | null) => value?.bs;
 const props: DatepickerProps = { mode: 'range', onChange: ({ start }) => start?.ad };
 const single: DatepickerSingleProps = { editable: true, placement: 'top', valueFormat: 'bs' };
@@ -81,7 +82,9 @@ const range: DatepickerRangeProps = { mode: 'range', minDays: 2, formatValue: ({
 // @ts-expect-error: placement only takes the documented values.
 const wrong: DatepickerSingleProps = { placement: 'left' };
 const bs: string = ad2Bs(new Date());
-export { Calendar, Datepicker, onChange, props, single, range, wrong, bs, fromStrings, day, stay };
+const bsOptions: FormatBsDateOptions = { locale: 'en', weekday: true };
+const bsText: string = formatBsDate(bs, bsOptions);
+export { Calendar, Datepicker, onChange, props, single, range, wrong, bs, fromStrings, day, stay, bsText };
 `,
   );
   run('node', ['esm.mjs']);

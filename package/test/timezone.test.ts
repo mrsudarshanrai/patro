@@ -1,4 +1,4 @@
-import { ad2Bs, bs2Ad, adDateToLocalDate } from '../utils';
+import { ad2Bs, addBsDays, bs2Ad, adDateToLocalDate, getBsWeekday } from '../utils';
 
 // Runs under whatever TZ the process started with; `npm run test:tz` runs this
 // file once per timezone, since jest sandboxes process.env per test file.
@@ -18,6 +18,11 @@ describe(`in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`, () => {
     expect(ad2Bs('1994-12-15')).toBe('2051-08-29');
     expect(ad2Bs('1994-12-31')).toBe('2051-09-16');
     expect(bs2Ad(ad2Bs('1994-12-31'))).toBe('1994-12-31');
+  });
+
+  test('BS helpers are timezone-independent', () => {
+    expect(addBsDays('2083-01-01', 365)).toBe('2084-01-01');
+    expect(getBsWeekday('2083-07-12')).toBe(4);
   });
 
   test('adDateToLocalDate keeps the same calendar day locally', () => {
