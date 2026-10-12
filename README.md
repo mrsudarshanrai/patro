@@ -145,7 +145,7 @@ For pixel-exact Devanagari numerals, load [Noto Sans Devanagari](https://fonts.g
 
 ## Props
 
-`Calendar` and `Datepicker` share these props. `DateInput` is a `Date` or an AD `'YYYY-MM-DD'` string (Latin or Devanagari digits), e.g. `minDate='2026-01-01'`. Strings are safe to pass from Server Components; `onChange` always gives you a `PatroDate`. Types are exported: `CalendarProps`, `CalendarSingleProps`, `CalendarRangeProps`, `DatepickerProps`, `DatepickerSingleProps`, `DatepickerRangeProps`, `PatroDate`, `DateInput`, `DateRange`, `DateRangeInput`, `PatroDateRange`, `PatroLabels`, `Preset`, `CalendarSystem`, `Locale`, `Numerals`.
+`Calendar` and `Datepicker` share these props. `DateInput` is a `Date` or an AD `'YYYY-MM-DD'` string (Latin or Devanagari digits), e.g. `minDate='2026-01-01'`. Strings are safe to pass from Server Components; `onChange` always gives you a `PatroDate`. Types are exported: `CalendarProps`, `CalendarSingleProps`, `CalendarRangeProps`, `DatepickerProps`, `DatepickerSingleProps`, `DatepickerRangeProps`, `PatroDate`, `DateInput`, `DateRange`, `DateRangeInput`, `FormatBsDateOptions`, `PatroDateRange`, `PatroLabels`, `Preset`, `CalendarSystem`, `Locale`, `Numerals`.
 
 | Prop                | Type                                                             | Default             | Description                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------- | ---------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -226,7 +226,20 @@ bs2Ad('२०७९-०७-०७'); // '2022-10-24'
 isValidBsDate('2080-01-32'); // false
 ```
 
-They're also available from `patrojs/utils`, which, unlike the main entry, isn't marked `'use client'`, so React Server Components and other server code can call them.
+BS date helpers cover date math and display in Bikram Sambat:
+
+```ts
+import { getBsToday, addBsYears, bsDaysBetween, formatBsDate } from 'patrojs';
+
+getBsToday(); // '2083-07-12'
+addBsYears('2067-06-25', 16); // '2083-06-25'
+bsDaysBetween('2083-07-01', '2083-07-12'); // 11
+formatBsDate('2083-06-25', { weekday: true }); // 'आइतवार, २५ आश्विन २०८३'
+```
+
+`daysInBsMonth`, `getBsWeekday`, `addBsDays` and `addBsMonths` too; see the [utilities reference](https://patro.sudarshanrai.com.np/reference/utilities).
+
+All of these are also available from `patrojs/utils`, which, unlike the main entry, isn't marked `'use client'`, so React Server Components and other server code can call them.
 
 Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad` throw a `RangeError` for a malformed, impossible (e.g. `'2026-02-30'`) or unsupported date, and a `TypeError` for a non-string; `isValidAdDate`/`isValidBsDate` return a boolean instead, e.g. for form validation.
 

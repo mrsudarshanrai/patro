@@ -15,6 +15,7 @@ import type {
   DateInput,
   DateRange,
   DateRangeInput,
+  FormatBsDateOptions,
   Preset,
   PatroLabels,
   CalendarSystem,
@@ -64,6 +65,21 @@ interface DateRange {
 interface PatroDateRange {
   start: PatroDate | null;
   end: PatroDate | null;
+}
+```
+
+## `FormatBsDateOptions`
+
+Options for `formatBsDate`:
+
+```ts
+interface FormatBsDateOptions {
+  /** Month and weekday names: 'ne' (default) or 'en'. */
+  locale?: Locale;
+  /** Digits: Devanagari by default for 'ne', Latin for 'en'. */
+  numerals?: Numerals;
+  /** Start with the weekday, e.g. 'शनिवार, २५ आश्विन २०८३'. */
+  weekday?: boolean;
 }
 ```
 
