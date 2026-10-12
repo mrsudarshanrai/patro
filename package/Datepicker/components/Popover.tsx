@@ -1,6 +1,7 @@
 import { KeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useIsClient } from '../../hooks/useToday';
+import { tabbables } from '../../shared/tabbable';
 
 type Props = {
   popoverRef: (node: HTMLDivElement | null) => void;
@@ -9,13 +10,31 @@ type Props = {
   portal: boolean;
   container: Element | null | undefined;
   onEscape: () => void;
+  onTabOut: (direction: 'forward' | 'backward') => void;
   children: ReactNode;
 };
 
-const Popover = ({ popoverRef, id, label, portal, container, onEscape, children }: Props) => {
+const Popover = ({
+  popoverRef,
+  id,
+  label,
+  portal,
+  container,
+  onEscape,
+  onTabOut,
+  children,
+}: Props) => {
   const isClient = useIsClient();
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') onEscape();
+    // A portalled popover sits away from its field, so Tab at its edges wouldn't reach the next control.
+    if (event.key !== 'Tab' || !portal) return;
+    const stops = tabbables(event.currentTarget);
+    const edge = event.shiftKey ? stops[0] : stops[stops.length - 1];
+    if (event.target !== edge) return;
+    event.preventDefault();
+    event.stopPropagation();
+    onTabOut(event.shiftKey ? 'backward' : 'forward');
   };
   const popover = (
     <div

@@ -80,3 +80,32 @@ test.describe('keyboard-opened portalled popover (N1)', () => {
     await expect(page.getByRole('combobox')).toBeFocused();
   });
 });
+
+test.describe('Tab out of a portalled popover (P1)', () => {
+  for (const [name, url] of [
+    ['portal', '/?s=closed&portal'],
+    ['portalContainer in a Radix dialog', '/?s=radix-dialog&container&closed'],
+  ]) {
+    test(`${name}: Tab past the last control closes it and moves to the next control`, async ({
+      page,
+    }) => {
+      await page.goto(url);
+      await page.getByRole('combobox').focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('grid')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.locator('._patro_datepicker_popper')).toHaveCount(0);
+      await expect(page.locator('#after')).toBeFocused();
+    });
+  }
+
+  test('portal: Shift+Tab past the first control returns to the field', async ({ page }) => {
+    await page.goto('/?s=closed&portal');
+    await page.getByRole('combobox').focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('grid')).toBeFocused();
+    for (let i = 0; i < 4; i++) await page.keyboard.press('Shift+Tab');
+    await expect(page.locator('._patro_datepicker_popper')).toHaveCount(0);
+    await expect(page.getByRole('combobox')).toBeFocused();
+  });
+});

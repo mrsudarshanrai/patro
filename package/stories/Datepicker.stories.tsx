@@ -210,7 +210,7 @@ const ControlledOpen = () => {
           {open ? 'Close' : 'Open'} from outside
         </button>
       </p>
-      <Datepicker label='Controlled popover' open={open} onOpenChange={setOpen} />
+      <Datepicker label='Controlled popover' open={open} />
     </div>
   );
 };

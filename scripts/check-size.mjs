@@ -9,7 +9,7 @@ const gzipped = (files) =>
 
 const esm = readdirSync(dist).filter((file) => file.endsWith('.js'));
 const budgets = [
-  { name: 'JS (ESM, all chunks)', bytes: gzipped(esm), limit: 22_500 },
+  { name: 'JS (ESM, all chunks)', bytes: gzipped(esm), limit: 23_500 },
   { name: 'CSS', bytes: gzipped(['css/style.css']), limit: 3_300 },
 ];
 

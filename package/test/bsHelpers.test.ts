@@ -59,3 +59,30 @@ describe('BS date helpers', () => {
     jest.useRealTimers();
   });
 });
+
+describe('number arguments are checked (H1)', () => {
+  test('non-numbers are a TypeError, naming the argument', () => {
+    // @ts-expect-error a string where a number is expected
+    expect(() => daysInBsMonth('2083', '1')).toThrow(
+      new TypeError('Expected year to be a number, got string.'),
+    );
+    // @ts-expect-error a string where a number is expected
+    expect(() => addBsDays('2083-07-12', '5')).toThrow(TypeError);
+    expect(() => addBsMonths('2083-07-12', null)).toThrow(
+      'Expected months to be a number, got null.',
+    );
+  });
+
+  test('fractions and NaN are a RangeError instead of being truncated', () => {
+    expect(() => addBsDays('2083-07-12', 1.5)).toThrow(
+      new RangeError('Expected days to be a whole number, got 1.5.'),
+    );
+    expect(() => addBsYears('2083-07-12', NaN)).toThrow(RangeError);
+    expect(() => daysInBsMonth(2083, 2.5)).toThrow('Expected month to be a whole number, got 2.5.');
+  });
+
+  test('whole numbers, including negative ones, still work', () => {
+    expect(addBsDays('2083-07-12', -1)).toBe('2083-07-11');
+    expect(addBsYears('2083-07-12', -1)).toBe('2082-07-12');
+  });
+});

@@ -27,7 +27,7 @@ const ConverterDemo = () => {
       <p>
         Both take and return <code>YYYY-MM-DD</code>, in Latin or Devanagari digits, and throw for
         anything else. Supported: AD 1921-04-13 – 2043-04-14. Also exported from{' '}
-        <code>patro/utils</code> for server code.
+        <code>patrojs/utils</code> for server code.
       </p>
 
       <div className='story-field'>

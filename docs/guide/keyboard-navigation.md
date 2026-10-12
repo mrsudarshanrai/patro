@@ -31,7 +31,7 @@ Set `showTodayButton` to add a button below the grid that jumps to the current m
 - It's a WAI-ARIA **select-only combobox**, or, with `editable`, a text input with the combobox role. So `required`, `readOnly` and `invalid` are announced by screen readers, and `aria-controls` points at the open popover.
 - Its accessible name comes from `label`, or `aria-label`, or else "Choose a date" / "मिति छान्नुहोस्".
 - Opening it from the keyboard moves focus into the day grid; opening it with the mouse leaves focus where you clicked. Picking a day or pressing Escape returns focus to the field.
-- Tabbing out of an open popover closes it.
+- Tabbing out of an open popover closes it and moves on to the next control, with `portal` and `portalContainer` too. Shift+Tab out of it returns to the field.
 
 ## Day names
 

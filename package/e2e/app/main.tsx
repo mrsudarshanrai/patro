@@ -38,6 +38,9 @@ const RadixHost = () => {
         <RadixDialog.Content id='dialog' ref={setContent} aria-describedby={undefined}>
           <RadixDialog.Title>Booking</RadixDialog.Title>
           <DialogPicker container={content} />
+          <button type='button' id='after'>
+            After
+          </button>
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>
@@ -142,6 +145,9 @@ const scenarios: Record<string, () => ReactElement> = {
   closed: () => (
     <div style={{ padding: 8 }}>
       <Picker defaultOpen={false} name='date' portal={params.has('portal')} />
+      <button type='button' id='after'>
+        After
+      </button>
     </div>
   ),
   'native-dialog': NativeDialog,

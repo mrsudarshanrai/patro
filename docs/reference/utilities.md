@@ -44,7 +44,7 @@ formatBsDate('2083-06-25', { weekday: true }); // 'आइतवार, २५ �
 formatBsDate('2083-06-25', { locale: 'en' }); // '25 Asoj 2083'
 ```
 
-They take BS dates in Latin or Devanagari digits, return Latin `'YYYY-MM-DD'` strings, and throw a `RangeError` for invalid dates or results outside the supported range. `formatBsDate` defaults to Nepali names and Devanagari digits; set `locale: 'en'` for English, and `numerals` to choose the digits separately. All of them are in `patrojs/utils` too.
+They take BS dates in Latin or Devanagari digits, return Latin `'YYYY-MM-DD'` strings, and throw a `RangeError` for invalid dates or results outside the supported range. Number arguments must be whole numbers: a fraction is a `RangeError`, and a non-number (such as `'5'`) a `TypeError`. `formatBsDate` defaults to Nepali names and Devanagari digits; set `locale: 'en'` for English, and `numerals` to choose the digits separately. All of them are in `patrojs/utils` too.
 
 ## Input and errors
 
