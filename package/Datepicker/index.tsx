@@ -65,7 +65,8 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       className,
       style,
       ...rest
-    } = props;
+      // editable is single-mode only in the types;
+    } = props as DatepickerProps & { editable?: boolean };
     const { data: dataAttributes, rest: calendarProps } = splitDataAttributes(rest);
     const text = labelsFor(calendar, { locale, numerals }, props.labels);
     const generatedId = useId();
