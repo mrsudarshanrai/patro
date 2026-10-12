@@ -8,6 +8,10 @@ A React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS)
 
 **[Documentation](https://patro.sudarshanrai.com.np)** · **[Storybook](https://patro.sudarshanrai.com.np/storybook/)** · **[npm](https://www.npmjs.com/package/patrojs)**
 
+<p align="center">
+  <img src="docs/public/screenshots/datepicker-bs-nepali.jpg" alt="Datepicker showing the BS calendar in Nepali, with AD dates under each day" height="380" hspace="6"><img src="docs/public/screenshots/datepicker-ad-dark.jpg" alt="Datepicker showing the AD calendar in dark mode, with BS dates under each day and holiday dots" height="380" hspace="6">
+</p>
+
 ## Install
 
 ```bash
