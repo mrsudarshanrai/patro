@@ -25,7 +25,7 @@ const holidays: Record<string, string> = {
 />;
 ```
 
-`dayContent` is visual only: a screen reader reads the day's accessible name, not its content. Pair it with `dayLabel` so a marked day is announced as, say, "21 October 2026, ४ कार्तिक २०८३, Vijaya Dashami".
+`dayContent` is visual only: a screen reader reads the day's accessible name, not its content. Pair it with `dayLabel` so a marked day is announced as, say, "21 October 2026, 4 Kartik 2083, Vijaya Dashami".
 
 `weekendDays` colours whole weekdays (Nepal's weekend is `[6]`, Saturday) and `isDateDisabled` makes days unpickable; see the [props reference](../reference/props).
 

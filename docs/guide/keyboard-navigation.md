@@ -35,7 +35,7 @@ Set `showTodayButton` to add a button below the grid that jumps to the current m
 
 ## Day names
 
-Each day's accessible name spells out the date in both calendars, e.g. "12 October 2026, २६ आश्विन २०८३". `dayLabel` can append more, like a holiday name (see [Holidays, events & presets](./days-and-presets)).
+Each day's accessible name spells out the date in both calendars, in one language so a screen reader reads it with one voice: the calendar's language, or `locale`/`numerals` when set. An AD calendar announces "12 October 2026, 26 Asoj 2083"; a BS calendar announces "२६ आश्विन २०८३, १२ अक्टोबर २०२६". The component root's `lang` matches. `dayLabel` can append more, like a holiday name (see [Holidays, events & presets](./days-and-presets)).
 
 ## Colours
 
