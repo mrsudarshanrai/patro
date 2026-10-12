@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-rc.1 (2026-10-12)
+
+The release candidate for 1.0.0: the same code as 1.0.0-beta.6. If no problems turn up, it becomes 1.0.0 unchanged, and from then on the [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) applies.
+
+### Docs
+
+- Install with `npm install patrojs`; the README and docs no longer say `@beta`.
+- The docs home badge links to the changelog for the current version.
+
 ## 1.0.0-beta.6 (2026-10-12)
 
 ### Changed
