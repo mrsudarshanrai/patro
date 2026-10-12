@@ -226,6 +226,7 @@ export {
   toPatroDate,
   otherSystem,
   languageOf,
+  numeralsOf,
   formatNumber,
   monthName,
   weekdayNames,

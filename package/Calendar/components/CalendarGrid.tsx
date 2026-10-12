@@ -3,6 +3,8 @@ import {
   formatDate,
   formatNumber,
   GridCell,
+  languageOf,
+  numeralsOf,
   otherSystem,
   toPatroDate,
 } from '../../utils';
@@ -49,9 +51,15 @@ const cellClassName = (
     .filter(Boolean)
     .join(' ');
 
-const cellLabel = ({ adDate, secondaryDay }: GridCell, display: DisplayOptions) => {
-  const ad = formatDate(adDate, 'AD', display);
-  return secondaryDay === null ? ad : `${ad}, ${formatDate(adDate, 'BS', display)}`;
+// One language per name, the root's `lang`, so a screen reader reads it with one voice.
+const cellLabel = (
+  { adDate, secondaryDay }: GridCell,
+  calendar: CalendarSystem,
+  display: DisplayOptions,
+) => {
+  const spoken = { locale: languageOf(calendar, display), numerals: numeralsOf(calendar, display) };
+  if (secondaryDay === null) return formatDate(adDate, 'AD', spoken);
+  return `${formatDate(adDate, calendar, spoken)}, ${formatDate(adDate, otherSystem(calendar), spoken)}`;
 };
 
 const number = (value: number | null, system: CalendarSystem, display: DisplayOptions) =>
@@ -103,7 +111,9 @@ const CalendarGrid = (props: CalendarGridProps) => {
                   aria-selected={inRange ? inRange.ariaSelected : date.isSelected}
                   aria-current={date.isToday ? 'date' : undefined}
                   aria-disabled={date.isDisabled || undefined}
-                  aria-label={[cellLabel(date, display), extraLabel].filter(Boolean).join(', ')}
+                  aria-label={[cellLabel(date, calendar, display), extraLabel]
+                    .filter(Boolean)
+                    .join(', ')}
                   title={adDate}
                   onClick={date.isDisabled ? undefined : () => onSelect(adDate)}
                   onMouseEnter={
