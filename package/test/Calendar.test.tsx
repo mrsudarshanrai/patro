@@ -201,7 +201,7 @@ describe('keyboard navigation', () => {
     expect(focused(container)).toBe('2026-10-29');
     const active = document.getElementById(grid.getAttribute('aria-activedescendant') ?? '');
     expect(active).toHaveAttribute('title', '2026-10-29');
-    expect(active).toHaveAttribute('aria-label', '29 October 2026, १२ कार्तिक २०८३');
+    expect(active).toHaveAttribute('aria-label', '29 October 2026, 12 Kartik 2083');
     expect(active).toHaveAttribute('aria-selected', 'true');
     expect(grid).toHaveAccessibleName('October 2026');
   });
@@ -492,7 +492,7 @@ describe('locale and numerals', () => {
     expect(cell(container, '2026-10-29').textContent).toBe('1229');
     expect(cell(container, '2026-10-29')).toHaveAttribute(
       'aria-label',
-      '29 October 2026, 12 Kartik 2083',
+      '12 Kartik 2083, 29 October 2026',
     );
   });
 
@@ -577,9 +577,9 @@ test('dayContent adds content to a day and dayLabel extends its accessible name'
   // 2026-10-12 = BS 2083-06-26.
   const holiday = cell(container, '2026-10-12');
   expect(holiday.querySelector('._patro_dates_content .dot')).not.toBeNull();
-  expect(holiday).toHaveAccessibleName('12 October 2026, २६ आश्विन २०८३, Dashain');
+  expect(holiday).toHaveAccessibleName('12 October 2026, 26 Asoj 2083, Dashain');
   expect(cell(container, '2026-10-13').querySelector('._patro_dates_content')).toBeNull();
-  expect(cell(container, '2026-10-13')).toHaveAccessibleName('13 October 2026, २७ आश्विन २०८३');
+  expect(cell(container, '2026-10-13')).toHaveAccessibleName('13 October 2026, 27 Asoj 2083');
 });
 
 test('onMonthChange reports the new month, not the initial one', async () => {

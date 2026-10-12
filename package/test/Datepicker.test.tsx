@@ -610,3 +610,16 @@ describe('pass-through props', () => {
     expect(container.firstElementChild).toHaveAttribute('data-section', 'booking');
   });
 });
+
+test('range-only props are type errors in single mode, data-* is not', () => {
+  render(
+    <>
+      {/* @ts-expect-error minDays only applies to mode='range' */}
+      <Datepicker minDays={2} />
+      <Datepicker data-testid='single' />
+      {/* @ts-expect-error maxDays only applies to mode='range' */}
+      <Calendar maxDays={3} />
+    </>,
+  );
+  expect(screen.getByTestId('single')).toHaveAttribute('role', 'combobox');
+});

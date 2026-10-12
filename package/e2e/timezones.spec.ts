@@ -17,7 +17,7 @@ for (const timezoneId of ['America/Los_Angeles', 'Asia/Kathmandu', 'Pacific/Pago
     test('a picked day submits the same date', async ({ page }) => {
       await page.goto('/?s=closed');
       await page.getByRole('combobox').click();
-      await page.getByRole('gridcell', { name: /^29 October 2026, १२ कार्तिक २०८३/ }).click();
+      await page.getByRole('gridcell', { name: /^29 October 2026, 12 Kartik 2083/ }).click();
       await expect(page.locator('input[name="date"]')).toHaveValue('2026-10-29');
     });
   });

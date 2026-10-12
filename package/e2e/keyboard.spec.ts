@@ -48,3 +48,35 @@ test('today is marked with aria-current', async ({ page }) => {
     /^29 October 2026/,
   );
 });
+
+test.describe('keyboard-opened portalled popover (N1)', () => {
+  test('portal: opens with focus on the grid and stays open', async ({ page }) => {
+    await page.goto('/?s=closed&portal');
+    await page.getByRole('combobox').focus();
+    await page.keyboard.press('Enter');
+    const grid = page.getByRole('grid');
+    await expect(grid).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(grid).toHaveAttribute('aria-activedescendant', /2026-10-30$/);
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('combobox')).toContainText('30 October 2026');
+    await expect(page.locator('input[name="date"]')).toHaveValue('2026-10-30');
+  });
+
+  test('portalContainer in a Radix dialog: arrows work, Escape closes only the popover', async ({
+    page,
+  }) => {
+    await page.goto('/?s=radix-dialog&container&closed');
+    await page.getByRole('combobox').focus();
+    await page.keyboard.press('ArrowDown');
+    const grid = page.getByRole('grid');
+    await expect(grid).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(grid).toHaveAttribute('aria-activedescendant', /2026-10-28$/);
+
+    await page.keyboard.press('Escape');
+    await expect(page.locator('._patro_datepicker_popper')).toHaveCount(0);
+    await expect(page.locator('#dialog')).toBeVisible();
+    await expect(page.getByRole('combobox')).toBeFocused();
+  });
+});

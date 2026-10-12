@@ -65,6 +65,18 @@ test.describe('small screens', () => {
     expect(scrollsSideways).toBe(false);
   });
 
+  test('two months on a phone: the page scrolls to the last week and it can be picked (N2)', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    const popover = await openScenario(page, 'two-months');
+    const lastDay = page.getByRole('gridcell', { name: /^30 November 2026/ });
+    await lastDay.scrollIntoViewIfNeeded();
+    await expect(popover).toHaveCSS('visibility', 'visible');
+    await lastDay.click();
+    await expect(lastDay).toHaveAttribute('aria-selected', 'true');
+  });
+
   test('a landscape phone keeps the header on screen', async ({ page }) => {
     await page.setViewportSize({ width: 667, height: 375 });
     await openScenario(page, 'short-viewport');
