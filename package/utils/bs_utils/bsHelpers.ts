@@ -17,17 +17,30 @@ const utcMsToAd = (ms: number) => {
   return createDateString(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
 };
 
+const wholeNumber = (value: unknown, name: string) => {
+  if (typeof value !== 'number') {
+    throw new TypeError(
+      `Expected ${name} to be a number, got ${value === null ? 'null' : typeof value}.`,
+    );
+  }
+  if (!Number.isInteger(value))
+    throw new RangeError(`Expected ${name} to be a whole number, got ${value}.`);
+  return value;
+};
+
 /** Today's BS date, 'YYYY-MM-DD', from this device's clock. */
 const getBsToday = () => ad2Bs(new Date());
 
 /** Number of days (29–32) in a BS month. Throws for a year outside 1978–2099 or a month outside 1–12. */
 const daysInBsMonth = (year: number, month: number) => {
-  if (!Number.isInteger(year) || year < MIN_BS_YEAR || year > MAX_BS_YEAR) {
+  wholeNumber(year, 'year');
+  wholeNumber(month, 'month');
+  if (year < MIN_BS_YEAR || year > MAX_BS_YEAR) {
     throw new RangeError(
       `BS year ${year} is outside the supported range (${MIN_BS_YEAR} to ${MAX_BS_YEAR}).`,
     );
   }
-  if (!Number.isInteger(month) || month < 1 || month > 12) {
+  if (month < 1 || month > 12) {
     throw new RangeError(`BS month ${month} is not between 1 and 12.`);
   }
   return dates[year][month];
@@ -38,7 +51,7 @@ const getBsWeekday = (bsDate: string) => new Date(adToUtcMs(bs2Ad(bsDate))).getU
 
 /** A BS date `days` days later (or earlier, when negative). */
 const addBsDays = (bsDate: string, days: number) => {
-  const adDate = utcMsToAd(adToUtcMs(bs2Ad(bsDate)) + Math.trunc(days) * DAY_MS);
+  const adDate = utcMsToAd(adToUtcMs(bs2Ad(bsDate)) + wholeNumber(days, 'days') * DAY_MS);
   if (!isSupportedAdDate(adDate)) {
     throw new RangeError(
       `Adding ${days} days to "${bsDate}" goes outside the supported range (${MIN_BS_DATE} to ${MAX_BS_DATE}).`,
@@ -50,7 +63,7 @@ const addBsDays = (bsDate: string, days: number) => {
 /** A BS date `months` months later (or earlier); the day is clamped to the target month's length. */
 const addBsMonths = (bsDate: string, months: number) => {
   const { year, month, day } = dateString2Obj(validateBsDate(bsDate));
-  const index = year * 12 + month - 1 + Math.trunc(months);
+  const index = year * 12 + month - 1 + wholeNumber(months, 'months');
   const targetYear = Math.floor(index / 12);
   const targetMonth = (index % 12) + 1;
   const length = daysInBsMonth(targetYear, targetMonth);
@@ -58,7 +71,8 @@ const addBsMonths = (bsDate: string, months: number) => {
 };
 
 /** A BS date `years` years later (or earlier); the day is clamped to the target month's length. */
-const addBsYears = (bsDate: string, years: number) => addBsMonths(bsDate, Math.trunc(years) * 12);
+const addBsYears = (bsDate: string, years: number) =>
+  addBsMonths(bsDate, wholeNumber(years, 'years') * 12);
 
 /** Whole days from `from` to `to`, negative when `to` is earlier. */
 const bsDaysBetween = (from: string, to: string) =>
