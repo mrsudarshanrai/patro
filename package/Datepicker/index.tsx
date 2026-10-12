@@ -21,6 +21,7 @@ import { FieldValue } from './components/FieldValue';
 import { NativeInputs } from './components/NativeInputs';
 import { Popover } from './components/Popover';
 import { splitDataAttributes } from '../shared/dataAttributes';
+import { nextTabbableAfter } from '../shared/tabbable';
 
 const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProps>(
   function Datepicker(props, ref) {
@@ -268,6 +269,12 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
             onEscape={() => {
               setOpen(false);
               field?.focus();
+            }}
+            onTabOut={(direction) => {
+              setOpen(false);
+              const next =
+                direction === 'forward' && rootRef.current && nextTabbableAfter(rootRef.current);
+              (next || field)?.focus();
             }}
           >
             <Calendar
