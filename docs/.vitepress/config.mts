@@ -56,6 +56,7 @@ export default defineConfig({
           { text: 'Props', link: '/reference/props' },
           { text: 'Types', link: '/reference/types' },
           { text: 'AD ↔ BS utilities', link: '/reference/utilities' },
+          { text: 'Versioning', link: '/reference/versioning' },
         ],
       },
     ],

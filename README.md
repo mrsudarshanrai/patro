@@ -245,6 +245,10 @@ Dates are `'YYYY-MM-DD'` strings, in Latin or Devanagari digits. `ad2Bs`/`bs2Ad`
 
 Supported range: AD `1921-04-13` through `2043-04-14` (BS `1978-01-01` through `2099-12-31`).
 
+## Versioning
+
+patrojs follows semantic versioning from 1.0.0. The [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) lists what counts as the public API, what can change in minor releases (such as accessible-name wording, internal `_patro_*` classes and far-future calendar data), and how deprecations work.
+
 ## Contributing
 
 Bug reports, ideas and pull requests are welcome. For anything bigger than a small fix, please [open an issue](https://github.com/mrsudarshanrai/patro/issues) first so we can agree on the approach.
