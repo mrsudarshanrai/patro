@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0-beta.5 (unreleased)
+
+### Fixed
+
+- Tab out of a `portal` or `portalContainer` popover closes it and moves to the next control, as it does without a portal; it used to leave the popover open and send focus to the end of the page. Shift+Tab out of it returns to the field.
+- The BS date helpers check their number arguments: a fraction throws a `RangeError` instead of being truncated, and a non-number (such as `'5'`) a `TypeError` naming the argument.
+
 ## 1.0.0-beta.4 (2026-10-12)
 
 ### Added
