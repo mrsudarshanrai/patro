@@ -15,8 +15,6 @@ import type { PickerItem, PickerView } from './components/CalendarPicker';
 import type { useGridFocus } from './hooks/useGridFocus';
 
 export interface CalendarBaseProps {
-  /** `data-*` attributes such as `data-testid`, set on the root (on a Datepicker, on its field). */
-  [dataAttribute: `data-${string}`]: string | number | boolean | undefined;
   /** Calendar system to display. Defaults to 'AD'. */
   calendar?: CalendarSystem;
   /** Show the other calendar's date on each day. Defaults to true. */
