@@ -45,4 +45,4 @@ const isValidBsDate = (bsDate: string) => {
   }
 };
 
-export { bs2Ad, isValidBsDate };
+export { bs2Ad, isValidBsDate, validateBsDate, MIN_BS_DATE, MAX_BS_DATE };
