@@ -21,11 +21,6 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
   readOnly?: boolean;
   /** Error styling and `aria-invalid`, e.g. after failed form validation. */
   invalid?: boolean;
-  /**
-   * Let people type the date as well, e.g. 2083-07-12 or 2083/7/12, in the displayed calendar and
-   * Latin or Devanagari digits. Committed on Enter or when leaving the field. Single mode only.
-   */
-  editable?: boolean;
   /** Close the popover after picking a day. Defaults to true. */
   closeOnSelect?: boolean;
   /** Controlled popover state. */
@@ -65,6 +60,10 @@ export interface DatepickerBaseProps extends CalendarBaseProps {
 
 export type DatepickerSingleProps = DatepickerBaseProps &
   SingleSelection & {
+    /**
+     * Latin or Devanagari digits. Committed on Enter or when leaving the field.
+     */
+    editable?: boolean;
     /** Custom input text for the selected date, replacing the default two-calendar text. */
     formatValue?: (value: PatroDate) => string;
   };

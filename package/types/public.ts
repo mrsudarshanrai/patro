@@ -59,7 +59,7 @@ export interface PatroDateRange {
   end: PatroDate | null;
 }
 
-/** A quick pick shown under the grid. A function value is read when clicked, e.g. for "Next 7 days". */
+/** A quick pick shown under the grid. A function value is read when the button renders and when it's clicked, so relative picks like "Next 7 days" stay current. */
 export interface Preset<T> {
   label: string;
   value: T | (() => T);

@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
 import { Datepicker } from '../Datepicker';
-import type { DatepickerBaseProps } from '../Datepicker/DatepickerType';
+import type { DatepickerBaseProps, DatepickerProps } from '../Datepicker/DatepickerType';
 import type { PatroDate, SingleSelection } from '../types/public';
 
 const TODAY = new Date(2026, 9, 29);
@@ -616,10 +616,19 @@ test('range-only props are type errors in single mode, data-* is not', () => {
     <>
       {/* @ts-expect-error minDays only applies to mode='range' */}
       <Datepicker minDays={2} />
+      {/* @ts-expect-error editable is single mode only */}
+      <Datepicker mode='range' editable />
       <Datepicker data-testid='single' />
       {/* @ts-expect-error maxDays only applies to mode='range' */}
       <Calendar maxDays={3} />
     </>,
   );
   expect(screen.getByTestId('single')).toHaveAttribute('role', 'combobox');
+});
+
+test('a range Datepicker given editable from plain JS still ignores it', () => {
+  const props = { mode: 'range', editable: true, label: 'Stay' } as unknown as DatepickerProps;
+  const { container } = render(<Datepicker {...props} />);
+  expect(container.querySelector('input[type="text"]')).toBeNull();
+  expect(screen.getByRole('combobox', { name: 'Stay' }).tagName).toBe('DIV');
 });

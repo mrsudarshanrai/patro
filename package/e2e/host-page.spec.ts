@@ -27,3 +27,19 @@ test('page styles for svg, header and p don’t reach the components', async ({ 
 test('the calendar adds no landmark to the page', async ({ page }) => {
   await expect(page.getByRole('banner')).toHaveCount(1);
 });
+
+test.describe('theme tokens', () => {
+  for (const [name, css] of [
+    ['new name', '._patro { --patro-selected-bg: rgb(1, 2, 3) }'],
+    ['beta name still works', '._patro { --patro-sel-bg: rgb(1, 2, 3) }'],
+  ]) {
+    test(`--patro-selected-bg: ${name}`, async ({ page }) => {
+      await page.goto('/?s=calendar&value=2026-10-12');
+      await page.addStyleTag({ content: css });
+      await expect(page.locator('._patro_dates_current_date')).toHaveCSS(
+        'background-color',
+        'rgb(1, 2, 3)',
+      );
+    });
+  }
+});

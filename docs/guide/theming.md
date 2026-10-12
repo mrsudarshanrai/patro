@@ -38,8 +38,8 @@ Any token can be overridden per instance via `style`, or globally via your own C
 | `--patro-surface` | Popover / input background |
 | `--patro-text` | Primary text |
 | `--patro-muted` | Weekday header, labels, placeholder |
-| `--patro-sub` | Secondary (other-calendar) number |
-| `--patro-faint` / `--patro-faint-sub` | Other months' days |
+| `--patro-secondary` | Secondary (other-calendar) number |
+| `--patro-faint` / `--patro-faint-secondary` | Other months' days |
 | `--patro-disabled` | Days and buttons you can't pick |
 | `--patro-hover` | Cell / button hover background |
 | `--patro-border` / `--patro-border-hover` | Input ring |
@@ -47,7 +47,7 @@ Any token can be overridden per instance via `style`, or globally via your own C
 | `--patro-today` | Today's number when not selected |
 | `--patro-weekend` | `weekendDays` text color |
 | `--patro-danger` | `invalid` state on `Datepicker` |
-| `--patro-sel-bg` / `--patro-sel-text` / `--patro-sel-sub` | Selected day |
+| `--patro-selected-bg` / `--patro-selected-text` / `--patro-selected-secondary` | Selected day |
 | `--patro-range-bg` | Range-mode band between start and end |
 | `--patro-halo` | Input focus ring (outer glow) |
 | `--patro-glow` | Selected-cell glow (mainly visible in dark mode) |

@@ -159,6 +159,7 @@ const scenarios: Record<string, () => ReactElement> = {
       calendar={(params.get('calendar') as 'AD' | 'BS') ?? 'AD'}
       today={today}
       defaultMonth={params.has('month') ? new Date(`${params.get('month')}T00:00`) : undefined}
+      defaultValue={params.get('value')}
     />
   ),
 };

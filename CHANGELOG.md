@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.0.0-beta.6 (unreleased)
+
+### Changed
+
+- `editable` is a single-mode prop in the types: `<Datepicker mode='range' editable />` is now a type error. It was always ignored in range mode; this keeps a future typed-range feature from changing existing apps.
+
+### Deprecated
+
+- Theme tokens renamed to clearer names: `--patro-sub` → `--patro-secondary`, `--patro-faint-sub` → `--patro-faint-secondary`, `--patro-sel-bg` → `--patro-selected-bg`, `--patro-sel-text` → `--patro-selected-text`, `--patro-sel-sub` → `--patro-selected-secondary`. The old names keep working until 2.0.
+
+### Docs
+
+- A [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning): what is public API from 1.0, what can change in minor releases, and how deprecations work.
+- The `Preset` type's description now says a function value is read when the button renders and when it's clicked.
+
 ## 1.0.0-beta.5 (2026-10-12)
 
 ### Fixed
