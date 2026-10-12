@@ -56,7 +56,7 @@
       line-height: 17px;
       font-weight: 500;
       font-family: var(--patro-font-devanagari);
-      color: var(--patro-sub);
+      color: var(--patro-secondary);
     }
     &_actionBtn {
       width: 28px;
@@ -160,7 +160,7 @@
       font-size: 11.5px;
       line-height: 13px;
       font-weight: 500;
-      color: var(--patro-sub);
+      color: var(--patro-secondary);
     }
   }
 
@@ -175,7 +175,7 @@
   &_date_offset {
     color: var(--patro-faint);
     sub {
-      color: var(--patro-faint-sub);
+      color: var(--patro-faint-secondary);
     }
   }
 
@@ -212,17 +212,17 @@
   }
 
   &_current_date {
-    background-color: var(--patro-sel-bg);
+    background-color: var(--patro-selected-bg);
     box-shadow:
       inset 0 0 0 1px var(--patro-accent),
       var(--patro-glow);
-    color: var(--patro-sel-text);
+    color: var(--patro-selected-text);
 
     ._patro_dates_date_primary {
       font-weight: 600;
     }
     sub {
-      color: var(--patro-sel-sub);
+      color: var(--patro-selected-secondary);
     }
   }
 
@@ -281,9 +281,9 @@
       box-shadow: inset 0 0 0 2px var(--patro-accent);
     }
     &[aria-current='true'] {
-      background-color: var(--patro-sel-bg);
+      background-color: var(--patro-selected-bg);
       box-shadow: inset 0 0 0 1px var(--patro-accent);
-      color: var(--patro-sel-text);
+      color: var(--patro-selected-text);
       font-weight: 600;
     }
     &:disabled {
@@ -326,9 +326,9 @@
       box-shadow: inset 0 0 0 2px var(--patro-accent);
     }
     &[aria-pressed='true'] {
-      background-color: var(--patro-sel-bg);
+      background-color: var(--patro-selected-bg);
       box-shadow: inset 0 0 0 1px var(--patro-accent);
-      color: var(--patro-sel-text);
+      color: var(--patro-selected-text);
     }
     &:disabled {
       background: transparent;

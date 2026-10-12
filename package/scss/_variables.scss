@@ -11,9 +11,12 @@
   --patro-text: #292b31;
   // Text tokens keep at least 4.5:1 (WCAG AA) on the surface; --patro-disabled is exempt.
   --patro-muted: #6b6e80;
+  // Beta token names (--patro-sub, --patro-sel-*) stay defined, and the new names read them, until 2.0.
   --patro-sub: #595d6c;
+  --patro-secondary: var(--patro-sub);
   --patro-faint: #696e87;
   --patro-faint-sub: #666d94;
+  --patro-faint-secondary: var(--patro-faint-sub);
   --patro-disabled: #9397ab;
   --patro-hover: #e4e7f5;
   --patro-border: #cfd3e5;
@@ -23,9 +26,12 @@
   --patro-weekend: #b3261e;
   --patro-danger: #b3261e;
   --patro-sel-bg: #e7e5fe;
+  --patro-selected-bg: var(--patro-sel-bg);
   --patro-range-bg: color-mix(in srgb, #796cbf 14%, transparent);
   --patro-sel-text: #423a6a;
+  --patro-selected-text: var(--patro-sel-text);
   --patro-sel-sub: #5d5294;
+  --patro-selected-secondary: var(--patro-sel-sub);
   --patro-halo: color-mix(in srgb, #796cbf 18%, transparent);
   --patro-glow: 0 0 0 transparent;
   --patro-shadow: 0 0 0 1px #cfd3e5, 0 8px 24px color-mix(in srgb, #292b31 12%, transparent);
@@ -48,8 +54,10 @@
   --patro-text: #e9e9ed;
   --patro-muted: #9397ab;
   --patro-sub: #b2b6ca;
+  --patro-secondary: var(--patro-sub);
   --patro-faint: #8a8d9d;
   --patro-faint-sub: #898d9d;
+  --patro-faint-secondary: var(--patro-faint-sub);
   --patro-disabled: #75798c;
   --patro-hover: #3f424d;
   --patro-border: #3f424d;
@@ -59,9 +67,12 @@
   --patro-weekend: #f2a19b;
   --patro-danger: #f2a19b;
   --patro-sel-bg: #423a6a;
+  --patro-selected-bg: var(--patro-sel-bg);
   --patro-range-bg: color-mix(in srgb, #9184d9 24%, transparent);
   --patro-sel-text: #f5f4ff;
+  --patro-selected-text: var(--patro-sel-text);
   --patro-sel-sub: #d2cefd;
+  --patro-selected-secondary: var(--patro-sel-sub);
   --patro-halo: color-mix(in srgb, #9184d9 22%, transparent);
   --patro-glow: 0 0 14px color-mix(in srgb, #9184d9 30%, transparent);
   --patro-shadow: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);

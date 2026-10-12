@@ -143,9 +143,9 @@ export const CustomColours: Story = {
     style: {
       '--patro-accent': '#0f766e',
       '--patro-today': '#0f766e',
-      '--patro-sel-bg': '#ccfbf1',
-      '--patro-sel-text': '#134e4a',
-      '--patro-sel-sub': '#0f766e',
+      '--patro-selected-bg': '#ccfbf1',
+      '--patro-selected-text': '#134e4a',
+      '--patro-selected-secondary': '#0f766e',
       '--patro-range-bg': 'color-mix(in srgb, #0f766e 14%, transparent)',
       '--patro-radius-popover': '4px',
       '--patro-radius-cell': '999px',
