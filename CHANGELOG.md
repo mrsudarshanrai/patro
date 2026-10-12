@@ -2,6 +2,10 @@
 
 ## 1.0.0-beta.4 (unreleased)
 
+### Added
+
+- BS date helpers, from `patrojs` and `patrojs/utils`: `getBsToday`, `daysInBsMonth`, `getBsWeekday`, `addBsDays`, `addBsMonths`, `addBsYears` (days clamped to the target month), `bsDaysBetween` and `formatBsDate` (e.g. `'आइतवार, २५ आश्विन २०८३'` or `'25 Asoj 2083'`). New type: `FormatBsDateOptions`.
+
 ### Fixed
 
 - A `Datepicker` with `portal` or `portalContainer` no longer closes itself when opened from the keyboard; focus stays on the day grid, so it now works by keyboard inside modals.
