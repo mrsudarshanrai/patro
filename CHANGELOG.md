@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0-beta.6 (unreleased)
+## 1.0.0-beta.6 (2026-10-12)
 
 ### Changed
 
