@@ -3,10 +3,22 @@ import type { DateInput, DateRange, DateRangeInput } from '../types/public';
 
 const EMPTY_RANGE: DateRange = { start: null, end: null };
 
-const getDates = (month: number, year: number) => new Date(Date.UTC(year, month, 0)).getUTCDate();
+// The Date constructors read years 0–99 as 1900–1999; setting the full year afterwards doesn't.
+const utcDate = (year: number, monthIndex: number, day: number) => {
+  const date = new Date(Date.UTC(year, monthIndex, day));
+  date.setUTCFullYear(year, monthIndex, day);
+  return date;
+};
 
-const getMonthFirstDay = (month: number, year: number) =>
-  new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+const localDate = (year: number, monthIndex: number, day: number) => {
+  const date = new Date(year, monthIndex, day);
+  date.setFullYear(year, monthIndex, day);
+  return date;
+};
+
+const getDates = (month: number, year: number) => utcDate(year, month, 0).getUTCDate();
+
+const getMonthFirstDay = (month: number, year: number) => utcDate(year, month - 1, 1).getUTCDay();
 
 const switchYear = (year: number, month: number) => {
   if (month > 12) return { year: +year + 1, month: 1 };
@@ -14,14 +26,14 @@ const switchYear = (year: number, month: number) => {
   else return { year, month };
 };
 
-const zeroPad = (value: number | undefined) => ('0' + value).slice(-2);
+const zeroPad = (value: number, length = 2) => String(value).padStart(length, '0');
 
-const createDateString = (year: number, month: number, date?: number) =>
-  `${year}-${zeroPad(month)}-${zeroPad(date) || '01'}`;
+const createDateString = (year: number, month: number, date = 1) =>
+  `${zeroPad(year, 4)}-${zeroPad(month)}-${zeroPad(date)}`;
 
 const addDays = (adDate: string, days: number) => {
   const { year, month, day } = dateString2Obj(adDate);
-  const result = new Date(Date.UTC(year, month - 1, day + days));
+  const result = utcDate(year, month - 1, day + days);
   return createDateString(result.getUTCFullYear(), result.getUTCMonth() + 1, result.getUTCDate());
 };
 
@@ -73,7 +85,7 @@ const parseDateInput = (input: DateInput): Date | null => {
   if (typeof input !== 'string') return null;
   try {
     const { year, month, day } = dateString2Obj(input);
-    return day <= getDates(month, year) ? new Date(year, month - 1, day) : null;
+    return day <= getDates(month, year) ? localDate(year, month - 1, day) : null;
   } catch {
     return null;
   }
@@ -117,7 +129,7 @@ const supportedAdRange = (range: DateRangeInput) => {
 // `new Date('YYYY-MM-DD')` parses as UTC midnight: the previous day west of UTC.
 const adDateToLocalDate = (adDate: string) => {
   const { year, month, day } = dateString2Obj(adDate);
-  return new Date(year, month - 1, day);
+  return localDate(year, month - 1, day);
 };
 
 const en2NpNumber = (value: string) =>
