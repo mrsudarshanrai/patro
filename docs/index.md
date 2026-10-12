@@ -49,7 +49,7 @@ features:
 ### <span class="step">1</span>Install
 
 ```bash
-npm i patrojs@beta
+npm i patrojs
 ```
 
 </div>
