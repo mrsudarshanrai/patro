@@ -13,6 +13,11 @@ import {
   isValidBsDate,
   parseInputDate,
   formatInputDate,
+  createDateString,
+  zeroPad,
+  toInputAdDate,
+  adDateToLocalDate,
+  getDates,
 } from '../utils';
 
 const adDate = '2022-10-24';
@@ -188,4 +193,21 @@ test('isValidAdDate accepts a Date like ad2Bs does', () => {
   expect(isValidAdDate(new Date(1900, 0, 1))).toBe(false);
   expect(isValidAdDate(new Date(NaN))).toBe(false);
   expect(() => ad2Bs(new Date(NaN))).toThrow('Invalid Date.');
+});
+
+describe('date string building and early years', () => {
+  test('createDateString pads every part and defaults the day', () => {
+    expect(createDateString(2083, 5)).toBe('2083-05-01');
+    expect(createDateString(999, 1, 2)).toBe('0999-01-02');
+    expect(zeroPad(123)).toBe('123');
+    expect(zeroPad(7)).toBe('07');
+  });
+
+  test('years 0000–0099 stay in the first century instead of becoming 19xx', () => {
+    expect(toInputAdDate('0021-04-20')).toBe('0021-04-20');
+    expect(adDateToLocalDate('0021-04-20').getFullYear()).toBe(21);
+    expect(isValidAdDate('0021-04-20')).toBe(false);
+    expect(getDates(2, 0)).toBe(29);
+    expect(getDates(2, 1900)).toBe(28);
+  });
 });

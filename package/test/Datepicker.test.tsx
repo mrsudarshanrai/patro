@@ -485,6 +485,19 @@ test('defaultMonth opens an empty picker on that month, e.g. for a date of birth
 });
 
 describe('editable', () => {
+  test('a new value from the parent replaces half-typed text', async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(<Datepicker editable label='Date' value='2026-10-29' />);
+    const field = screen.getByRole('combobox', { name: 'Date' });
+    await user.clear(field);
+    await user.type(field, '2026-1');
+    expect(field).toHaveValue('2026-1');
+
+    rerender(<Datepicker editable label='Date' value='2026-11-05' />);
+    expect(field).toHaveValue('2026-11-05');
+    expect(field).toHaveFocus();
+  });
+
   const setupEditable = (props: SingleProps & { editable?: boolean } = {}) => {
     const user = userEvent.setup();
     const onChange = jest.fn();
