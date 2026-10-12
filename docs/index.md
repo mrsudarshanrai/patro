@@ -34,7 +34,7 @@ features:
     details: Works in Next.js and Remix with no hydration mismatches. The date utilities run on the server too.
   - icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20c.9 0 1.6-.7 1.6-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.7-1.6 1.6-1.6H16a6 6 0 0 0 6-6c0-4.9-4.5-8.5-10-8.5z"/></svg>'
     title: Yours to theme
-    details: Every colour, radius and size is a CSS token, with opt-in dark mode. Real BS data from 1978 to 2099.
+    details: Every colour, radius and size is a CSS token, with opt-in dark mode. BS dates from 1978 to 2099; the farthest years are provisional projections.
 ---
 
 <div class="home-quickstart">
@@ -49,7 +49,7 @@ features:
 ### <span class="step">1</span>Install
 
 ```bash
-npm i patrojs@beta
+npm i patrojs
 ```
 
 </div>

@@ -16,6 +16,13 @@ const useTypedDate = ({
 }: UseTypedDateOptions) => {
   const [draft, setDraft] = useState<string | null>(null);
   const [typedInvalid, setTypedInvalid] = useState(false);
+  const [draftValue, setDraftValue] = useState(shownAdDate);
+  // A new value from outside replaces any half-typed text.
+  if (draftValue !== shownAdDate) {
+    setDraftValue(shownAdDate);
+    setDraft(null);
+    setTypedInvalid(false);
+  }
 
   const minAdDate = toInputAdDate(minDate);
   const maxAdDate = toInputAdDate(maxDate);

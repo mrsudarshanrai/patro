@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0-rc.1 (2026-10-12)
+
+The release candidate for 1.0.0. If no problems turn up, it becomes 1.0.0 unchanged, and from then on the [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) applies.
+
+### Fixed
+
+- Date props with a year below 100, such as a mistyped `minDate='0021-04-20'`, are no longer read as 1921–1999.
+- With `editable`, a new `value` from the parent replaces half-typed text straight away, instead of after the field loses focus.
+- Internal date strings always pad the year to four digits and the month and day to two.
+- The build no longer warns `Cannot find name 'process'`.
+
+### Docs
+
+- Install with `npm install patrojs`; the README and docs no longer say `@beta`.
+- The docs home badge links to the changelog for the current version.
+- The docs home page says the farthest BS years are provisional projections.
+
 ## 1.0.0-beta.6 (2026-10-12)
 
 ### Changed

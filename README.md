@@ -11,10 +11,10 @@ A React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS)
 ## Install
 
 ```bash
-npm install patrojs@beta
+npm install patrojs
 ```
 
-Requires React 18 or 19. This is a beta release.
+Requires React 18 or 19.
 
 Import the stylesheet once, wherever your app already loads global CSS:
 

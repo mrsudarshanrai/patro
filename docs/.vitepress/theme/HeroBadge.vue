@@ -4,6 +4,6 @@ import { version } from '../../../package.json';
 
 <template>
   <a class="hero-badge" href="https://github.com/mrsudarshanrai/patro/blob/main/CHANGELOG.md">
-    <span class="dot" />v{{ version }} · string dates, dialogs, form reset →
+    <span class="dot" />v{{ version }} · see what's new →
   </a>
 </template>
