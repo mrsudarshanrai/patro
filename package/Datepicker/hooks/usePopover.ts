@@ -100,7 +100,7 @@ const usePopover = ({
               popover.style.maxWidth = `${availableWidth}px`;
             },
           }),
-          hide(),
+          hide({ rootBoundary: 'document' }),
         ],
       }).then(({ x, y, middlewareData }) => {
         Object.assign(popover.style, { left: `${x}px`, top: `${y}px`, opacity: '1' });
