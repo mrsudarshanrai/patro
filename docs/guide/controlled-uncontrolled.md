@@ -21,7 +21,7 @@ Once you pass `value` (even `null`), the component is controlled: clicking a day
 
 ## The displayed month
 
-With a value, the calendar opens on its month. Without one, it opens on the current month, or on `defaultMonth`:
+With a value, the calendar opens on its month, and a new value moves the view to its month, including a day picked from the previous or next month's days at the edges of the grid. Without a value, it opens on the current month, or on `defaultMonth`. A value outside the supported range selects nothing, logs a warning in development, and opens on the nearest supported month:
 
 ```tsx
 // A date of birth: open decades back instead of on today.
