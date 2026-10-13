@@ -631,6 +631,14 @@ test('range-only props are type errors in single mode, data-* is not', () => {
       <Datepicker minDays={2} />
       {/* @ts-expect-error editable is single mode only */}
       <Datepicker mode='range' editable />
+      {/* @ts-expect-error minDays only applies to mode='range', also next to other props */}
+      <Datepicker label='Stay' minDays={2} />
+      {/* @ts-expect-error maxDays and excludeDisabled only apply to mode='range' */}
+      <Datepicker clearable maxDays={3} excludeDisabled />
+      {/* @ts-expect-error minDays only applies to mode='range' */}
+      <Calendar weekendDays={[6]} minDays={2} />
+      {/* @ts-expect-error editable is single mode only, also next to other props */}
+      <Datepicker mode='range' label='Stay' editable />
       <Datepicker data-testid='single' />
       {/* @ts-expect-error maxDays only applies to mode='range' */}
       <Calendar maxDays={3} />

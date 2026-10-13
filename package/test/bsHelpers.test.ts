@@ -86,3 +86,13 @@ describe('number arguments are checked (H1)', () => {
     expect(addBsYears('2083-07-12', -1)).toBe('2082-07-12');
   });
 });
+
+test('formatBsDate rejects unknown locale and numerals options (L2)', () => {
+  // @ts-expect-error an unsupported locale from plain JS
+  expect(() => formatBsDate('2083-06-25', { locale: 'fr' })).toThrow(
+    new RangeError("Expected locale to be 'en' or 'ne', got \"fr\"."),
+  );
+  // @ts-expect-error unsupported numerals from plain JS
+  expect(() => formatBsDate('2083-06-25', { numerals: 'roman' })).toThrow(RangeError);
+  expect(formatBsDate('2083-06-25', { locale: 'en', numerals: 'latin' })).toBe('25 Asoj 2083');
+});

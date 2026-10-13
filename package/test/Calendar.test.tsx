@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
-import { useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
@@ -1336,4 +1336,42 @@ describe('invalid dates', () => {
     );
     warn.mockRestore();
   });
+});
+
+describe('rc.2 consistency', () => {
+  test('an out-of-range value warns like Datepicker, still opening on the nearest month', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { container } = render(<Calendar value='2061-03-04' />);
+    expect(title(container)).toBe('April 2043');
+    expect(container.querySelector('._patro_dates_current_date')).toBeNull();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/2061-03-04 is outside the supported range/),
+    );
+    warn.mockRestore();
+  });
+
+  test('an out-of-range today warns and falls back to the device clock', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const { container } = render(<Calendar today='0026-10-12' />);
+    expect(title(container)).toBe('October 2026');
+    expect(cell(container, '2026-10-29')).toHaveClass('_patro_dates_today');
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringMatching(/0026-10-12 is outside the supported range/),
+    );
+    warn.mockRestore();
+  });
+
+  const pickNextMonthDay = async (calendar: ReactElement) => {
+    const user = userEvent.setup();
+    const { container } = render(calendar);
+    expect(title(container)).toBe('October 2026');
+    await user.click(cell(container, '2026-11-02'));
+    expect(title(container)).toBe('November 2026');
+    expect(cell(container, '2026-11-02')).toHaveAttribute('aria-selected', 'true');
+  };
+
+  test('picking a day shown from the next month moves the view there', () =>
+    pickNextMonthDay(<Calendar today='2026-10-11' />));
+
+  test('in range mode too', () => pickNextMonthDay(<Calendar today='2026-10-11' mode='range' />));
 });
