@@ -1,6 +1,6 @@
 {
   "name": "patrojs",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0",
   "description": "React calendar and datepicker for Gregorian (AD) and Nepali Bikram Sambat (BS) dates, with AD ↔ BS conversion",
   "license": "MIT",
   "main": "./dist/index.cjs",

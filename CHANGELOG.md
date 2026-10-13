@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.0.0 (2026-10-13)
+
+The first stable release, with the same code as 1.0.0-rc.2. From here on patrojs follows semantic versioning: the [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) lists what is public API, what can change in a minor release, and how deprecations work.
+
+### What 1.0 includes
+
+- `Calendar` and `Datepicker` for Gregorian (AD) and Bikram Sambat (BS) dates, each day showing the other calendar's date, in English or Nepali with Latin or Devanagari digits.
+- Single dates and ranges, with `minDays`/`maxDays`, `excludeDisabled`, presets and several months side by side.
+- Forms: native submission (`name`, `valueFormat`, `required`), typed input (`editable`), native reset, and recipes for react-hook-form and Formik.
+- Dates as `Date`s or AD `'YYYY-MM-DD'` strings in every date prop, safe to pass from Server Components; server rendering without hydration mismatches.
+- The WAI-ARIA date picker keyboard pattern, accessible names in the calendar's language, and dialog support (`portalContainer`, Escape and Tab that stay inside the picker).
+- Theming with `--patro-*` tokens and opt-in dark mode.
+- Conversion and BS date helpers (`ad2Bs`, `bs2Ad`, `formatBsDate`, `addBsMonths`, …), also from `patrojs/utils` for server code. BS data runs from 1978 to 2099; the farthest years are provisional.
+
+### Upgrading from 0.0.x
+
+The `0.0.x` versions were early test builds; 1.0 is a rewrite. See **Breaking, if you used a `0.0.x` version** under 1.0.0-beta.1 below: `calendarType` → `calendar`, `showExtra` → `showSecondaryDate`, `defaultDate` → `value`/`defaultValue`, `onChange` receives a `PatroDate`, and nothing is selected by default.
+
+### Upgrading from a 1.0.0 beta or release candidate
+
+- **Types:** range-only props (`minDays`, `maxDays`, `excludeDisabled`) are type errors without `mode='range'`, and `editable` is a type error with it. At runtime these were always ignored, so removing them changes nothing.
+- **Theme tokens:** `--patro-sub`, `--patro-faint-sub`, `--patro-sel-bg`, `--patro-sel-text` and `--patro-sel-sub` are deprecated in favour of `--patro-secondary`, `--patro-faint-secondary`, `--patro-selected-bg`, `--patro-selected-text` and `--patro-selected-secondary`. The old names keep working until 2.0.
+- **Accessible names:** day names are now in one language (beta.4). Tests that find days by their full name may need the new wording; matching the start, e.g. `{ name: /^12 October 2026/ }`, keeps working.
+- **Out-of-range dates:** a `value` or `today` outside the supported range logs a development warning; `today` then falls back to the device's clock.
+
 ## 1.0.0-rc.2 (2026-10-13)
 
 ### Fixed
