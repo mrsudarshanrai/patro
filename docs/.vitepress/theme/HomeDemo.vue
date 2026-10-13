@@ -14,6 +14,8 @@ import ReactIsland from './ReactIsland.vue';
       <ReactIsland demo="Playground" />
     </div>
     <p class="home-more">
+      <a href="/examples/">See it in real apps: bookings, forms, a festival calendar →</a>
+      <br />
       <a href="/storybook/" target="_blank">Every prop, live, in Storybook →</a>
     </p>
   </section>

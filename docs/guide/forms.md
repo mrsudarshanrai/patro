@@ -138,4 +138,4 @@ The field is 288px wide by default. To fill a form column, set the `--patro-inpu
 }
 ```
 
-See the **Templates → Forms** section in Storybook for three complete, working examples: a citizenship-style registration form (BS, required, a typeable date of birth), a hotel booking form (two months, 2–14 nights around booked dates, a live price summary), and a fully Nepali leave-application form.
+See the [examples](/examples/) for complete, working forms: a registration form with a BS date of birth and a minimum age, a hotel booking with booked nights and a minimum stay, and a fully Nepali leave application that counts working days.
