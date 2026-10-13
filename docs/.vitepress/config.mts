@@ -21,6 +21,7 @@ export default defineConfig({
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Reference', link: '/reference/props' },
+      { text: 'Examples', link: '/examples/' },
       // Storybook is a separate app built into /storybook/; _self makes it a full page load.
       { text: 'Storybook', link: '/storybook/', target: '_self' },
       {
@@ -57,6 +58,18 @@ export default defineConfig({
           { text: 'Types', link: '/reference/types' },
           { text: 'AD ↔ BS utilities', link: '/reference/utilities' },
           { text: 'Versioning', link: '/reference/versioning' },
+        ],
+      },
+      {
+        text: 'Examples',
+        link: '/examples/',
+        items: [
+          { text: 'Festival calendar', link: '/examples/calendar' },
+          { text: 'Registration form', link: '/examples/registration' },
+          { text: 'Hotel booking', link: '/examples/booking' },
+          { text: 'Leave request (BS)', link: '/examples/leave' },
+          { text: 'Reschedule in a dialog', link: '/examples/reschedule' },
+          { text: 'Date converter', link: '/examples/converter' },
         ],
       },
     ],
