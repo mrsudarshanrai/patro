@@ -71,6 +71,7 @@ export type DatepickerRangeProps = DatepickerBaseProps &
   RangeSelection & {
     /** Custom input text for the selected range. */
     formatValue?: (value: PatroDateRange) => string;
+    editable?: never;
   };
 export type DatepickerProps = DatepickerSingleProps | DatepickerRangeProps;
 

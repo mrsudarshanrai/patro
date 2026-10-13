@@ -75,6 +75,9 @@ export interface SingleSelection {
   onChange?: (value: PatroDate | null) => void;
   /** Quick picks under the grid, e.g. `[{ label: 'Today', value: () => new Date() }]`. */
   presets?: Preset<DateInput>[];
+  minDays?: never;
+  maxDays?: never;
+  excludeDisabled?: never;
 }
 
 export interface RangeSelection {
