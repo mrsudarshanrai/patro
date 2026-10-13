@@ -182,8 +182,13 @@
   color: #75798c;
 }
 
-.story-field > .story-error {
-  font-size: 12px;
+.story-error {
+  min-height: 16px;
+  margin: 4px 0 0;
+  font:
+    12px/16px Inter,
+    system-ui,
+    sans-serif;
   color: #b3261e;
 }
 
