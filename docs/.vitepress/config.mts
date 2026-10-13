@@ -6,7 +6,32 @@ export default defineConfig({
   description: 'React calendar and datepicker for Gregorian (AD) and Bikram Sambat (BS) dates',
   lastUpdated: true,
   cleanUrls: true,
-  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/patro-logo.svg' }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/patro-logo.svg' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'patro' }],
+    ['meta', { property: 'og:title', content: 'patro: AD and BS dates for React' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content: 'React calendar and datepicker for Gregorian (AD) and Bikram Sambat (BS) dates',
+      },
+    ],
+    ['meta', { property: 'og:url', content: 'https://patro.sudarshanrai.com.np/' }],
+    ['meta', { property: 'og:image', content: 'https://patro.sudarshanrai.com.np/og-image.png' }],
+    ['meta', { property: 'og:image:width', content: '2400' }],
+    ['meta', { property: 'og:image:height', content: '1256' }],
+    [
+      'meta',
+      {
+        property: 'og:image:alt',
+        content: 'patro: AD and BS dates for React, with a Bikram Sambat calendar',
+      },
+    ],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    ['meta', { name: 'twitter:image', content: 'https://patro.sudarshanrai.com.np/og-image.png' }],
+  ],
 
   vite: {
     // The home page demo is React (TSX) inside this Vue site.
