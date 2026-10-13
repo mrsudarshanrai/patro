@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.0-rc.2 (unreleased)
+
+### Fixed
+
+- Range-only props (`minDays`, `maxDays`, `excludeDisabled`) are type errors without `mode='range'` even next to other props, and so is `editable` with `mode='range'`. rc.1 only caught them when they were the only prop.
+- `Calendar` warns about a `value` outside the supported range, as `Datepicker` does. It still selects nothing and opens on the nearest supported month.
+- A `today` outside the supported range warns and falls back to the device's clock, instead of opening on the first or last supported month.
+- `formatBsDate` rejects an unknown `locale` or `numerals` with a `RangeError`, instead of an internal error or silently using Latin digits.
+
+### Docs
+
+- The displayed month: a picked day from the previous or next month moves the view there, and how out-of-range values are shown.
+
 ## 1.0.0-rc.1 (2026-10-12)
 
 The release candidate for 1.0.0. If no problems turn up, it becomes 1.0.0 unchanged, and from then on the [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) applies.

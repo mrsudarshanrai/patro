@@ -28,6 +28,14 @@ const wholeNumber = (value: unknown, name: string) => {
   return value;
 };
 
+const oneOf = (value: unknown, name: string, allowed: string[]) => {
+  if (!allowed.includes(value as string)) {
+    throw new RangeError(
+      `Expected ${name} to be ${allowed.map((option) => `'${option}'`).join(' or ')}, got ${JSON.stringify(value)}.`,
+    );
+  }
+};
+
 /** Today's BS date, 'YYYY-MM-DD', from this device's clock. */
 const getBsToday = () => ad2Bs(new Date());
 
@@ -83,6 +91,8 @@ const formatBsDate = (
   bsDate: string,
   { locale = 'ne', numerals, weekday = false }: FormatBsDateOptions = {},
 ) => {
+  oneOf(locale, 'locale', ['en', 'ne']);
+  if (numerals !== undefined) oneOf(numerals, 'numerals', ['latin', 'devanagari']);
   const adDate = bs2Ad(bsDate);
   const display = { locale, numerals: numerals ?? (locale === 'ne' ? 'devanagari' : 'latin') };
   const text = formatDate(adDate, 'BS', display);

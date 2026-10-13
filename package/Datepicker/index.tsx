@@ -279,8 +279,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
             }}
           >
             <Calendar
-              {...calendarProps}
-              {...(calendarSelection as CalendarProps)}
+              {...({ ...calendarProps, ...calendarSelection } as CalendarProps)}
               calendar={calendar}
               locale={locale}
               numerals={numerals}

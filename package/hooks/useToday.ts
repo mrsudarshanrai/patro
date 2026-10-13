@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { createDateString, getToday, toInputAdDate } from '../utils';
+import { createDateString, getToday, supportedAdDate } from '../utils';
 import type { DateInput } from '../types/public';
 
 const currentAdDate = () => {
@@ -33,7 +33,7 @@ const noSubscription = () => (): void => undefined;
  */
 const useToday = (today?: DateInput): string | null => {
   const live = useSyncExternalStore(subscribe, currentAdDate, (): null => null);
-  return toInputAdDate(today) ?? live;
+  return supportedAdDate(today) ?? live;
 };
 
 /** False while server rendering and hydrating, true after. */

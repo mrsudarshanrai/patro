@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { Datepicker, type DateRange, type PatroDate } from '../index';
+import { Datepicker, isValidAdDate, type DateRange, type PatroDate } from '../index';
 import { addDays, holidayClass, Readout, toDate } from './helpers';
 
 const meta = {
@@ -498,23 +498,39 @@ export const FormReset: Story = {
   ),
 };
 
+const CheckedField = ({ id, label, value }: { id: string; label: string; value: string }) => {
+  const invalid = !isValidAdDate(value);
+  return (
+    <div>
+      <Datepicker
+        label={label}
+        value={value}
+        invalid={invalid}
+        aria-describedby={invalid ? `${id}-error` : undefined}
+      />
+      <p id={`${id}-error`} className='story-error'>
+        {invalid ? `"${value}" isn't a supported date.` : ' '}
+      </p>
+    </div>
+  );
+};
+
 export const InvalidDates: Story = {
   name: 'Invalid dates',
   render: () => (
-    <div className='story-row'>
-      <div>
-        <p className='story-note'>
-          <code>value=&apos;15/10/2026&apos;</code>: not a date, so the field is empty and a warning
-          is logged in development.
-        </p>
-        <Datepicker label='Malformed' value='15/10/2026' />
-      </div>
-      <div>
-        <p className='story-note'>
-          <code>value=&apos;1900-01-01&apos;</code>: outside the supported range (1921–2043),
-          treated the same way.
-        </p>
-        <Datepicker label='Unsupported' value='1900-01-01' />
+    <div>
+      <p className='story-note'>
+        A malformed or unsupported <code>value</code> shows as empty and logs a warning in
+        development. To show it as an error too, set <code>invalid</code> from{' '}
+        <code>isValidAdDate</code>:
+      </p>
+      <Readout label='invalid from isValidAdDate'>
+        {'<Datepicker value={dob} invalid={dob != null && !isValidAdDate(dob)} />'}
+      </Readout>
+      <div className='story-row' style={{ marginTop: 16 }}>
+        <CheckedField id='valid' label='Valid' value='2026-10-15' />
+        <CheckedField id='malformed' label='Malformed' value='15/10/2026' />
+        <CheckedField id='unsupported' label='Unsupported (before 1921)' value='1900-01-01' />
       </div>
     </div>
   ),
