@@ -2,6 +2,7 @@ import { useControllableValue } from '../../hooks/useControllableValue';
 import {
   adDateToLocalDate,
   EMPTY_RANGE,
+  supportedAdDate,
   supportedAdRange,
   toInputDate,
   toPatroDate,
@@ -22,9 +23,12 @@ const useCalendarValue = ({ isRange, value, defaultValue, onChange }: UseCalenda
   const currentRange = isRange ? ((currentValue as DateRangeInput | null) ?? EMPTY_RANGE) : null;
   const range = currentRange && supportedAdRange(currentRange);
   // In range mode the start anchors the view, like a single selection would.
+  const singleValue = range ? null : (currentValue as DateInput | null);
+  // Warns about an out-of-range value like Datepicker; the view still opens on the nearest month.
+  supportedAdDate(singleValue);
   const selectedDate = range
     ? range.start && adDateToLocalDate(range.start)
-    : toInputDate(currentValue as DateInput | null);
+    : toInputDate(singleValue);
 
   const commitRange = (start: string, end: string | null) => {
     setValue({ start: adDateToLocalDate(start), end: end ? adDateToLocalDate(end) : null });
