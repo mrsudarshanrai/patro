@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme';
 import type { Theme } from 'vitepress';
 import 'patrojs/style.css';
 import './custom.css';
+import './examples/examples.css';
 import HeroBadge from './HeroBadge.vue';
 import HeroInstall from './HeroInstall.vue';
 import HomeDemo from './HomeDemo.vue';
@@ -10,6 +11,9 @@ import ReactIsland from './ReactIsland.vue';
 
 export default {
   extends: DefaultTheme,
+  enhanceApp: ({ app }) => {
+    app.component('ReactIsland', ReactIsland);
+  },
   // Layout slots, not page content: `.vp-doc` prose styles (e.g. `.vp-doc p`) would restyle the calendar.
   Layout: () =>
     h(DefaultTheme.Layout, null, {

@@ -1,0 +1,390 @@
+/* Scoped with :where() so these never outrank the calendar's own styles. */
+:where(.example) {
+  --paper: var(--vp-c-bg);
+  --panel: var(--vp-c-bg-soft);
+  --ink: var(--vp-c-text-1);
+  --ink-soft: var(--vp-c-text-2);
+  --rule: var(--vp-c-divider);
+  --sindoor: #b5162f;
+  --sindoor-wash: #fbe9ec;
+  --flag: var(--vp-c-brand-1);
+  --flag-wash: var(--vp-c-brand-soft);
+  --code-bg: var(--vp-code-block-bg);
+  --font-display: var(--vp-font-family-base);
+  --font-body: var(--vp-font-family-base);
+  --font-mono: var(--vp-font-family-mono);
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.75rem;
+  --step-3: 2.5rem;
+  --radius: 10px;
+  margin: 24px 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+.dark :where(.example) {
+  --sindoor: #ff7486;
+  --sindoor-wash: #3a1d26;
+}
+:where(.example) * {
+  box-sizing: border-box;
+}
+:where(.example) h2 {
+  text-wrap: balance;
+}
+:where(.example) code,
+:where(.example) .mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  font-variant-numeric: tabular-nums;
+}
+.example ._patro {
+  --patro-accent: var(--flag);
+  --patro-weekend: var(--sindoor);
+  --patro-font: var(--font-body);
+  --patro-font-devanagari: var(--font-body);
+  --patro-surface: var(--panel);
+  --patro-radius-input: 8px;
+  --patro-radius-popover: var(--radius);
+}
+.example ._patro .is-holiday {
+  --patro-text: var(--sindoor);
+  --patro-secondary: var(--sindoor);
+  --patro-faint: var(--sindoor);
+}
+.example ._patro .is-booked {
+  text-decoration: line-through;
+}
+:where(.example) .festival-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sindoor);
+}
+:where(.example) .demo-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 320px);
+  gap: 24px;
+  align-items: start;
+}
+:where(.example) .demo-body.solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+:where(.example) .demo-main {
+  container-type: inline-size;
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+  min-width: 0;
+}
+:where(.example) .demo-aside {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+:where(.example) .hint,
+:where(.example) .help {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+:where(.example) .ledger {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+:where(.example) .ledger h2 {
+  margin: 0 0 8px;
+  font-size: var(--step--1);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+:where(.example) .ledger dl {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+:where(.example) .ledger dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5rem) minmax(0, 1fr);
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule);
+}
+:where(.example) .ledger dl > div:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+:where(.example) .ledger dt {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+:where(.example) .ledger dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+:where(.example) .ledger-empty {
+  margin: 0;
+  color: var(--ink-soft);
+}
+:where(.example) .tag-holiday {
+  color: var(--sindoor);
+  font-weight: 600;
+}
+:where(.example) ul.plain {
+  margin: 0;
+  padding-left: 1.1em;
+}
+:where(.example) .form {
+  display: grid;
+  gap: 18px;
+  width: min(100%, 520px);
+}
+:where(.example) .field {
+  display: grid;
+  gap: 6px;
+}
+:where(.example) .field > label,
+:where(.example) .tool label {
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+:where(.example) :is(.field, .tool, .inline) > :is(input, select, textarea) {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+}
+:where(.example) input[aria-invalid='true']:not(._patro *) {
+  border-color: var(--sindoor);
+}
+:where(.example) .error {
+  margin: 0;
+  color: var(--sindoor);
+  font-size: var(--step--1);
+}
+:where(.example) .error:empty {
+  display: none;
+}
+:where(.example) .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+:where(.example) button {
+  font: inherit;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+:where(.example) button:hover:not(:disabled) {
+  border-color: var(--flag);
+}
+:where(.example) button.primary {
+  background: var(--flag);
+  border-color: var(--flag);
+  color: var(--panel);
+}
+:where(.example) button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+:where(.example) .segmented {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  overflow: hidden;
+}
+:where(.example) .segmented button {
+  padding: 6px 12px;
+  white-space: nowrap;
+  border: 0;
+  border-radius: 0;
+  font-weight: 500;
+}
+:where(.example) .segmented button[aria-checked='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+:where(.example) .room {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+:where(.example) .room p {
+  margin: 0;
+}
+:where(.example) .room-name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+}
+:where(.example) .room-rate {
+  display: grid;
+  text-align: right;
+}
+:where(.example) .room-rate .num {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1;
+}
+:where(.example) .room-rate .unit {
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+}
+:where(.example) .tools {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+:where(.example) .tool {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+:where(.example) .tool.wide {
+  grid-column: 1 / -1;
+}
+:where(.example) .tool h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 400;
+}
+:where(.example) .tool .ledger {
+  border: 0;
+  padding: 0;
+}
+:where(.example) .tool .ledger h2 {
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 600;
+}
+:where(.example) .result {
+  display: grid;
+  gap: 2px;
+  min-height: 3.2em;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--flag-wash);
+}
+:where(.example) .result.bad {
+  background: var(--sindoor-wash);
+  color: var(--sindoor);
+  font-size: var(--step--1);
+}
+:where(.example) .result .big {
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+:where(.example) .row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+:where(.example) .inline {
+  display: flex;
+  gap: 6px;
+}
+:where(.example) .inline input {
+  min-width: 0;
+}
+:where(.example) .appointments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  width: min(100%, 640px);
+}
+:where(.example) .appointments li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+:where(.example) .appt-date {
+  display: grid;
+  justify-items: center;
+  min-width: 4.2rem;
+  padding: 4px 8px;
+  border-right: 1px solid var(--rule);
+}
+:where(.example) .appt-day {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--step-2);
+  line-height: 1;
+  color: var(--sindoor);
+}
+:where(.example) .appt-month {
+  font-size: var(--step--1);
+  color: var(--ink-soft);
+}
+:where(.example) .appt-what {
+  margin: 0;
+  font-weight: 600;
+}
+:where(.example) .modal {
+  width: min(92vw, 440px);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--ink);
+  padding: 20px;
+  overflow: visible;
+}
+:where(.example) .modal::backdrop {
+  background: rgb(10 12 30 / 0.45);
+}
+:where(.example) .modal h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  font-weight: 400;
+}
+@media (max-width: 900px) {
+  :where(.example) .demo-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  :where(.example) .tools,
+  :where(.example) .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container (max-width: 480px) {
+  :where(.example) .appointments li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  :where(.example) .appointments li button {
+    grid-column: 1 / -1;
+  }
+}

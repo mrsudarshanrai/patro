@@ -177,11 +177,6 @@
   --patro-input-width: 100%;
 }
 
-.story-hint {
-  font-size: 12px;
-  color: #75798c;
-}
-
 .story-error {
   min-height: 16px;
   margin: 4px 0 0;
@@ -196,34 +191,6 @@
   display: flex;
   gap: 8px;
   margin-top: 8px;
-}
-
-.story-submit {
-  flex: 1;
-  height: 40px;
-  border: 0;
-  border-radius: 8px;
-  background: #796cbf;
-  font:
-    600 14px Inter,
-    system-ui,
-    sans-serif;
-  color: #fff;
-  cursor: pointer;
-}
-
-.story-submit:hover {
-  background: #5d5294;
-}
-
-.story-summary {
-  display: flex;
-  justify-content: space-between;
-  margin: 4px 0 16px;
-  padding: 10px 12px;
-  border-radius: 8px;
-  background: #f3f5fe;
-  font-size: 13px;
 }
 
 .story-overlay {

@@ -44,6 +44,20 @@ jobs:
           path: test-results/
           retention-days: 7
 
+  # The docs site and its examples link the local build, so an API change can't silently break them.
+  site:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm ci --prefix docs
+      - run: npm run build --prefix docs
+
   # The lockfile pins React 18; the peer range also promises 19.
   react-19:
     runs-on: ubuntu-latest
