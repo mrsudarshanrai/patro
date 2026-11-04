@@ -13,7 +13,7 @@ import { useFieldRef } from './hooks/useFieldRef';
 import { useFormReset } from './hooks/useFormReset';
 import { usePopover } from './hooks/usePopover';
 import { useTypedDate } from './hooks/useTypedDate';
-import { comboboxAria, formFields } from './utils';
+import { comboboxAria, customProperties, formFields } from './utils';
 import { ClearButton } from './components/ClearButton';
 import { ComboboxField } from './components/ComboboxField';
 import { EditableField } from './components/EditableField';
@@ -284,6 +284,8 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
               locale={locale}
               numerals={numerals}
               theme={theme}
+              // The calendar's own ._patro root would reset them, and a portal inherits nothing.
+              style={customProperties(style)}
               autoFocus={focusGrid}
             />
           </Popover>

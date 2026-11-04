@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { Dialog as HeadlessDialog, DialogPanel } from '@headlessui/react';
@@ -160,6 +160,21 @@ const scenarios: Record<string, () => ReactElement> = {
       <Calendar className='follows-dark' />
       <Datepicker className='picker-in-dark' theme='light' defaultOpen />
     </div>
+  ),
+  'field-tokens': () => (
+    <>
+      <Datepicker
+        className='inline-picker'
+        defaultOpen
+        style={{ '--patro-accent': 'rgb(1, 2, 3)' } as CSSProperties}
+      />
+      <Datepicker
+        className='portal-picker'
+        portal
+        defaultOpen
+        style={{ '--patro-accent': 'rgb(4, 5, 6)' } as CSSProperties}
+      />
+    </>
   ),
   calendar: () => (
     <Calendar

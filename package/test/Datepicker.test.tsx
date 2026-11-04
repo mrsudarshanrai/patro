@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
-import { createRef } from 'react';
+import { createRef, type CSSProperties } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
@@ -339,6 +339,16 @@ test('className and style go on the Datepicker root only', async () => {
 
   await user.click(input);
   expect(container.querySelector('._patro_container')).not.toHaveClass('my-picker');
+});
+
+test('style tokens reach the calendar, other styles stay on the root', async () => {
+  const { user, input, container } = setup({
+    style: { width: 320, '--patro-accent': 'teal' } as CSSProperties,
+  });
+  await user.click(input);
+  const calendar = container.querySelector('._patro_container') as HTMLElement;
+  expect(calendar.style.getPropertyValue('--patro-accent')).toBe('teal');
+  expect(calendar.style.width).toBe('');
 });
 
 describe('range mode', () => {

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { ad2Bs, datePartsIn, DisplayOptions, formatDate, languageOf } from '../utils';
 import type { CalendarSystem } from '../types/public';
 import type {
@@ -11,6 +12,12 @@ const DEFAULT_PLACEHOLDER = {
   single: { en: 'Select a date', ne: 'मिति छान्नुहोस्' },
   range: { en: 'Select dates', ne: 'मितिहरू छान्नुहोस्' },
 };
+
+const customProperties = (style?: CSSProperties) =>
+  style &&
+  (Object.fromEntries(
+    Object.entries(style).filter(([name]) => name.startsWith('--')),
+  ) as CSSProperties);
 
 const defaultPlaceholder = (isRange: boolean, calendar: CalendarSystem, display: DisplayOptions) =>
   DEFAULT_PLACEHOLDER[isRange ? 'range' : 'single'][languageOf(calendar, display)];
@@ -64,4 +71,4 @@ const comboboxAria = ({
   'aria-describedby': ariaDescribedBy,
 });
 
-export { defaultPlaceholder, rangeText, formFields, comboboxAria };
+export { customProperties, defaultPlaceholder, rangeText, formFields, comboboxAria };

@@ -75,3 +75,12 @@ test('a global ._patro override still applies to an explicit theme=light', async
   await root.evaluate((el) => el.setAttribute('data-theme', 'light'));
   expect(await token(root, '--patro-surface')).toBe('rgb(1, 2, 3)');
 });
+
+test('Datepicker style tokens reach the calendar, inline and portalled', async ({ page }) => {
+  await page.goto('/?s=field-tokens');
+  await expect(page.getByRole('grid')).toHaveCount(2);
+  const inline = page.locator('.inline-picker ._patro_container');
+  expect(await token(inline, '--patro-accent')).toBe('rgb(1, 2, 3)');
+  const portalled = page.locator('body > ._patro_datepicker_popper ._patro_container');
+  expect(await token(portalled, '--patro-accent')).toBe('rgb(4, 5, 6)');
+});

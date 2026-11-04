@@ -28,7 +28,7 @@
 | `labels` | `Partial<PatroLabels>` | display language | Override accessible names and button text (`previousMonth`, `nextMonth`, `today`, `chooseDate`, `clear`, …). Defaults follow `locale`: English or Nepali. |
 | `autoFocus` | `boolean` | `false` | Focus the day grid on mount. On `Datepicker` it focuses the input instead. |
 | `className` | `string` | - | Added to the root element. |
-| `style` | `CSSProperties` | - | Inline styles on the root, including `--patro-*` token overrides. |
+| `style` | `CSSProperties` | - | Inline styles on the root, including `--patro-*` token overrides. On a `Datepicker`, the tokens also reach its calendar. |
 | `theme` | `'light' \| 'dark'` | - | Sets `data-theme` on the component root. See [Theming](../guide/theming). |
 | `minDate` | `DateInput` | - | Earliest selectable day. Earlier days are disabled and navigation stops there. |
 | `maxDate` | `DateInput` | - | Latest selectable day. |
