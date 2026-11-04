@@ -10,6 +10,8 @@ Dark is an explicit opt-in, not automatic (it does **not** follow `prefers-color
 <Calendar theme='dark' />
 ```
 
+`theme='light'` keeps one component light inside a dark ancestor.
+
 ```css
 /* equivalent, e.g. if your app's own theme system sets this on <html> */
 [data-theme='dark'] { }

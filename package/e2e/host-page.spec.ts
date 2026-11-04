@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Locator } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/?s=host-page');
@@ -42,4 +42,36 @@ test.describe('theme tokens', () => {
       );
     });
   }
+});
+
+const token = (locator: Locator, name: string) =>
+  locator.evaluate((el, name) => getComputedStyle(el).getPropertyValue(name).trim(), name);
+
+test.describe('themes in a dark ancestor', () => {
+  const LIGHT = '#f3f5fe';
+  const DARK = '#232532';
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/?s=themes');
+    await expect(page.getByRole('grid').first()).toBeVisible();
+  });
+
+  test('theme=light stays light, no theme follows the ancestor', async ({ page }) => {
+    expect(await token(page.locator('.light-in-dark'), '--patro-surface')).toBe(LIGHT);
+    expect(await token(page.locator('.follows-dark'), '--patro-surface')).toBe(DARK);
+  });
+
+  test('a light Datepicker is light in its field and popover', async ({ page }) => {
+    expect(await token(page.locator('.picker-in-dark'), '--patro-surface')).toBe(LIGHT);
+    const calendar = page.locator('.picker-in-dark ._patro_container');
+    expect(await token(calendar, '--patro-surface')).toBe(LIGHT);
+  });
+});
+
+test('a global ._patro override still applies to an explicit theme=light', async ({ page }) => {
+  await page.goto('/?s=calendar&value=2026-10-12');
+  await page.addStyleTag({ content: '._patro { --patro-surface: rgb(1, 2, 3) }' });
+  const root = page.locator('._patro').first();
+  await root.evaluate((el) => el.setAttribute('data-theme', 'light'));
+  expect(await token(root, '--patro-surface')).toBe('rgb(1, 2, 3)');
 });

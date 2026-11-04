@@ -154,6 +154,13 @@ const scenarios: Record<string, () => ReactElement> = {
   'radix-dialog': RadixHost,
   'headless-dialog': HeadlessHost,
   'host-page': HostPage,
+  themes: () => (
+    <div data-theme='dark'>
+      <Calendar className='light-in-dark' theme='light' />
+      <Calendar className='follows-dark' />
+      <Datepicker className='picker-in-dark' theme='light' defaultOpen />
+    </div>
+  ),
   calendar: () => (
     <Calendar
       calendar={(params.get('calendar') as 'AD' | 'BS') ?? 'AD'}
