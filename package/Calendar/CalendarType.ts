@@ -147,6 +147,7 @@ export interface UseCalendarDataOptions {
   defaultMonth?: DateInput;
   month?: DateInput;
   onMonthChange?: CalendarBaseProps['onMonthChange'];
+  monthCount?: number;
 }
 
 export interface ShownRange {

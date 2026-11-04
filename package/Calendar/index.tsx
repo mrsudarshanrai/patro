@@ -71,6 +71,7 @@ const CalendarComponent = (props: CalendarProps) => {
   const display: DisplayOptions = { locale, numerals };
   const text = labelsFor(calendar, display, labels);
 
+  const monthCount = Math.max(1, Math.floor(numberOfMonths));
   const {
     dates,
     adDate: selectedAdDate,
@@ -96,6 +97,7 @@ const CalendarComponent = (props: CalendarProps) => {
     defaultMonth,
     month,
     onMonthChange,
+    monthCount,
   });
 
   const { view, setView, header, pickerItems, onPick } = usePickerView({
@@ -117,7 +119,6 @@ const CalendarComponent = (props: CalendarProps) => {
   const containsNode = useCallback((node: Node) => !!rootRef.current?.contains(node), []);
   useClaimEscape(view !== 'days', containsNode);
 
-  const monthCount = Math.max(1, Math.floor(numberOfMonths));
   const multi = monthCount > 1;
   const months = visibleMonths(
     calendar,
@@ -177,10 +178,17 @@ const CalendarComponent = (props: CalendarProps) => {
     isValidEnd,
   });
 
+  const reveal = (start: string, end = start) => {
+    const onScreen = (adDate: string) =>
+      months.some(({ first, last }) => adDate >= first && adDate <= last);
+    if (onScreen(start) && onScreen(end)) return;
+    const [year, month] = datePartsIn(start, calendar);
+    goToMonth(year, month);
+  };
+
   const pickPreset = (preset: PresetItem) => {
     if (preset.disabled || !preset.start) return;
-    const [year, month] = datePartsIn(preset.start, calendar);
-    goToMonth(year, month);
+    reveal(preset.start, preset.end ?? preset.start);
     setView('days');
     setFocusedAdDate(preset.start);
     if (range) commitRange(preset.start, preset.end);
@@ -201,8 +209,7 @@ const CalendarComponent = (props: CalendarProps) => {
     !!todayAdDate && isSupportedAdDate(todayAdDate) && !isDayDisabled(todayAdDate);
   const goToToday = () => {
     if (!todayAdDate) return;
-    const [year, month] = datePartsIn(todayAdDate, calendar);
-    goToMonth(year, month);
+    reveal(todayAdDate);
     setView('days');
     onSelect(todayAdDate);
   };

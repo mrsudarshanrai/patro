@@ -612,6 +612,116 @@ describe('numberOfMonths', () => {
     expect(titles(container)).toEqual(['November 2026', 'December 2026']);
   });
 
+  describe('picking a day that is already on screen keeps the view', () => {
+    const shown = ['October 2026', 'November 2026'];
+    const day = (container: HTMLElement, adDate: string) =>
+      container.querySelector(`[title="${adDate}"]`) as HTMLElement;
+
+    test('single mode, in either month', async () => {
+      const user = userEvent.setup();
+      const { container } = render(<Calendar defaultMonth='2026-10-01' numberOfMonths={2} />);
+      await user.click(day(container, '2026-11-10'));
+      expect(titles(container)).toEqual(shown);
+      await user.click(day(container, '2026-10-10'));
+      expect(titles(container)).toEqual(shown);
+    });
+
+    test('range mode, a start and end in the right-hand month', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <Calendar mode='range' defaultMonth='2026-10-01' numberOfMonths={2} />,
+      );
+      await user.click(day(container, '2026-11-10'));
+      expect(titles(container)).toEqual(shown);
+      await user.click(day(container, '2026-11-20'));
+      expect(titles(container)).toEqual(shown);
+    });
+
+    test('keyboard, in the right-hand month', async () => {
+      const user = userEvent.setup();
+      const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);
+      screen.getAllByRole('grid')[0].focus();
+      await user.keyboard('{ArrowDown}{Enter}');
+      expect(titles(container)).toEqual(shown);
+      expect(screen.getAllByRole('grid')[1]).toHaveAttribute(
+        'aria-activedescendant',
+        expect.stringMatching(/2026-11-05$/),
+      );
+    });
+
+    test('a new value already on screen stays put, one that is not moves the view', () => {
+      const { container, rerender } = render(<Calendar value='2026-10-10' numberOfMonths={2} />);
+      rerender(<Calendar value='2026-11-10' numberOfMonths={2} />);
+      expect(titles(container)).toEqual(shown);
+      rerender(<Calendar value='2027-02-10' numberOfMonths={2} />);
+      expect(titles(container)).toEqual(['February 2027', 'March 2027']);
+    });
+
+    test('with BS months', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <Calendar calendar='BS' defaultMonth='2026-10-20' numberOfMonths={2} />,
+      );
+      const before = titles(container);
+      await user.click(day(container, bs2Ad('2083-08-10')));
+      expect(titles(container)).toEqual(before);
+    });
+
+    test('a preset or Today already on screen', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <Calendar
+          defaultMonth='2026-09-01'
+          numberOfMonths={2}
+          showTodayButton
+          presets={[{ label: 'Early', value: '2026-09-10' }]}
+        />,
+      );
+      await user.click(screen.getByRole('button', { name: 'Today' }));
+      expect(titles(container)).toEqual(['September 2026', 'October 2026']);
+      await user.click(screen.getByRole('button', { name: 'Early' }));
+      expect(titles(container)).toEqual(['September 2026', 'October 2026']);
+    });
+
+    test('a range preset moves only if part of it is off screen', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <Calendar
+          mode='range'
+          defaultMonth='2026-10-01'
+          numberOfMonths={2}
+          presets={[
+            { label: 'Shown', value: { start: '2026-10-25', end: '2026-11-05' } },
+            { label: 'Crossing', value: { start: '2026-11-25', end: '2026-12-05' } },
+            { label: 'Away', value: { start: '2027-03-01', end: '2027-03-05' } },
+          ]}
+        />,
+      );
+      await user.click(screen.getByRole('button', { name: 'Shown' }));
+      expect(titles(container)).toEqual(shown);
+      await user.click(screen.getByRole('button', { name: 'Crossing' }));
+      expect(titles(container)).toEqual(['November 2026', 'December 2026']);
+      await user.click(screen.getByRole('button', { name: 'Away' }));
+      expect(titles(container)).toEqual(['March 2027', 'April 2027']);
+    });
+
+    test('Today off screen still moves the view', async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <Calendar defaultMonth='2026-01-01' numberOfMonths={2} showTodayButton />,
+      );
+      await user.click(screen.getByRole('button', { name: 'Today' }));
+      expect(titles(container)).toEqual(shown);
+    });
+
+    test('one month still follows a day picked from the next month', async () => {
+      const user = userEvent.setup();
+      const { container } = render(<Calendar defaultMonth='2026-10-01' />);
+      await user.click(day(container, '2026-11-02'));
+      expect(titles(container)).toEqual(['November 2026']);
+    });
+  });
+
   test('one Tab stop; arrow keys cross into the next month without scrolling', async () => {
     const user = userEvent.setup();
     const { container } = render(<Calendar defaultValue={TODAY} numberOfMonths={2} />);

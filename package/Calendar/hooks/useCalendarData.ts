@@ -83,6 +83,20 @@ const toSelection = (date: Date): DayParts | null => {
   return isSupportedAdDate(adDate) ? selection : null;
 };
 
+const showsAnchor = (
+  first: string,
+  target: string,
+  calendarType: CalendarSystem,
+  count: number,
+) => {
+  let anchor = first;
+  for (let i = 0; i < count; i++) {
+    if (anchor === target) return true;
+    anchor = stepViewAnchor(anchor, calendarType, 1);
+  }
+  return false;
+};
+
 const isSameDay = (a: DayParts | null, b: DayParts | null) =>
   a === b || (!!a && !!b && a.year === b.year && a.month === b.month && a.date === b.date);
 
@@ -109,6 +123,7 @@ const useCalendarData = (
     defaultMonth,
     month,
     onMonthChange,
+    monthCount = 1,
   }: UseCalendarDataOptions = {},
 ): UseCalendarDataResult => {
   const minInput = toInputAdDate(minDate);
@@ -168,6 +183,11 @@ const useCalendarData = (
   useEffect(() => {
     todayRef.current = today;
   });
+  const monthCountRef = useRef(monthCount);
+  useEffect(() => {
+    monthCountRef.current = monthCount;
+  });
+  const anchoredFor = useRef({ calendarType, bounds });
 
   const selectedTime = selectedDate?.getTime();
   const defaultMonthTime = defaultMonthDate?.getTime();
@@ -180,7 +200,18 @@ const useCalendarData = (
         ? ymd(new Date(defaultMonthTime))
         : todayParts(todayRef.current);
     const { year, month, date } = requested ? ymd(requested) : fallback;
-    setViewAnchor(getViewAnchor(calendarType, year, month, date, bounds));
+    const target = getViewAnchor(calendarType, year, month, date, bounds);
+    const sameView =
+      anchoredFor.current.calendarType === calendarType && anchoredFor.current.bounds === bounds;
+    anchoredFor.current = { calendarType, bounds };
+    setViewAnchor((current) =>
+      requested &&
+      sameView &&
+      current &&
+      showsAnchor(current, target, calendarType, monthCountRef.current)
+        ? current
+        : target,
+    );
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
   }, [selectedTime, defaultMonthTime, calendarType, bounds]);
 
