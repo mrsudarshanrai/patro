@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.0.1 (2026-11-04)
+
+### Fixed
+
+- With `numberOfMonths`, picking a day that is already on screen no longer moves the view. Before, a day picked in a later month jumped to the first position, with the mouse or keyboard, in single and range mode. A preset or the Today button only moves the view if its date is off screen, and a new `value` from the parent follows the same rule. With one month, a day picked from the next month's cells still moves the view there.
+- A new `Date` object for the same day no longer resets the view. An inline `value={new Date()}` or `defaultMonth={new Date()}` used to snap back on every re-render, and a parent that re-rendered from `onMonthChange` could not navigate away at all. `defaultMonth` now only moves the view when its month changes.
+- Hydrating a `Calendar` with no value no longer calls `onMonthChange`. It's now called only when the view moves.
+- Switching `calendar` from AD to BS while April 1921 is shown no longer throws a `RangeError`.
+
+### Docs
+
+- The displayed month: a value already on screen leaves the view where it is when `numberOfMonths` is set.
+
 ## 1.0.0 (2026-10-13)
 
 The first stable release, with the same code as 1.0.0-rc.2. From here on patrojs follows semantic versioning: the [versioning policy](https://patro.sudarshanrai.com.np/reference/versioning) lists what is public API, what can change in a minor release, and how deprecations work.
