@@ -582,6 +582,66 @@ test('dayContent adds content to a day and dayLabel extends its accessible name'
   expect(cell(container, '2026-10-13')).toHaveAccessibleName('13 October 2026, 27 Asoj 2083');
 });
 
+describe('a new Date for the same day keeps the view', () => {
+  const next = () => userEvent.setup().click(screen.getByLabelText('Next month'));
+
+  test.each([
+    ['defaultMonth', () => <Calendar defaultMonth={new Date()} />],
+    ['value', () => <Calendar value={new Date()} />],
+  ])('re-rendering with an inline new Date() as %s', async (_, calendar) => {
+    const { container, rerender } = render(calendar());
+    await next();
+    expect(title(container)).toBe('November 2026');
+    jest.advanceTimersByTime(5);
+    rerender(calendar());
+    expect(title(container)).toBe('November 2026');
+  });
+
+  test('a parent that re-renders on navigation can still navigate', async () => {
+    const Parent = () => {
+      const [, setMonths] = useState(0);
+      return (
+        <Calendar
+          defaultMonth={new Date()}
+          onMonthChange={() => {
+            jest.advanceTimersByTime(5);
+            setMonths((count) => count + 1);
+          }}
+        />
+      );
+    };
+    const { container } = render(<Parent />);
+    await next();
+    expect(title(container)).toBe('November 2026');
+  });
+
+  test('an inline defaultMonth crossing midnight keeps the view', async () => {
+    jest.setSystemTime(new Date(2026, 9, 29, 23, 0));
+    const calendar = () => <Calendar defaultMonth={new Date()} />;
+    const { container, rerender } = render(calendar());
+    await next();
+    jest.setSystemTime(new Date(2026, 9, 30, 0, 5));
+    rerender(calendar());
+    expect(title(container)).toBe('November 2026');
+  });
+
+  test('a new month still moves the view', () => {
+    const { container, rerender } = render(<Calendar defaultMonth={new Date(2026, 5, 1, 10)} />);
+    expect(title(container)).toBe('June 2026');
+    rerender(<Calendar defaultMonth={new Date(2026, 7, 1, 10)} />);
+    expect(title(container)).toBe('August 2026');
+  });
+});
+
+test('switching calendar on the first supported month keeps rendering', () => {
+  const { container, rerender } = render(<Calendar calendar='AD' defaultMonth='1921-04-20' />);
+  expect(title(container)).toBe('April 1921');
+  rerender(<Calendar calendar='BS' defaultMonth='1921-04-20' />);
+  expect(title(container)).toBe('बैशाख १९७८');
+  rerender(<Calendar calendar='AD' defaultMonth='1921-04-20' />);
+  expect(title(container)).toBe('April 1921');
+});
+
 test('onMonthChange reports the new month, not the initial one', async () => {
   const user = userEvent.setup();
   const onMonthChange = jest.fn();

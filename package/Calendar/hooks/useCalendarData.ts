@@ -83,6 +83,11 @@ const toSelection = (date: Date): DayParts | null => {
   return isSupportedAdDate(adDate) ? selection : null;
 };
 
+const anchorFor = (calendarType: CalendarSystem, parts: DayParts, bounds: Bounds) =>
+  getViewAnchor(calendarType, parts.year, parts.month, parts.date, bounds);
+
+const startOfDay = (date: Date) => new Date(date).setHours(0, 0, 0, 0);
+
 const showsAnchor = (
   first: string,
   target: string,
@@ -167,9 +172,12 @@ const useCalendarData = (
         bounds,
       )
     : null;
+  // The calendar prop changes a render before the effect below re-anchors the view.
+  const viewParts = viewAnchor && dateString2Obj(viewAnchor);
   const shownAnchor =
     controlledAnchor ??
-    viewAnchor ??
+    (viewParts &&
+      getViewAnchor(calendarType, viewParts.year, viewParts.month, viewParts.day, bounds)) ??
     getViewAnchor(
       calendarType,
       PENDING_ANCHOR.year,
@@ -189,18 +197,19 @@ const useCalendarData = (
   });
   const anchoredFor = useRef({ calendarType, bounds });
 
-  const selectedTime = selectedDate?.getTime();
-  const defaultMonthTime = defaultMonthDate?.getTime();
+  // Whole days: an inline new Date() is a new time on every render, not a new date.
+  const selectedTime = selectedDate ? startOfDay(selectedDate) : undefined;
+  // Its month, not its day: an inline new Date() mustn't pull the view back at midnight.
+  const defaultMonthAnchor = defaultMonthDate
+    ? anchorFor(calendarType, ymd(defaultMonthDate), bounds)
+    : undefined;
   useEffect(() => {
     const requested = selectedTime !== undefined ? new Date(selectedTime) : undefined;
     const next = requested ? toSelection(requested) : null;
     // Effects only run in the browser, so the clock here is the visitor's.
-    const fallback =
-      defaultMonthTime !== undefined
-        ? ymd(new Date(defaultMonthTime))
-        : todayParts(todayRef.current);
-    const { year, month, date } = requested ? ymd(requested) : fallback;
-    const target = getViewAnchor(calendarType, year, month, date, bounds);
+    const target = requested
+      ? anchorFor(calendarType, ymd(requested), bounds)
+      : (defaultMonthAnchor ?? anchorFor(calendarType, todayParts(todayRef.current), bounds));
     const sameView =
       anchoredFor.current.calendarType === calendarType && anchoredFor.current.bounds === bounds;
     anchoredFor.current = { calendarType, bounds };
@@ -213,7 +222,7 @@ const useCalendarData = (
         : target,
     );
     setSelected((prev) => (isSameDay(prev, next) ? prev : next));
-  }, [selectedTime, defaultMonthTime, calendarType, bounds]);
+  }, [selectedTime, defaultMonthAnchor, calendarType, bounds]);
 
   const navigate = useCallback(
     (anchor: string) => {
@@ -230,15 +239,17 @@ const useCalendarData = (
     [calendarType, shownAnchor],
   );
 
-  // Uncontrolled: report every month the view moves to. Controlled: navigate reports requests.
-  const shownMonth = useRef(firstAdDate);
-  useEffect(() => {
-    if (shownMonth.current === firstAdDate) return;
-    shownMonth.current = firstAdDate;
-    if (!controlledAnchor) reportMonth(firstAdDate, lastAdDate);
-  }, [firstAdDate, lastAdDate, controlledAnchor, reportMonth]);
-
   const pending = !controlledAnchor && !viewAnchor;
+
+  // Uncontrolled: report every month the view moves to. Controlled: navigate reports requests.
+  // Leaving the pending state only reveals the first month; nothing has navigated.
+  const shownMonth = useRef(pending ? null : firstAdDate);
+  useEffect(() => {
+    if (pending || shownMonth.current === firstAdDate) return;
+    const revealed = shownMonth.current === null;
+    shownMonth.current = firstAdDate;
+    if (!revealed && !controlledAnchor) reportMonth(firstAdDate, lastAdDate);
+  }, [pending, firstAdDate, lastAdDate, controlledAnchor, reportMonth]);
 
   const nextMonth = useCallback(() => {
     if (!pending) navigate(stepViewAnchor(shownAnchor, calendarType, 1, bounds));

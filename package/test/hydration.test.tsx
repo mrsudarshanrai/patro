@@ -46,3 +46,23 @@ test('hydrates without mismatches when the server and browser disagree on today'
   // The portal popover mounts in document.body once hydrated.
   expect(document.body.querySelector(':scope > ._patro_datepicker_popper')).not.toBeNull();
 });
+
+test('hydrating without a value reports no month change, navigating afterwards does', async () => {
+  jest.useFakeTimers({ now: new Date(2026, 9, 29), advanceTimers: true });
+  const onMonthChange = jest.fn();
+  const app = <Calendar onMonthChange={onMonthChange} />;
+  const container = document.createElement('div');
+  container.innerHTML = renderToString(app);
+  document.body.appendChild(container);
+
+  await act(async () => {
+    hydrateRoot(container, app);
+  });
+  expect(onMonthChange).not.toHaveBeenCalled();
+
+  await act(async () => {
+    container.querySelector<HTMLElement>('[aria-label="Next month"]')?.click();
+  });
+  expect(onMonthChange).toHaveBeenCalledTimes(1);
+  expect(onMonthChange.mock.calls[0][0].start.ad).toBe('2026-11-01');
+});
