@@ -142,6 +142,7 @@ const DatepickerComponent = /*#__PURE__*/ forwardRef<HTMLElement, DatepickerProp
       setOpen,
       openFromKeyboard: () => popoverControls.onOpen(true),
       onBlur,
+      rootRef,
     });
 
     const showClear = clearable && hasValue && !disabled && !readOnly;

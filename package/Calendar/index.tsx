@@ -225,6 +225,12 @@ const CalendarComponent = (props: CalendarProps) => {
       lang={languageOf(calendar, display)}
       data-calendar-type={calendar}
       data-theme={theme}
+      // Focusable so a click on its padding keeps focus, and Escape, inside the picker.
+      tabIndex={-1}
+      // Safari doesn't focus a clicked button, so Escape and Tab would start from the page.
+      onClickCapture={(event) =>
+        (event.target as Element).closest('button')?.focus({ preventScroll: true })
+      }
       // Month unknown until the browser's today is (server render / hydration); CSS hides the placeholder.
       aria-busy={pending || undefined}
       onKeyDown={(event) => {

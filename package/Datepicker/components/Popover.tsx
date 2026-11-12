@@ -1,7 +1,7 @@
 import { KeyboardEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useIsClient } from '../../hooks/useToday';
-import { tabbables } from '../../shared/tabbable';
+import { nextTabbableAfter, tabbables } from '../../shared/tabbable';
 
 type Props = {
   popoverRef: (node: HTMLDivElement | null) => void;
@@ -27,11 +27,13 @@ const Popover = ({
   const isClient = useIsClient();
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') onEscape();
-    // A portalled popover sits away from its field, so Tab at its edges wouldn't reach the next control.
-    if (event.key !== 'Tab' || !portal) return;
+    if (event.key !== 'Tab') return;
     const stops = tabbables(event.currentTarget);
     const edge = event.shiftKey ? stops[0] : stops[stops.length - 1];
     if (event.target !== edge) return;
+    // Portalled, Tab at the edges wouldn't reach the next control; inline, only if nothing follows.
+    const nothingFollows = !event.shiftKey && !nextTabbableAfter(event.currentTarget);
+    if (!portal && !nothingFollows) return;
     event.preventDefault();
     event.stopPropagation();
     onTabOut(event.shiftKey ? 'backward' : 'forward');

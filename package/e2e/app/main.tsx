@@ -16,6 +16,7 @@ const Picker = (props: DatepickerSingleProps) => (
 const DialogPicker = ({ container }: { container: Element | null }) => (
   <Picker
     defaultOpen={!params.has('closed')}
+    editable={params.has('editable')}
     {...(params.has('container') && { portalContainer: container })}
   />
 );
@@ -150,6 +151,7 @@ const scenarios: Record<string, () => ReactElement> = {
       </button>
     </div>
   ),
+  'last-on-page': () => <Picker />,
   'native-dialog': NativeDialog,
   'radix-dialog': RadixHost,
   'headless-dialog': HeadlessHost,

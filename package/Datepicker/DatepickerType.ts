@@ -1,4 +1,11 @@
-import type { ChangeEvent, FocusEvent, HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
+import type {
+  ChangeEvent,
+  FocusEvent,
+  HTMLAttributes,
+  KeyboardEvent,
+  ReactNode,
+  RefObject,
+} from 'react';
 import type { DisplayOptions } from '../utils';
 import type { DataAttributes } from '../shared/dataAttributes';
 import type { CalendarBaseProps } from '../Calendar/CalendarType';
@@ -119,6 +126,7 @@ export interface UseTypedDateOptions {
   setOpen: (open: boolean) => void;
   openFromKeyboard: () => void;
   onBlur: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+  rootRef: RefObject<HTMLElement | null>;
 }
 
 export interface ComboboxAriaProps {
