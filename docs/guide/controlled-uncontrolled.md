@@ -17,6 +17,10 @@ const [value, setValue] = useState<Date | null>(null);
 
 `value` can also be an AD `'YYYY-MM-DD'` string, so state kept as strings works as it is: `value={dob}` with `onChange={(picked) => setDob(picked?.ad ?? null)}`.
 
+::: info Days a time zone skipped
+A few time zones skipped a whole day, such as `Pacific/Apia` on 2011-12-30. A visitor in that zone can't have that day selected, whether `value` is a `Date` or a string, because the selection is kept as a local `Date`, which can't fall on a day that didn't happen there. `picked.ad` and `picked.bs` are still correct, so store those if it matters.
+:::
+
 Once you pass `value` (even `null`), the component is controlled: clicking a day still fires `onChange`, but the displayed selection only changes when you update `value` yourself.
 
 ## The displayed month
