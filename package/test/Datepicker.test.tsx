@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
 import { createRef, type CSSProperties } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
 import { Datepicker } from '../Datepicker';
@@ -206,6 +206,31 @@ describe('behaviour and forms', () => {
     expect(input).toHaveAttribute('tabindex', '-1');
     await user.click(input);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('a touch outside reports closing once, though a mousedown follows it', async () => {
+    const onOpenChange = jest.fn();
+    setup({ defaultOpen: true, onOpenChange });
+    const touchEnd = Object.assign(new MouseEvent('pointerup', { bubbles: true }), {
+      pointerType: 'touch',
+    });
+    act(() => {
+      document.body.dispatchEvent(touchEnd);
+      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(onOpenChange.mock.calls).toEqual([[false]]);
+  });
+
+  test('a mouse pointerup outside does nothing by itself', () => {
+    const onOpenChange = jest.fn();
+    setup({ defaultOpen: true, onOpenChange });
+    const mouseUp = Object.assign(new MouseEvent('pointerup', { bubbles: true }), {
+      pointerType: 'mouse',
+    });
+    act(() => {
+      document.body.dispatchEvent(mouseUp);
+    });
+    expect(onOpenChange).not.toHaveBeenCalled();
   });
 
   test('readOnly is focusable but cannot be opened', async () => {
