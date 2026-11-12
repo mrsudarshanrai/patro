@@ -1572,4 +1572,15 @@ describe('1.0.2 fixes', () => {
     expect(title(container)).toBe('April 2043');
     warn.mockRestore();
   });
+
+  test('the year page at the start of the BS table still has a subtitle', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar calendar='BS' defaultValue='1921-06-01' />);
+    const titleButton = () => screen.getByRole('button', { name: /छान्नुहोस्/ });
+    await user.click(titleButton());
+    await user.click(titleButton());
+    expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
+      'Apr 1921 – Apr 1923',
+    );
+  });
 });
