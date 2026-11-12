@@ -12,6 +12,7 @@ import {
   monthSpan,
   overlaps,
   switchYear,
+  toAdDateString,
   toInputAdDate,
   toInputDate,
   toPatroDate,
@@ -71,11 +72,10 @@ const stepViewAnchor = (
 };
 
 // Dates outside the BS table count as no selection.
-const ymd = (date: Date): DayParts => ({
-  year: date.getFullYear(),
-  month: date.getMonth() + 1,
-  date: date.getDate(),
-});
+const ymd = (date: Date): DayParts => {
+  const { year, month, day } = dateString2Obj(toAdDateString(date));
+  return { year, month, date: day };
+};
 
 const toSelection = (date: Date): DayParts | null => {
   const selection = ymd(date);

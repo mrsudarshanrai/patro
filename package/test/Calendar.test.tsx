@@ -1556,4 +1556,20 @@ describe('1.0.2 fixes', () => {
     await user.click(screen.getByRole('button', { name: 'Pick' }));
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-07' }));
   });
+
+  test('a maxDate after year 9999 limits nothing', () => {
+    const maxDate = new Date(2026, 0, 1);
+    maxDate.setFullYear(10000);
+    const { container } = render(<Calendar maxDate={maxDate} />);
+    expect(cell(container, '2026-10-29')).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('a value after year 9999 opens on the last supported month', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const value = new Date(2026, 0, 1);
+    value.setFullYear(10000);
+    const { container } = render(<Calendar value={value} />);
+    expect(title(container)).toBe('April 2043');
+    warn.mockRestore();
+  });
 });
