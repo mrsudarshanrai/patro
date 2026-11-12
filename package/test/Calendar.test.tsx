@@ -1545,3 +1545,15 @@ describe('rc.2 consistency', () => {
 
   test('in range mode too', () => pickNextMonthDay(<Calendar today='2026-10-11' mode='range' />));
 });
+
+describe('1.0.2 fixes', () => {
+  test('a preset function is read again when it is clicked', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    let day = '2026-10-05';
+    render(<Calendar onChange={onChange} presets={[{ label: 'Pick', value: () => day }]} />);
+    day = '2026-10-07';
+    await user.click(screen.getByRole('button', { name: 'Pick' }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-07' }));
+  });
+});

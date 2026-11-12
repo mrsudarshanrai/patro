@@ -12,12 +12,7 @@ import {
   monthRange,
   monthTitle,
 } from '../utils';
-import type {
-  CalendarProps,
-  CalendarRangeProps,
-  CalendarSingleProps,
-  PresetItem,
-} from './CalendarType';
+import type { CalendarProps, CalendarRangeProps, CalendarSingleProps } from './CalendarType';
 import { useCalendarData } from './hooks/useCalendarData';
 import { useCalendarValue } from './hooks/useCalendarValue';
 import { useGridFocus } from './hooks/useGridFocus';
@@ -171,12 +166,8 @@ const CalendarComponent = (props: CalendarProps) => {
     commitRange(restart ? adDate : (range.start as string), restart ? null : adDate);
   };
 
-  const presets = resolvePresets(props.presets, {
-    range,
-    selectedAdDate,
-    isDayDisabled,
-    isValidEnd,
-  });
+  const presetOptions = { range, selectedAdDate, isDayDisabled, isValidEnd };
+  const presets = resolvePresets(props.presets, presetOptions);
 
   const reveal = (start: string, end = start) => {
     const onScreen = (adDate: string) =>
@@ -186,8 +177,9 @@ const CalendarComponent = (props: CalendarProps) => {
     goToMonth(year, month);
   };
 
-  const pickPreset = (preset: PresetItem) => {
-    if (preset.disabled || !preset.start) return;
+  const pickPreset = (index: number) => {
+    const preset = resolvePresets(props.presets, presetOptions)[index];
+    if (!preset || preset.disabled || !preset.start) return;
     reveal(preset.start, preset.end ?? preset.start);
     setView('days');
     setFocusedAdDate(preset.start);
