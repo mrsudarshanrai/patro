@@ -50,7 +50,11 @@ Clicking it calls `onChange(null)` (or `onChange({ start: null, end: null })` in
 
 ## Placeholders
 
-When there's no value, `Datepicker` shows a default placeholder, `'Select a date'` (AD) or `'मिति छान्नुहोस्'` (BS), or your own via `placeholder`.
+When there's no value, `Datepicker` shows a default placeholder in the calendar's language, or your own via `placeholder`:
+
+- single mode: `'Select a date'` / `'मिति छान्नुहोस्'`
+- range mode: `'Select dates'` / `'मितिहरू छान्नुहोस्'`
+- `editable`: `'YYYY-MM-DD'`, the format to type
 
 ## The popover
 

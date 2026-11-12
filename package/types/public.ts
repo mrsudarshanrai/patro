@@ -11,7 +11,7 @@ export interface FormatBsDateOptions {
   locale?: Locale;
   /** Digits: Devanagari by default for 'ne', Latin for 'en'. */
   numerals?: Numerals;
-  /** Start with the weekday, e.g. 'शनिवार, २५ आश्विन २०८३'. */
+  /** Start with the weekday, e.g. 'आइतवार, २५ आश्विन २०८३'. */
   weekday?: boolean;
 }
 
