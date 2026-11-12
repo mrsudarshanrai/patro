@@ -1593,4 +1593,13 @@ describe('1.0.2 fixes', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringMatching(/numerals="roman"/));
     warn.mockRestore();
   });
+
+  test('numbers in the default button names follow numerals', async () => {
+    const user = userEvent.setup();
+    render(<Calendar calendar='BS' numerals='latin' defaultValue={TODAY} />);
+    const titleButton = () => screen.getByRole('button', { name: /छान्नुहोस्/ });
+    await user.click(titleButton());
+    await user.click(titleButton());
+    expect(screen.getByRole('button', { name: 'अघिल्लो 12 वर्ष' })).toBeInTheDocument();
+  });
 });

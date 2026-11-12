@@ -230,7 +230,15 @@ const labelsFor = (
   system: CalendarSystem,
   options: DisplayOptions,
   overrides?: Partial<PatroLabels>,
-): PatroLabels => ({ ...LABELS[languageOf(system, options)], ...overrides });
+): PatroLabels => {
+  const digits = (text: string) =>
+    numeralsOf(system, options) === 'devanagari' ? en2NpNumber(text) : toLatinDigits(text);
+  const defaults = Object.entries(LABELS[languageOf(system, options)]).map(([key, text]) => [
+    key,
+    digits(text),
+  ]);
+  return { ...(Object.fromEntries(defaults) as PatroLabels), ...overrides };
+};
 
 export {
   partsIn as datePartsIn,
