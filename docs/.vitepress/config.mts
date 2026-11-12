@@ -8,6 +8,7 @@ export default defineConfig({
   cleanUrls: true,
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/patro-logo.svg' }],
+    ['script', { defer: '', src: '/_vercel/insights/script.js' }],
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'patro' }],
     ['meta', { property: 'og:title', content: 'patro: AD and BS dates for React' }],
