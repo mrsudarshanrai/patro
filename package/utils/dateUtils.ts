@@ -161,4 +161,5 @@ export {
   supportedAdRange,
   en2NpNumber,
   remove1stZero,
+  warnOnce,
 };

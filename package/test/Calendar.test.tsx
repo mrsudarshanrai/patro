@@ -1583,4 +1583,14 @@ describe('1.0.2 fixes', () => {
       'Apr 1921 – Apr 1923',
     );
   });
+
+  test('an unknown locale or numerals from plain JS warns and falls back', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const props = { locale: 'fr', numerals: 'roman' } as unknown as CalendarBaseProps;
+    const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} {...props} />);
+    expect(title(container)).toBe('कार्तिक २०८३');
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/locale="fr"/));
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/numerals="roman"/));
+    warn.mockRestore();
+  });
 });
