@@ -203,8 +203,9 @@ describe('behaviour and forms', () => {
   test('disabled cannot be focused or opened', async () => {
     const { user, input } = setup({ disabled: true });
     expect(input).toHaveAttribute('aria-disabled', 'true');
-    expect(input).toHaveAttribute('tabindex', '-1');
+    expect(input).not.toHaveAttribute('tabindex');
     await user.click(input);
+    expect(input).not.toHaveFocus();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
@@ -231,6 +232,14 @@ describe('behaviour and forms', () => {
       document.body.dispatchEvent(mouseUp);
     });
     expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  test('disabled takes no focus from autoFocus and fires no onFocus', async () => {
+    const onFocus = jest.fn();
+    const { user, input } = setup({ disabled: true, autoFocus: true, onFocus });
+    await user.click(input);
+    expect(input).not.toHaveFocus();
+    expect(onFocus).not.toHaveBeenCalled();
   });
 
   test('readOnly is focusable but cannot be opened', async () => {
