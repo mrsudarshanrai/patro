@@ -16,6 +16,7 @@ import { useControllableValue } from '../../hooks/useControllableValue';
 import type { UsePopoverOptions } from '../DatepickerType';
 
 const SCREEN_PADDING = 8;
+const TAP_MOUSEDOWN_MS = 500;
 
 // The page can scroll down to a popover that runs past the bottom, never up past the top.
 const keepTopOnScreen: Middleware = {
@@ -71,13 +72,28 @@ const usePopover = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (popoverRef.current?.contains(target) || anchor?.contains(target)) return;
       setOpen(false);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    let lastTouch = -Infinity;
+    // iOS sends no mousedown for a tap; pointerup because a touch that scrolls ends in pointercancel.
+    const handleTouchEnd = (event: PointerEvent) => {
+      if (event.pointerType !== 'touch') return;
+      lastTouch = event.timeStamp;
+      handleClickOutside(event);
+    };
+    // Android follows a tap with a mousedown, which mustn't report closing twice.
+    const handleMouseDown = (event: MouseEvent) => {
+      if (event.timeStamp - lastTouch > TAP_MOUSEDOWN_MS) handleClickOutside(event);
+    };
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('pointerup', handleTouchEnd);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('pointerup', handleTouchEnd);
+    };
   }, [isOpen, anchor, setOpen]);
 
   useClaimEscape(isOpen, insidePicker);

@@ -40,9 +40,8 @@ const usePickerView = ({
   const pageAvailable = (start: number) =>
     Array.from({ length: YEARS_PER_PAGE }, (_, i) => start + i).some(yearAvailable);
   const pickerYearSpan = yearSpan(calendar, pickerYear);
-  const pageFirst = yearSpan(calendar, pageStart);
-  const pageLast = yearSpan(calendar, pageStart + YEARS_PER_PAGE - 1);
-  const pageSpan = pageFirst && pageLast ? [pageFirst[0], pageLast[1]] : null;
+  const pageSpans = pageYears.map((year) => yearSpan(calendar, year)).filter((span) => !!span);
+  const pageSpan = pageSpans.length ? [pageSpans[0][0], pageSpans[pageSpans.length - 1][1]] : null;
 
   const header =
     view === 'days'

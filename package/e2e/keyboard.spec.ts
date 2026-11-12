@@ -109,3 +109,25 @@ test.describe('Tab out of a portalled popover (P1)', () => {
     await expect(page.getByRole('combobox')).toBeFocused();
   });
 });
+
+test('Tab out of the popover closes it when nothing follows on the page', async ({ page }) => {
+  await page.goto('/?s=last-on-page');
+  const popover = page.locator('._patro_datepicker_popper');
+  await page.getByRole('grid').focus();
+  await expect(async () => {
+    await page.keyboard.press('Tab');
+    await expect(popover).toHaveCount(0, { timeout: 100 });
+  }).toPass();
+  await expect(page.getByRole('combobox')).toBeFocused();
+});
+
+test('Tab out of the popover moves on when a control follows', async ({ page }) => {
+  await page.goto('/?s=closed');
+  await page.getByRole('combobox').click();
+  await page.getByRole('grid').focus();
+  await expect(async () => {
+    await page.keyboard.press('Tab');
+    await expect(page.locator('#after')).toBeFocused({ timeout: 100 });
+  }).toPass();
+  await expect(page.locator('._patro_datepicker_popper')).toHaveCount(0);
+});

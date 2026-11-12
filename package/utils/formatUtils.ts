@@ -5,7 +5,13 @@ import {
   START_ENGLISH_DATE,
 } from '../constants/dateConstants';
 import { CalendarSystem, Locale, Numerals, PatroDate, PatroLabels } from '../types/public';
-import { adDateToLocalDate, createDateString, en2NpNumber, toLatinDigits } from './dateUtils';
+import {
+  adDateToLocalDate,
+  createDateString,
+  en2NpNumber,
+  toLatinDigits,
+  warnOnce,
+} from './dateUtils';
 import { ad2Bs, isValidAdDate } from './ad_utils/ad2bs';
 import { bs2Ad, isValidBsDate } from './bs_utils/bs2ad';
 
@@ -85,10 +91,18 @@ const WEEKDAYS = {
 };
 
 // Unset options mean each calendar uses its own language and digits (AD English, BS Nepali).
+// Plain JS can pass any string; an unknown one falls back to the calendar's own.
+const known = <T extends string>(value: T | undefined, name: string, allowed: T[]) => {
+  if (value === undefined || allowed.includes(value)) return value;
+  warnOnce(`${name}=${JSON.stringify(value)} isn't one of ${allowed.join(', ')}, so it's ignored.`);
+  return undefined;
+};
+
 const languageOf = (system: CalendarSystem, options: DisplayOptions): Locale =>
-  options.locale ?? (system === 'BS' ? 'ne' : 'en');
+  known(options.locale, 'locale', ['en', 'ne']) ?? (system === 'BS' ? 'ne' : 'en');
 const numeralsOf = (system: CalendarSystem, options: DisplayOptions): Numerals =>
-  options.numerals ?? (system === 'BS' ? 'devanagari' : 'latin');
+  known(options.numerals, 'numerals', ['latin', 'devanagari']) ??
+  (system === 'BS' ? 'devanagari' : 'latin');
 
 const otherSystem = (system: CalendarSystem): CalendarSystem => (system === 'AD' ? 'BS' : 'AD');
 
@@ -216,7 +230,15 @@ const labelsFor = (
   system: CalendarSystem,
   options: DisplayOptions,
   overrides?: Partial<PatroLabels>,
-): PatroLabels => ({ ...LABELS[languageOf(system, options)], ...overrides });
+): PatroLabels => {
+  const digits = (text: string) =>
+    numeralsOf(system, options) === 'devanagari' ? en2NpNumber(text) : toLatinDigits(text);
+  const defaults = Object.entries(LABELS[languageOf(system, options)]).map(([key, text]) => [
+    key,
+    digits(text),
+  ]);
+  return { ...(Object.fromEntries(defaults) as PatroLabels), ...overrides };
+};
 
 export {
   partsIn as datePartsIn,

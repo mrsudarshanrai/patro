@@ -1545,3 +1545,61 @@ describe('rc.2 consistency', () => {
 
   test('in range mode too', () => pickNextMonthDay(<Calendar today='2026-10-11' mode='range' />));
 });
+
+describe('1.0.2 fixes', () => {
+  test('a preset function is read again when it is clicked', async () => {
+    const user = userEvent.setup();
+    const onChange = jest.fn();
+    let day = '2026-10-05';
+    render(<Calendar onChange={onChange} presets={[{ label: 'Pick', value: () => day }]} />);
+    day = '2026-10-07';
+    await user.click(screen.getByRole('button', { name: 'Pick' }));
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ ad: '2026-10-07' }));
+  });
+
+  test('a maxDate after year 9999 limits nothing', () => {
+    const maxDate = new Date(2026, 0, 1);
+    maxDate.setFullYear(10000);
+    const { container } = render(<Calendar maxDate={maxDate} />);
+    expect(cell(container, '2026-10-29')).not.toHaveAttribute('aria-disabled', 'true');
+  });
+
+  test('a value after year 9999 opens on the last supported month', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const value = new Date(2026, 0, 1);
+    value.setFullYear(10000);
+    const { container } = render(<Calendar value={value} />);
+    expect(title(container)).toBe('April 2043');
+    warn.mockRestore();
+  });
+
+  test('the year page at the start of the BS table still has a subtitle', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<Calendar calendar='BS' defaultValue='1921-06-01' />);
+    const titleButton = () => screen.getByRole('button', { name: /छान्नुहोस्/ });
+    await user.click(titleButton());
+    await user.click(titleButton());
+    expect(container.querySelector('._patro_header_subtitle')?.textContent).toBe(
+      'Apr 1921 – Apr 1923',
+    );
+  });
+
+  test('an unknown locale or numerals from plain JS warns and falls back', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const props = { locale: 'fr', numerals: 'roman' } as unknown as CalendarBaseProps;
+    const { container } = render(<Calendar calendar='BS' defaultValue={TODAY} {...props} />);
+    expect(title(container)).toBe('कार्तिक २०८३');
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/locale="fr"/));
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/numerals="roman"/));
+    warn.mockRestore();
+  });
+
+  test('numbers in the default button names follow numerals', async () => {
+    const user = userEvent.setup();
+    render(<Calendar calendar='BS' numerals='latin' defaultValue={TODAY} />);
+    const titleButton = () => screen.getByRole('button', { name: /छान्नुहोस्/ });
+    await user.click(titleButton());
+    await user.click(titleButton());
+    expect(screen.getByRole('button', { name: 'अघिल्लो 12 वर्ष' })).toBeInTheDocument();
+  });
+});

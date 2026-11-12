@@ -120,3 +120,28 @@ test('opening from the keyboard focuses the day grid', async ({ page }) => {
   await expect(page.getByRole('grid')).toBeFocused();
   await expect(page.locator('._patro_datepicker_popper')).toHaveCSS('opacity', '1');
 });
+
+test.describe('touch', () => {
+  test.use({ hasTouch: true });
+  test.skip(({ browserName }) => browserName === 'firefox', 'no touch emulation');
+
+  test('a tap outside closes the popover even without mousedown, as on iOS', async ({ page }) => {
+    await page.addInitScript(() => {
+      window.addEventListener('mousedown', (event) => event.stopImmediatePropagation(), true);
+    });
+    await page.goto('/?s=closed');
+    await page.getByRole('combobox').tap();
+    const popover = page.locator('._patro_datepicker_popper');
+    await expect(popover).toBeVisible();
+
+    await page.touchscreen.tap(1000, 700);
+    await expect(popover).toHaveCount(0);
+  });
+
+  test('a tap inside the popover keeps it open', async ({ page }) => {
+    await page.goto('/?s=closed');
+    await page.getByRole('combobox').tap();
+    await page.getByRole('button', { name: 'Next month' }).tap();
+    await expect(page.locator('._patro_datepicker_popper')).toBeVisible();
+  });
+});

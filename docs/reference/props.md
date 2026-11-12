@@ -28,7 +28,7 @@
 | `labels` | `Partial<PatroLabels>` | display language | Override accessible names and button text (`previousMonth`, `nextMonth`, `today`, `chooseDate`, `clear`, …). Defaults follow `locale`: English or Nepali. |
 | `autoFocus` | `boolean` | `false` | Focus the day grid on mount. On `Datepicker` it focuses the input instead. |
 | `className` | `string` | - | Added to the root element. |
-| `style` | `CSSProperties` | - | Inline styles on the root, including `--patro-*` token overrides. |
+| `style` | `CSSProperties` | - | Inline styles on the root, including `--patro-*` token overrides. On a `Datepicker`, the tokens also reach its calendar. |
 | `theme` | `'light' \| 'dark'` | - | Sets `data-theme` on the component root. See [Theming](../guide/theming). |
 | `minDate` | `DateInput` | - | Earliest selectable day. Earlier days are disabled and navigation stops there. |
 | `maxDate` | `DateInput` | - | Latest selectable day. |
@@ -51,9 +51,9 @@ Picking an end that breaks one starts a new range there. See [Date ranges](../gu
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `label` | `string` | - | Text shown above the input, linked to it for screen readers. |
-| `placeholder` | `string` | `'Select a date'` / `'मिति छान्नुहोस्'` | Shown when there's no value. |
+| `placeholder` | `string` | `'Select a date'` / `'मिति छान्नुहोस्'` | Shown when there's no value. Range mode defaults to `'Select dates'` / `'मितिहरू छान्नुहोस्'`, and `editable` to `'YYYY-MM-DD'`. |
 | `formatValue` | `(value: PatroDate) => string` | - | Custom input text, e.g. `({ bs }) => bs`. |
-| `editable` | `boolean` | `false` | Let people type the date too, in the displayed calendar: `2083-07-12`, `2083/7/12`, Latin or Devanagari digits. Committed on Enter or when leaving the field; text that isn't an allowed date is marked invalid on Enter and reverts on leave. ArrowDown opens the calendar. Single mode only; `formatValue` isn't used while editable. |
+| `editable` | `boolean` | `false` | Let people type the date too, in the displayed calendar: `2083-07-12`, `2083/7/12`, Latin or Devanagari digits. Committed on Enter or when leaving the field; text that isn't an allowed date is marked invalid on Enter and reverts on leave. Clicking the text, ArrowDown or the calendar button opens the calendar. Single mode only; `formatValue` isn't used while editable. |
 | `clearable` | `boolean` | `false` | Show a button that clears the value (`onChange(null)`). |
 | `disabled` | `boolean` | `false` | Can't be focused or opened. |
 | `readOnly` | `boolean` | `false` | Focusable, but can't be opened or changed. |

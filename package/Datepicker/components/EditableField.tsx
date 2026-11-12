@@ -73,7 +73,10 @@ const EditableField = ({
       aria-expanded={isOpen}
       aria-controls={isOpen ? popoverId : undefined}
       disabled={disabled || readOnly}
-      onClick={() => onToggle(false)}
+      onClick={(event) => {
+        event.currentTarget.focus({ preventScroll: true });
+        onToggle(false);
+      }}
     >
       {icons.calendarIcon}
     </button>

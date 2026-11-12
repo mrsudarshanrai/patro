@@ -45,7 +45,7 @@ const ComboboxField = ({
         .filter(Boolean)
         .join(' ')}
       role='combobox'
-      tabIndex={disabled ? -1 : 0}
+      tabIndex={disabled ? undefined : 0}
       {...attributes}
       {...aria}
       aria-disabled={disabled || undefined}

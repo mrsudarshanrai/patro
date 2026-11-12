@@ -69,8 +69,11 @@ const isSupportedAdDate = (adDate: string) => adDate >= START_ENGLISH_DATE && ad
 const clampAdDate = (adDate: string, min = START_ENGLISH_DATE, max = MAX_AD_DATE) =>
   adDate < min ? min : adDate > max ? max : adDate;
 
+// AD strings compare as text, which only orders 4-digit years; any day past 9999 acts as its end.
 const toAdDateString = (date: Date) =>
-  createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
+  date.getFullYear() > 9999
+    ? '9999-12-31'
+    : createDateString(date.getFullYear(), date.getMonth() + 1, date.getDate());
 
 const warned = new Set<string>();
 const warnOnce = (message: string) => {
@@ -158,4 +161,5 @@ export {
   supportedAdRange,
   en2NpNumber,
   remove1stZero,
+  warnOnce,
 };

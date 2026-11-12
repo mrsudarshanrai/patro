@@ -1,4 +1,11 @@
-import type { ChangeEvent, FocusEvent, HTMLAttributes, KeyboardEvent, ReactNode } from 'react';
+import type {
+  ChangeEvent,
+  FocusEvent,
+  HTMLAttributes,
+  KeyboardEvent,
+  ReactNode,
+  RefObject,
+} from 'react';
 import type { DisplayOptions } from '../utils';
 import type { DataAttributes } from '../shared/dataAttributes';
 import type { CalendarBaseProps } from '../Calendar/CalendarType';
@@ -14,7 +21,7 @@ import type {
 
 export interface DatepickerBaseProps extends CalendarBaseProps {
   label?: string;
-  /** Shown when there's no value. Defaults to 'Select a date' / 'मिति छान्नुहोस्'. */
+  /** Shown when there's no value. Defaults to 'Select a date' / 'मिति छान्नुहोस्', 'Select dates' in range mode, 'YYYY-MM-DD' when editable. */
   placeholder?: string;
   disabled?: boolean;
   /** Focusable and shows its value, but can't be opened or changed. */
@@ -119,6 +126,7 @@ export interface UseTypedDateOptions {
   setOpen: (open: boolean) => void;
   openFromKeyboard: () => void;
   onBlur: ((event: FocusEvent<HTMLElement>) => void) | undefined;
+  rootRef: RefObject<HTMLElement | null>;
 }
 
 export interface ComboboxAriaProps {

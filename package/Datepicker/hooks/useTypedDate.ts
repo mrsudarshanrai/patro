@@ -1,4 +1,5 @@
-import { ChangeEvent, FocusEvent, KeyboardEvent, useState } from 'react';
+import { ChangeEvent, FocusEvent, KeyboardEvent, useCallback, useState } from 'react';
+import { useClaimEscape } from '../../hooks/useClaimEscape';
 import { parseInputDate, toInputAdDate, toPatroDate } from '../../utils';
 import type { UseTypedDateOptions } from '../DatepickerType';
 
@@ -13,6 +14,7 @@ const useTypedDate = ({
   setOpen,
   openFromKeyboard,
   onBlur,
+  rootRef,
 }: UseTypedDateOptions) => {
   const [draft, setDraft] = useState<string | null>(null);
   const [typedInvalid, setTypedInvalid] = useState(false);
@@ -23,6 +25,10 @@ const useTypedDate = ({
     setDraft(null);
     setTypedInvalid(false);
   }
+
+  // Escape that only discards half-typed text mustn't also close a surrounding dialog.
+  const insideRoot = useCallback((node: Node) => !!rootRef.current?.contains(node), [rootRef]);
+  useClaimEscape(draft !== null, insideRoot);
 
   const minAdDate = toInputAdDate(minDate);
   const maxAdDate = toInputAdDate(maxDate);

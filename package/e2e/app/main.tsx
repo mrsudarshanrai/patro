@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { CSSProperties, ReactElement, useEffect, useState } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { Dialog as HeadlessDialog, DialogPanel } from '@headlessui/react';
@@ -16,6 +16,7 @@ const Picker = (props: DatepickerSingleProps) => (
 const DialogPicker = ({ container }: { container: Element | null }) => (
   <Picker
     defaultOpen={!params.has('closed')}
+    editable={params.has('editable')}
     {...(params.has('container') && { portalContainer: container })}
   />
 );
@@ -150,10 +151,33 @@ const scenarios: Record<string, () => ReactElement> = {
       </button>
     </div>
   ),
+  'last-on-page': () => <Picker />,
   'native-dialog': NativeDialog,
   'radix-dialog': RadixHost,
   'headless-dialog': HeadlessHost,
   'host-page': HostPage,
+  themes: () => (
+    <div data-theme='dark'>
+      <Calendar className='light-in-dark' theme='light' />
+      <Calendar className='follows-dark' />
+      <Datepicker className='picker-in-dark' theme='light' defaultOpen />
+    </div>
+  ),
+  'field-tokens': () => (
+    <>
+      <Datepicker
+        className='inline-picker'
+        defaultOpen
+        style={{ '--patro-accent': 'rgb(1, 2, 3)' } as CSSProperties}
+      />
+      <Datepicker
+        className='portal-picker'
+        portal
+        defaultOpen
+        style={{ '--patro-accent': 'rgb(4, 5, 6)' } as CSSProperties}
+      />
+    </>
+  ),
   calendar: () => (
     <Calendar
       calendar={(params.get('calendar') as 'AD' | 'BS') ?? 'AD'}

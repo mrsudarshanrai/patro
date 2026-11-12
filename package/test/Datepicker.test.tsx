@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import '@testing-library/jest-dom';
-import { createRef } from 'react';
-import { render, screen } from '@testing-library/react';
+import { createRef, type CSSProperties } from 'react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Calendar } from '../Calendar';
 import { Datepicker } from '../Datepicker';
@@ -203,9 +203,43 @@ describe('behaviour and forms', () => {
   test('disabled cannot be focused or opened', async () => {
     const { user, input } = setup({ disabled: true });
     expect(input).toHaveAttribute('aria-disabled', 'true');
-    expect(input).toHaveAttribute('tabindex', '-1');
+    expect(input).not.toHaveAttribute('tabindex');
     await user.click(input);
+    expect(input).not.toHaveFocus();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  test('a touch outside reports closing once, though a mousedown follows it', async () => {
+    const onOpenChange = jest.fn();
+    setup({ defaultOpen: true, onOpenChange });
+    const touchEnd = Object.assign(new MouseEvent('pointerup', { bubbles: true }), {
+      pointerType: 'touch',
+    });
+    act(() => {
+      document.body.dispatchEvent(touchEnd);
+      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(onOpenChange.mock.calls).toEqual([[false]]);
+  });
+
+  test('a mouse pointerup outside does nothing by itself', () => {
+    const onOpenChange = jest.fn();
+    setup({ defaultOpen: true, onOpenChange });
+    const mouseUp = Object.assign(new MouseEvent('pointerup', { bubbles: true }), {
+      pointerType: 'mouse',
+    });
+    act(() => {
+      document.body.dispatchEvent(mouseUp);
+    });
+    expect(onOpenChange).not.toHaveBeenCalled();
+  });
+
+  test('disabled takes no focus from autoFocus and fires no onFocus', async () => {
+    const onFocus = jest.fn();
+    const { user, input } = setup({ disabled: true, autoFocus: true, onFocus });
+    await user.click(input);
+    expect(input).not.toHaveFocus();
+    expect(onFocus).not.toHaveBeenCalled();
   });
 
   test('readOnly is focusable but cannot be opened', async () => {
@@ -339,6 +373,16 @@ test('className and style go on the Datepicker root only', async () => {
 
   await user.click(input);
   expect(container.querySelector('._patro_container')).not.toHaveClass('my-picker');
+});
+
+test('style tokens reach the calendar, other styles stay on the root', async () => {
+  const { user, input, container } = setup({
+    style: { width: 320, '--patro-accent': 'teal' } as CSSProperties,
+  });
+  await user.click(input);
+  const calendar = container.querySelector('._patro_container') as HTMLElement;
+  expect(calendar.style.getPropertyValue('--patro-accent')).toBe('teal');
+  expect(calendar.style.width).toBe('');
 });
 
 describe('range mode', () => {

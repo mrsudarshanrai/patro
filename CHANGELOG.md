@@ -1,5 +1,30 @@
 # Changelog
 
+## 1.0.2 (2026-11-12)
+
+### Fixed
+
+- `theme='light'` keeps a component light inside a dark ancestor. Before, `data-theme='dark'` on a parent won.
+- On a `Datepicker`, `--patro-*` tokens in `style` now reach its calendar too, including in a portal. Other styles stay on the field.
+- In a dialog, Escape that only discards a half-typed date in an `editable` field no longer closes the dialog, and clicking the calendar's padding no longer passes Escape on to it.
+- Tab from an open popover with nothing focusable after it on the page closes the popover and keeps focus on the field.
+- Tapping outside closes the popover on iOS, which sends no `mousedown` for a tap. A touch that scrolls the page keeps it open.
+- Safari and iOS focus the calendar's buttons when they're clicked, so Escape after Next month closes only the popover.
+- A `disabled` `Datepicker` field can't be focused by a click or `autoFocus` and doesn't fire `onFocus`. Tab already skipped it.
+- Preset functions are read again when clicked, as documented, not only when the buttons render.
+- A `Date` after year 9999 counts as past the end of the supported range. Such a `maxDate` no longer disables every day, and such a `value` opens on April 2043 instead of April 1921.
+- The year page at the start of the BS table shows a subtitle for the years it covers instead of none.
+- An unknown `locale` or `numerals` from plain JavaScript logs a development warning and uses the calendar's default, instead of crashing.
+- Numbers in the default button names follow `numerals`, e.g. `अघिल्लो 12 वर्ष` with `numerals='latin'`.
+
+### Docs
+
+- Default placeholders for range mode (`Select dates`) and `editable` (`YYYY-MM-DD`).
+- Clicking the text of an `editable` field opens the calendar.
+- A marked day's accessible name is in the calendar's language: with `calendar='BS'`, `४ कार्तिक २०८३, २१ अक्टोबर २०२६, …`.
+- The `formatBsDate` weekday example: BS 2083-06-25 is a Sunday (`आइतवार`).
+- Days a time zone skipped, such as 2011-12-30 in `Pacific/Apia`, can't be selected there; `picked.ad` and `picked.bs` stay correct.
+
 ## 1.0.1 (2026-11-04)
 
 ### Fixed

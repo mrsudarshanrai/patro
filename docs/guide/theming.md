@@ -10,6 +10,8 @@ Dark is an explicit opt-in, not automatic (it does **not** follow `prefers-color
 <Calendar theme='dark' />
 ```
 
+`theme='light'` keeps one component light inside a dark ancestor.
+
 ```css
 /* equivalent, e.g. if your app's own theme system sets this on <html> */
 [data-theme='dark'] { }
@@ -17,7 +19,7 @@ Dark is an explicit opt-in, not automatic (it does **not** follow `prefers-color
 
 ## Overriding individual tokens
 
-Any token can be overridden per instance via `style`, or globally via your own CSS targeting `._patro`. Set tokens on `._patro` itself: the component defines every token there, so a value set on `:root` or another ancestor never reaches it.
+Any token can be overridden per instance via `style`, or globally via your own CSS targeting `._patro`. Set tokens on `._patro` itself: the component defines every token there, so a value set on `:root` or another ancestor never reaches it. On a `Datepicker`, tokens in `style` reach both the field and its calendar, even in a portal; the rest of `style` stays on the field.
 
 ```tsx
 <Calendar style={{ '--patro-accent': 'teal' } as React.CSSProperties} />
